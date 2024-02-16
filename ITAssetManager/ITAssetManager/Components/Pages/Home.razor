@@ -1,0 +1,52 @@
+﻿@page "/"
+@using Blazorise
+@attribute [StreamRendering(true)]
+
+@implements IDisposable
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject FilterService FilterService
+
+<LayoutTemplate Header="정보화자산관리">
+    <DataGrid TItem="CommonAsset"
+              Data="@_assets"
+              @bind-SelectedRow="@_selectedAsset"
+              RowStyling='(x, y) => y.Style = "height: 50px;"'
+              Virtualize="true"
+              VirtualizeOptions="@(new() { DataGridHeight = "100%", DataGridMaxHeight = "100%" })"
+              Responsive="true">
+        <DataGridCommandColumn />
+        <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" />
+        <DataGridColumn Field="@nameof(CommonAsset.AssetTag)" Caption="자산분류" Editable="true" />
+        <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" />
+        <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" />
+        <DataGridColumn Field="@nameof(CommonAsset.Manufacturer)" Caption="제조사" Editable="true" />
+        <DataGridColumn Field="@nameof(CommonAsset.Model)" Caption="모델명" Editable="true" />
+    </DataGrid>
+</LayoutTemplate>
+
+@code {
+    private ObservableCollection<CommonAsset>? _assets;
+    private CommonAsset? _selectedAsset;
+    private ApplicationDbContext? _context { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        FilterService.Loading = true;
+        try
+        {
+            _context = DbFactory.CreateDbContext();
+            _assets = new ObservableCollection<CommonAsset>(await _context.CommonAssets.ToListAsync());
+        }
+        finally
+        {
+            FilterService.Loading = false;
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        _context?.Dispose();
+    }
+}

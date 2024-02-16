@@ -1,0 +1,28 @@
+﻿@using Blazorise
+@inject FilterService FilterService
+
+<PageTitle>@Header</PageTitle>
+
+<Layout Sider="true" Loading="FilterService.Loading">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <NavMenu />
+        </LayoutSiderContent>
+    </LayoutSider>
+    <Layout Padding="Padding.Is3.OnAll">
+        <LayoutHeader Fixed="true">
+            <Heading Size="HeadingSize.Is3">@Header</Heading>
+        </LayoutHeader>
+        <LayoutContent>
+            @ChildContent
+        </LayoutContent>
+    </Layout>
+</Layout>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Header { get; set; }
+}
