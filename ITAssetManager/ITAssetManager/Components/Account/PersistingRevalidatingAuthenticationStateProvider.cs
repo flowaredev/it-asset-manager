@@ -1,5 +1,5 @@
 using ITAssetManager.Client;
-using ITAssetManager.Data;
+using ITAssetManagerLibrary.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

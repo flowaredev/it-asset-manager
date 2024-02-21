@@ -1,4 +1,4 @@
-using ITAssetManager.Data;
+using ITAssetManagerLibrary.Data;
 using Microsoft.AspNetCore.Identity;
 
 namespace ITAssetManager.Components.Account

@@ -1,0 +1,97 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<Bar Mode="BarMode.VerticalInline"
+     CollapseMode="BarCollapseMode.Small"
+     Breakpoint="Breakpoint.Desktop"
+     NavigationBreakpoint="Breakpoint.Tablet">
+    <BarToggler />
+    <BarBrand>
+        <BarItem>
+            <BarLink To="/" Match="Match.All" TextWeight="TextWeight.Bold">
+                <Image Source="_content/ITAssetManagerComponents/images/brand.png" Text="굿모닝아이텍" Width="Width.Px(25)" Margin="Margin.Is1" />
+                굿모닝아이텍(주)
+            </BarLink>
+        </BarItem>
+    </BarBrand>
+    <BarMenu>
+        <BarStart>
+            <BarItem>
+                <BarLink To="/" Match="Match.All">
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
+                    Home
+                </BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink To="counter">
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Square" />
+                    Counter
+                </BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink To="auth">
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Lock" />
+                    Auth Required
+                </BarLink>
+            </BarItem>
+
+            <AuthorizeView>
+                <Authorized>
+                    <BarItem>
+                        <BarLink To="Account/Manage">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
+                            @context.User.Identity?.Name
+                        </BarLink>
+                    </BarItem>
+                    <BarItem>
+                        <form action="Account/Logout" method="post">
+                            <AntiforgeryToken />
+                            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                            <Button Type="ButtonType.Submit">
+                                <Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignOutAlt" />
+                                Logout
+                            </Button>
+                        </form>
+                    </BarItem>
+                </Authorized>
+                <NotAuthorized>
+                    <BarItem>
+                        <BarLink To="Account/Register">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserPlus" />
+                            Register
+                        </BarLink>
+                    </BarItem>
+                    <BarItem>
+                        <BarLink To="Account/Login">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
+                            Login
+                        </BarLink>
+                    </BarItem>
+                </NotAuthorized>
+            </AuthorizeView>
+
+        </BarStart>
+    </BarMenu>
+</Bar>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+

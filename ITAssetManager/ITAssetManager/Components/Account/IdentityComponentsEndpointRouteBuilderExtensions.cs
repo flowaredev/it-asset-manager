@@ -1,6 +1,6 @@
 using ITAssetManager.Components.Account.Pages;
 using ITAssetManager.Components.Account.Pages.Manage;
-using ITAssetManager.Data;
+using ITAssetManagerLibrary.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

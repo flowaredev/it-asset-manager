@@ -1,7 +1,5 @@
-using ITAssetManager.Client.Pages;
 using ITAssetManager.Components;
 using ITAssetManager.Components.Account;
-using ITAssetManager.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Blazorise;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.Bootstrap5;
-using ITAssetManager.Services;
+using ITAssetManagerLibrary.Data;
+using ITAssetManagerLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
