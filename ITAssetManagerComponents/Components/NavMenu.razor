@@ -1,8 +1,11 @@
 ﻿@implements IDisposable
 @inject NavigationManager NavigationManager
+@inject AntiforgeryStateProvider Antiforgery
 
 <Bar Mode="BarMode.VerticalInline"
      CollapseMode="BarCollapseMode.Small"
+     Background="Background.Dark"
+     ThemeContrast="ThemeContrast.Dark"
      Breakpoint="Breakpoint.Desktop"
      NavigationBreakpoint="Breakpoint.Tablet">
     <BarToggler />
@@ -19,22 +22,9 @@
             <BarItem>
                 <BarLink To="/" Match="Match.All">
                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
-                    Home
+                    자산관리
                 </BarLink>
             </BarItem>
-            <BarItem>
-                <BarLink To="counter">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Square" />
-                    Counter
-                </BarLink>
-            </BarItem>
-            <BarItem>
-                <BarLink To="auth">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Lock" />
-                    Auth Required
-                </BarLink>
-            </BarItem>
-
             <AuthorizeView>
                 <Authorized>
                     <BarItem>
@@ -43,28 +33,29 @@
                             @context.User.Identity?.Name
                         </BarLink>
                     </BarItem>
-                    <BarItem>
-                        <form action="Account/Logout" method="post">
-                            <AntiforgeryToken />
-                            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <Button Type="ButtonType.Submit">
+
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <BarItem>
+                            <Button Type="ButtonType.Submit" Class="b-bar-link" TextAlignment="TextAlignment.Start">
                                 <Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignOutAlt" />
-                                Logout
+                                로그아웃
                             </Button>
-                        </form>
-                    </BarItem>
+                        </BarItem>
+                    </form>
                 </Authorized>
                 <NotAuthorized>
                     <BarItem>
                         <BarLink To="Account/Register">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserPlus" />
-                            Register
+                            회원가입
                         </BarLink>
                     </BarItem>
                     <BarItem>
                         <BarLink To="Account/Login">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
-                            Login
+                            로그인
                         </BarLink>
                     </BarItem>
                 </NotAuthorized>

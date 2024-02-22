@@ -9,10 +9,10 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Two-factor authentication (2FA)</PageTitle>
+<PageTitle>이중 인증 (2FA)</PageTitle>
 
 <StatusMessage />
-<h3>Two-factor authentication (2FA)</h3>
+<h3>이중 인증 (2FA)</h3>
 @if (canTrack)
 {
     if (is2faEnabled)
@@ -51,22 +51,22 @@
         <a href="Account/Manage/GenerateRecoveryCodes" class="btn btn-primary">Reset recovery codes</a>
     }
 
-    <h4>Authenticator app</h4>
+    <h4>인증 앱</h4>
     @if (!hasAuthenticator)
     {
-        <a href="Account/Manage/EnableAuthenticator" class="btn btn-primary">Add authenticator app</a>
+        <a href="Account/Manage/EnableAuthenticator" class="btn btn-primary">인증 앱 추가</a>
     }
     else
     {
-        <a href="Account/Manage/EnableAuthenticator" class="btn btn-primary">Set up authenticator app</a>
-        <a href="Account/Manage/ResetAuthenticator" class="btn btn-primary">Reset authenticator app</a>
+        <a href="Account/Manage/EnableAuthenticator" class="btn btn-primary">인증 앱 설정</a>
+        <a href="Account/Manage/ResetAuthenticator" class="btn btn-primary">인증 앱 초기화</a>
     }
 }
 else
 {
     <div class="alert alert-danger">
-        <strong>Privacy and cookie policy have not been accepted.</strong>
-        <p>You must accept the policy before you can enable two factor authentication.</p>
+        <strong>개인 정보 보호 및 쿠키 정책이 수락되지 않았습니다.</strong>
+        <p>2단계 인증을 활성화하려면 먼저 정책을 수락해야 합니다.</p>
     </div>
 }
 

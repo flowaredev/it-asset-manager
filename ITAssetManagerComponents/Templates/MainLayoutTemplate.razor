@@ -1,9 +1,9 @@
-﻿@inherits LayoutComponentBase
-@inject IHostEnvironment HostEnvironment
+﻿@inject IHostEnvironment HostEnvironment
 
 <HeadContent>
     <link href="_content/ITAssetManagerComponents/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="_content/ITAssetManagerComponents/lib/fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="_content/ITAssetManagerComponents/ITAssetManagerComponents.bundle.scp.css" rel="stylesheet">
     <link href="_content/Blazorise/blazorise.css" rel="stylesheet" />
     <link href="_content/Blazorise.Bootstrap5/blazorise.bootstrap5.css" rel="stylesheet" />
     <link href="_content/Blazorise.SpinKit/blazorise.spinkit.css" rel="stylesheet" />
@@ -13,7 +13,7 @@
     <Layout Sider="true">
         <LayoutSider>
             <LayoutSiderContent>
-                <SectionOutlet SectionId="SidebarSection" />
+                @SidebarContent
             </LayoutSiderContent>
         </LayoutSider>
         <Layout Padding="Padding.Is3.OnAll">
@@ -23,7 +23,7 @@
                 </Heading>
             </LayoutHeader>
             <LayoutContent>
-                @Body
+                @ChildContent
             </LayoutContent>
         </Layout>
     </Layout>
@@ -51,11 +51,17 @@
 <script src="_content/ITAssetManagerComponents/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 @code {
-    public static object SidebarSection = new();
     public static object HeadbarSection = new();
 
     private Theme theme = new Theme
-        {
-            IsGradient = true
-        };
+    {
+
+    };
+
+    [Parameter]
+    public RenderFragment? SidebarContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
 }

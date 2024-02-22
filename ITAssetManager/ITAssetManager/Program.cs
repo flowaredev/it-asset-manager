@@ -45,7 +45,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-builder.Services.AddScoped<FilterService>();
 
 builder.Services
     .AddBlazorise(options =>
@@ -54,6 +53,8 @@ builder.Services
     })
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
+
+builder.Services.AddScoped<FilterService>();
 
 var app = builder.Build();
 
