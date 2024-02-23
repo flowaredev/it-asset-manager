@@ -1,115 +1,50 @@
-﻿@implements IDisposable
-@inject IDbContextFactory<ApplicationDbContext> DbFactory
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<DataGrid TItem="CommonAsset"
-          Data="@_assets"
-          ReadData="@OnReadData"
-          TotalItems="_totalAssets"
-          @bind-SelectedRow="@_selectedAsset"
-          RowStyling='(x, y) => y.Style = "height: 50px;"'
-          Virtualize="true"
-          VirtualizeOptions="@(new() { DataGridHeight = "100%", DataGridMaxHeight = "100%" })"
-          Editable="true"
-          UseValidation="true"
-          Responsive="true">
-    <DataGridColumns>
-        <DataGridCommandColumn>
-            <NewCommandTemplate>
-                <Button Color="Color.Success" Clicked="@context.Clicked">추가</Button>
-            </NewCommandTemplate>
-            <EditCommandTemplate>
-                <Button Color="Color.Primary" Clicked="@context.Clicked">수정</Button>
-            </EditCommandTemplate>
-            <DeleteCommandTemplate>
-                <Button Color="Color.Danger" Clicked="@context.Clicked">삭제</Button>
-            </DeleteCommandTemplate>
-            <SaveCommandTemplate>
-                <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Success" Clicked="@(() => SaveAsset(context))">저장</Button>
-            </SaveCommandTemplate>
-            <CancelCommandTemplate>
-                <Button Color="Color.Danger" Clicked="@context.Clicked">취소</Button>
-            </CancelCommandTemplate>
-        </DataGridCommandColumn>
-        <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" />
-        <DataGridColumn Field="@nameof(CommonAsset.AssetTag)" Caption="자산분류" Editable="true" />
-        <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" />
-        <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" />
-        <DataGridColumn Field="@nameof(CommonAsset.Manufacturer)" Caption="제조사" Editable="true" />
-        <DataGridColumn Field="@nameof(CommonAsset.Model)" Caption="모델명" Editable="true" />
-        <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" DisplayFormat="{0:yyyy-MM-dd}" />
-    </DataGridColumns>
-    <EmptyTemplate>
-        <Alert Color="Color.Info" Visible="true">
-            <AlertMessage>등록된 자산이 없습니다.</AlertMessage>
-        </Alert>
-    </EmptyTemplate>
-</DataGrid>
+<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@UpdateItems" OnSaveItem="SaveItem">
+    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" />
+    <DataGridColumn Field="@nameof(CommonAsset.AssetTag)" Caption="자산분류" Editable="true" />
+    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" />
+    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" />
+    <DataGridColumn Field="@nameof(CommonAsset.Manufacturer)" Caption="제조사" Editable="true" />
+    <DataGridColumn Field="@nameof(CommonAsset.Model)" Caption="모델명" Editable="true" />
+    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" DisplayFormat="{0:yyyy-MM-dd}" />
+</BaseDataGrid>
 
 @code {
-    private ObservableCollection<CommonAsset>? _assets;
-    private CommonAsset? _selectedAsset;
-    private ApplicationDbContext? _context { get; set; }
-    private int _totalAssets;
 
-    protected override async Task OnInitializedAsync()
+    private UpdateItemsEventResult<CommonAsset> UpdateItems(UpdateItemsEventArgs args)
     {
-        _context = DbFactory.CreateDbContext();
-        _assets = new ObservableCollection<CommonAsset>(await _context.CommonAssets.ToListAsync());
-        await base.OnInitializedAsync();
+        using var context = DbFactory.CreateDbContext();
+        var items = context.CommonAssets
+            .OrderByDescending(x => x.Id)
+            .Skip(args.SkipCount)
+            .Take(args.TakeCount)
+            .ToList();
+
+        return new UpdateItemsEventResult<CommonAsset>
+            {
+                TotalItems = context.CommonAssets.Count(),
+                Items = items
+            };
     }
 
-    private async Task OnReadData(DataGridReadDataEventArgs<CommonAsset> e)
+    private async Task SaveItem(SaveItemEventArgs<CommonAsset> args)
     {
-        if (!e.CancellationToken.IsCancellationRequested)
+        Debug.Assert(args.Item.Manufacturer != null);
+
+        using var context = DbFactory.CreateDbContext();
+
+        if (args.Item.Id == 0)
         {
-            List<CommonAsset> response;
-            var skipCount = 0;
-            var takeCount = 0;
-
-            if (e.ReadDataMode is DataGridReadDataMode.Virtualize)
-            {
-                skipCount = e.VirtualizeOffset;
-                takeCount = e.VirtualizeCount;
-            }            
-            else if (e.ReadDataMode is DataGridReadDataMode.Paging)
-            {
-                skipCount = (e.Page - 1) * e.PageSize;
-                takeCount = e.PageSize;
-            }
-            else
-                throw new Exception("Unhandled ReadDataMode");
-
-            if (!e.CancellationToken.IsCancellationRequested)
-            {
-                response = await _context!.CommonAssets
-                    .Skip(skipCount)
-                    .Take(takeCount)
-                    .ToListAsync();
-
-                _totalAssets = await _context!.CommonAssets.CountAsync();
-                _assets = new ObservableCollection<CommonAsset>(response);
-            }
-        }
-    }
-
-    private async Task SaveAsset(CommandContext<CommonAsset> context)
-    {
-        await context.Clicked.InvokeAsync();
-        var newItem = context.Item;
-        if (newItem.Id == 0)
-        {
-            _context!.CommonAssets.Add(newItem);
+            args.Item.Id = 0;
+            await context.CommonAssets.AddAsync(args.Item);
         }
         else
         {
-            _context!.CommonAssets.Update(newItem);
+            context.CommonAssets.Update(args.Item);
         }
 
-        await _context!.SaveChangesAsync();
-    }
-
-    public void Dispose()
-    {
-        _context?.Dispose();
+        await context.SaveChangesAsync();
     }
 }
+

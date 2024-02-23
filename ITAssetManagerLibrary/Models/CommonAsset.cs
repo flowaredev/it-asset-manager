@@ -25,7 +25,7 @@ namespace ITAssetManagerLibrary.Models
         public required string Model { get; set; }
 
         [Required]
-        public DateTime ApplyDateTime { get; set; }
+        public DateTime ApplyDateTime { get; set; } = DateTime.Now;
 
         [Timestamp]
         public required byte[] Version { get; set; }

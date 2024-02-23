@@ -1,0 +1,102 @@
+﻿@attribute [CascadingTypeParameter(nameof(TItem))]
+@typeparam TItem
+
+<DataGrid TItem="TItem"
+          Data="@_items"
+          ReadData="@OnReadData"
+          TotalItems="_totalItems"
+          @bind-SelectedRow="@_selectedItem"
+          RowStyling='(x, y) => y.Style = "height: 50px;"'
+          Virtualize="true"
+          VirtualizeOptions="@(new() { DataGridHeight = "100%", DataGridMaxHeight = "100%" })"
+          Editable="true"
+          UseValidation="true"
+          Responsive="true">
+    <DataGridColumns>
+        <DataGridCommandColumn>
+            <NewCommandTemplate>
+                <Button Color="Color.Success" Clicked="@context.Clicked">추가</Button>
+            </NewCommandTemplate>
+            <EditCommandTemplate>
+                <Button Color="Color.Primary" Clicked="@context.Clicked">수정</Button>
+            </EditCommandTemplate>
+            <DeleteCommandTemplate>
+                <Button Color="Color.Danger" Clicked="@context.Clicked">삭제</Button>
+            </DeleteCommandTemplate>
+            <SaveCommandTemplate>
+                <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Success" Clicked="@(async () => await SaveAsset(context))">저장</Button>
+            </SaveCommandTemplate>
+            <CancelCommandTemplate>
+                <Button Color="Color.Danger" Clicked="@context.Clicked">취소</Button>
+            </CancelCommandTemplate>
+        </DataGridCommandColumn>
+        @ChildContent
+    </DataGridColumns>
+    <EmptyTemplate>
+        <Alert Color="Color.Info" Visible="true">
+            <AlertMessage>등록된 자료가 없습니다.</AlertMessage>
+        </Alert>
+    </EmptyTemplate>
+</DataGrid>
+
+@code {
+    private ObservableCollection<TItem>? _items;
+    private TItem? _selectedItem;
+    private int _totalItems;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<UpdateItemsEventArgs, UpdateItemsEventResult<TItem>> OnUpdateItems { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<SaveItemEventArgs<TItem>, Task> OnSaveItem { get; set; }
+
+    private void OnReadData(DataGridReadDataEventArgs<TItem> e)
+    {
+        if (!e.CancellationToken.IsCancellationRequested)
+        {
+            List<TItem> response = new();
+            var skipCount = 0;
+            var takeCount = 0;
+
+            if (e.ReadDataMode is DataGridReadDataMode.Virtualize)
+            {
+                skipCount = e.VirtualizeOffset;
+                takeCount = e.VirtualizeCount;
+            }
+            else if (e.ReadDataMode is DataGridReadDataMode.Paging)
+            {
+                skipCount = (e.Page - 1) * e.PageSize;
+                takeCount = e.PageSize;
+            }
+            else
+                throw new Exception("Unhandled ReadDataMode");
+
+            if (!e.CancellationToken.IsCancellationRequested)
+            {
+                var result = OnUpdateItems(new UpdateItemsEventArgs
+                {
+                    SkipCount = skipCount,
+                    TakeCount = takeCount,
+                });
+
+                _totalItems = result.TotalItems;
+                _items = new ObservableCollection<TItem>(result.Items);
+            }
+        }
+    }
+
+    private async Task SaveAsset(CommandContext<TItem> context)
+    {
+        await context.Clicked.InvokeAsync();
+
+        var newItem = context.Item;
+
+        await OnSaveItem(new SaveItemEventArgs<TItem>
+        {
+            Item = newItem
+        });
+    }
+}
