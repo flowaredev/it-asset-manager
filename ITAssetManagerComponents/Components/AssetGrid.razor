@@ -36,6 +36,7 @@
         <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" />
         <DataGridColumn Field="@nameof(CommonAsset.Manufacturer)" Caption="제조사" Editable="true" />
         <DataGridColumn Field="@nameof(CommonAsset.Model)" Caption="모델명" Editable="true" />
+        <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" DisplayFormat="{0:yyyy-MM-dd}" />
     </DataGridColumns>
     <EmptyTemplate>
         <Alert Color="Color.Info" Visible="true">
