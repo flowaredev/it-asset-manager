@@ -4,6 +4,7 @@ using ITAssetManagerLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITAssetManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240304064310_AddServerDevicess")]
+    partial class AddServerDevicess
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,6 +105,14 @@ namespace ITAssetManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Manufacturer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -129,7 +140,7 @@ namespace ITAssetManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CommonAssetId")
+                    b.Property<int>("CommonAssetsId")
                         .HasColumnType("int");
 
                     b.Property<double>("Cpu")
@@ -138,20 +149,12 @@ namespace ITAssetManager.Migrations
                     b.Property<double>("Disk")
                         .HasColumnType("float");
 
-                    b.Property<string>("Manufacturer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("Ram")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommonAssetId");
+                    b.HasIndex("CommonAssetsId");
 
                     b.ToTable("ServerDevices");
                 });
@@ -291,13 +294,13 @@ namespace ITAssetManager.Migrations
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
                 {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithMany("ServerDevices")
-                        .HasForeignKey("CommonAssetId")
+                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAssets")
+                        .WithMany()
+                        .HasForeignKey("CommonAssetsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CommonAsset");
+                    b.Navigation("CommonAssets");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -349,11 +352,6 @@ namespace ITAssetManager.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.CommonAsset", b =>
-                {
-                    b.Navigation("ServerDevices");
                 });
 #pragma warning restore 612, 618
         }

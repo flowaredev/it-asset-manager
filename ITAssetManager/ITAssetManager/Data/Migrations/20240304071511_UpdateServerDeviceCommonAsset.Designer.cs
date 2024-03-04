@@ -4,6 +4,7 @@ using ITAssetManagerLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITAssetManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240304071511_UpdateServerDeviceCommonAsset")]
+    partial class UpdateServerDeviceCommonAsset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,6 +105,14 @@ namespace ITAssetManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Manufacturer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -138,20 +149,13 @@ namespace ITAssetManager.Migrations
                     b.Property<double>("Disk")
                         .HasColumnType("float");
 
-                    b.Property<string>("Manufacturer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("Ram")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommonAssetId");
+                    b.HasIndex("CommonAssetId")
+                        .IsUnique();
 
                     b.ToTable("ServerDevices");
                 });
@@ -292,8 +296,8 @@ namespace ITAssetManager.Migrations
             modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
                 {
                     b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithMany("ServerDevices")
-                        .HasForeignKey("CommonAssetId")
+                        .WithOne("ServerDevice")
+                        .HasForeignKey("ITAssetManagerLibrary.Models.ServerDevice", "CommonAssetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -353,7 +357,7 @@ namespace ITAssetManager.Migrations
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.CommonAsset", b =>
                 {
-                    b.Navigation("ServerDevices");
+                    b.Navigation("ServerDevice");
                 });
 #pragma warning restore 612, 618
         }

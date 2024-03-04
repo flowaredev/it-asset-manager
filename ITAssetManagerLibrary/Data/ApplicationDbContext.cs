@@ -6,6 +6,7 @@ namespace ITAssetManagerLibrary.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<Server> Servers { get; set; }
+        public DbSet<CommonAsset> CommonAssets { get; set; }
+        public DbSet<ServerDevice> ServerDevices { get; set; }
     }
 }

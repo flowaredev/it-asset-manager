@@ -16,6 +16,6 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public required string Description { get; set; }
 
-        public Server? CommonAsset { get; set; }
+        public required ServerDevice CommonAsset { get; set; }
     }
 }

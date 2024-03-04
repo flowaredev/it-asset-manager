@@ -2,104 +2,111 @@
 
 <HeaderTitle Title="서버" />
 
-<BaseDataGrid TItem="Server" OnUpdateItems="@UpdateItems" OnSaveItem="@SaveItem" OnDeleteItem="@DeleteItem">
-    <DataGridColumn Field="@nameof(Server.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).ManagementTag)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Name)" Caption="자산명" Editable="true" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Name)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridDateColumn Field="@nameof(Server.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).ApplyDateTime)
-            </Div>
-        </DisplayTemplate>
-    </DataGridDateColumn>
-    <DataGridColumn Field="@nameof(Server.Role)" Caption="업무용도" Editable="true" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Role)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Manufacturer)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Model)" Caption="모델명" Editable="true" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Model)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Cpu)" Caption="CPU" Editable="true" Width="100px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Cpu)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Ram)" Caption="Ram" Editable="true" Width="100px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Ram)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridColumn Field="@nameof(Server.Disk)" Caption="Disk" Editable="true" Width="100px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">
-                @((context as Server).Disk)
-            </Div>
-        </DisplayTemplate>
-    </DataGridColumn>
+<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@UpdateAssets" OnSaveItem="@SaveAsset" OnDeleteItem="@DeleteAsset" OnShowDetailView=@ShowDetailView>
+    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="100%" />
+    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="100%" />
+    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="100%" />
+    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="100%" />
 </BaseDataGrid>
 
+@if (_modalVisible)
+{
+    <Modal @bind-Visible="@_modalVisible">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+            <ModalHeader>
+                <ModalTitle>장비 사양</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <BaseDataGrid TItem="ServerDevice"
+                              OnUpdateItems=@UpdateServers
+                              OnSaveItem="@SaveServer"
+                              OnDeleteItem="@DeleteServer">
+                    <DataGridColumn Field="@nameof(ServerDevice.Manufacturer)" Caption="제조사" Editable="true" Width="100%" />
+                    <DataGridColumn Field="@nameof(ServerDevice.Model)" Caption="모델명" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="Ram(GB)" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="Disk(TB)" Editable="true" Width="100%" />
+                </BaseDataGrid>
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
+
 @code {
-    private async Task<List<Server>> UpdateItems()
+    private bool _modalVisible;
+    private CommonAsset _selectedAsset = new();
+
+    private async Task<List<CommonAsset>> UpdateAssets()
     {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.Servers
+        var items = await context.CommonAssets
             .ToListAsync();
         return items;
     }
 
-    private async Task SaveItem(Server server)
+    private async Task SaveAsset(CommonAsset asset)
     {
-        Debug.Assert(server.Manufacturer != null);
-
         using var context = DbFactory.CreateDbContext();
 
-        if (server.Id == 0)
+        if (asset.Id == 0)
         {
-            server.Id = 0;
-            await context.Servers.AddAsync(server);
+            await context.CommonAssets.AddAsync(asset);
         }
         else
         {
-            context.Servers.Update(server);
+            context.CommonAssets.Update(asset);
         }
 
         await context.SaveChangesAsync();
     }
 
-    private async Task DeleteItem(Server server)
+    private async Task DeleteAsset(CommonAsset asset)
     {
         using var context = DbFactory.CreateDbContext();
-        context.Servers.Remove(server);
+        context.CommonAssets.Remove(asset);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task ShowDetailView(RowOverlayContext<CommonAsset> context)
+    {
+        _selectedAsset = context.Item;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<ServerDevice>> UpdateServers()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.ServerDevices
+            .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveServer(ServerDevice server)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (server.Id == 0)
+        {
+            Debug.Assert(_selectedAsset.Id != 0);
+            server.CommonAssetId = _selectedAsset.Id;
+            context.ServerDevices.Add(server);
+        }
+        else
+        {
+            context.ServerDevices.Update(server);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteServer(ServerDevice server)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.ServerDevices.Remove(server);
         await context.SaveChangesAsync();
     }
 }
