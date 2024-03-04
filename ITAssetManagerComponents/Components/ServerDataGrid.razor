@@ -1,0 +1,106 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<HeaderTitle Title="서버" />
+
+<BaseDataGrid TItem="Server" OnUpdateItems="@UpdateItems" OnSaveItem="@SaveItem" OnDeleteItem="@DeleteItem">
+    <DataGridColumn Field="@nameof(Server.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).ManagementTag)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Name)" Caption="자산명" Editable="true" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Name)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridDateColumn Field="@nameof(Server.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).ApplyDateTime)
+            </Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridColumn Field="@nameof(Server.Role)" Caption="업무용도" Editable="true" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Role)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Manufacturer)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Model)" Caption="모델명" Editable="true" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Model)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Cpu)" Caption="CPU" Editable="true" Width="100px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Cpu)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Ram)" Caption="Ram" Editable="true" Width="100px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Ram)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(Server.Disk)" Caption="Disk" Editable="true" Width="100px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                @((context as Server).Disk)
+            </Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+</BaseDataGrid>
+
+@code {
+    private async Task<List<Server>> UpdateItems()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Servers
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveItem(Server server)
+    {
+        Debug.Assert(server.Manufacturer != null);
+
+        using var context = DbFactory.CreateDbContext();
+
+        if (server.Id == 0)
+        {
+            server.Id = 0;
+            await context.Servers.AddAsync(server);
+        }
+        else
+        {
+            context.Servers.Update(server);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteItem(Server server)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Servers.Remove(server);
+        await context.SaveChangesAsync();
+    }
+}
+

@@ -20,10 +20,19 @@
     <BarMenu>
         <BarStart>
             <BarItem>
-                <BarLink To="/" Match="Match.All">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
-                    자산관리
-                </BarLink>
+                <BarDropdown>
+                    <BarDropdownToggle>
+                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" />
+                        자산관리
+                    </BarDropdownToggle>
+                    <BarDropdownMenu>
+                        <BarDropdownItem To="/" Match="Match.All">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" />
+                            서버
+                        </BarDropdownItem>
+                        <BarDropdownItem>Another action</BarDropdownItem>
+                    </BarDropdownMenu>
+                </BarDropdown>
             </BarItem>
             <BarItem>
                 <BarLink To="/FaultManagement">
@@ -83,7 +92,6 @@
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
     }
 
     public void Dispose()

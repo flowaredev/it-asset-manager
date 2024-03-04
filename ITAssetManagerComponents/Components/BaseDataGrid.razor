@@ -1,102 +1,200 @@
-﻿@attribute [CascadingTypeParameter(nameof(TItem))]
+﻿@implements IDisposable
+@attribute [CascadingTypeParameter(nameof(TItem))]
 @typeparam TItem
+@inject PersistentComponentState ApplicationState
+@inject IMessageService MessageService
 
-<DataGrid TItem="TItem"
-          Data="@_items"
-          ReadData="@OnReadData"
-          TotalItems="_totalItems"
-          @bind-SelectedRow="@_selectedItem"
-          RowStyling='(x, y) => y.Style = "height: 50px;"'
-          Virtualize="true"
-          VirtualizeOptions="@(new() { DataGridHeight = "100%", DataGridMaxHeight = "100%" })"
-          Editable="true"
-          UseValidation="true"
-          Responsive="true">
-    <DataGridColumns>
-        <DataGridCommandColumn>
-            <NewCommandTemplate>
-                <Button Color="Color.Success" Clicked="@context.Clicked">추가</Button>
-            </NewCommandTemplate>
-            <EditCommandTemplate>
-                <Button Color="Color.Primary" Clicked="@context.Clicked">수정</Button>
-            </EditCommandTemplate>
-            <DeleteCommandTemplate>
-                <Button Color="Color.Danger" Clicked="@context.Clicked">삭제</Button>
-            </DeleteCommandTemplate>
-            <SaveCommandTemplate>
-                <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Success" Clicked="@(async () => await SaveAsset(context))">저장</Button>
-            </SaveCommandTemplate>
-            <CancelCommandTemplate>
-                <Button Color="Color.Danger" Clicked="@context.Clicked">취소</Button>
-            </CancelCommandTemplate>
-        </DataGridCommandColumn>
-        @ChildContent
-    </DataGridColumns>
-    <EmptyTemplate>
-        <Alert Color="Color.Info" Visible="true">
-            <AlertMessage>등록된 자료가 없습니다.</AlertMessage>
-        </Alert>
-    </EmptyTemplate>
-</DataGrid>
+@if (_isLoading)
+{
+    <Div Position="Position.Relative" Width="Width.Is100" Height="Height.Is100">
+        <Div Position="Position.Absolute.Top.Is50.Start.Is50.Translate.Middle">
+            <SpinKit Type="SpinKitType.Wave" Color="skyblue" />
+        </Div>
+    </Div>
+}
+else
+{
+    <DataGrid TItem="TItem"
+              Data="@_items"
+              @bind-SelectedRow="@_selectedItem"
+              ShowPager="true"
+              ShowPageSizes="true"
+              Editable="true"
+              UseValidation="true"
+              Sortable="true"
+              SortMode="DataGridSortMode.Single"
+              Filterable="true"
+              FilterMode="DataGridFilterMode.Menu"
+              EditMode="DataGridEditMode.Popup"
+              Striped="true"
+              FixedColumns="true"
+              Resizable="true"
+              ResizeMode="TableResizeMode.Columns"
+              CommandMode="DataGridCommandMode.ButtonRow"
+              Responsive="true">
+        <DataGridColumns>
+            <DataGridCommandColumn NewCommandAllowed="false" EditCommandAllowed="false" DeleteCommandAllowed="false">
+                <SaveCommandTemplate>
+                    <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Success" Clicked="@(async () => await SaveItem(context))">저장</Button>
+                </SaveCommandTemplate>
+                <CancelCommandTemplate>
+                    <Button Color="Color.Danger" Clicked="@context.Clicked">취소</Button>
+                </CancelCommandTemplate>
+            </DataGridCommandColumn>
+            @ChildContent
+        </DataGridColumns>
+        <FilterMenuTemplate>
+            <Grid Columns="GridColumns.Are3" Width="Width.Px(600)">
+                <Div>
+                    <TextEdit Text="@context.GetSearchValue()?.ToString()" TextChanged="@((newValue) => context.Column.Filter.SearchValue = newValue)" />
+                </Div>
+
+                <Div>
+                    <Select TValue="DataGridColumnFilterMethod" SelectedValue="@context.GetFilterMethod()" SelectedValueChanged="e => { context.FilterMethodChanged.InvokeAsync(e); }">
+                        @{
+                            var isNumericOrDate = context.Column.ColumnType == DataGridColumnType.Numeric || context.Column.ColumnType == DataGridColumnType.Date;
+                        }
+
+                        @if (!isNumericOrDate)
+                        {
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Contains">을 포함</SelectItem>
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.StartsWith">으로 시작</SelectItem>
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.EndsWith">으로 끝남</SelectItem>
+                        }
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">와 같음</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.NotEquals">와 다름</SelectItem>
+                        @if (isNumericOrDate)
+                        {
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThan">보다 큼</SelectItem>
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThanOrEqual">보다 크거나 같음</SelectItem>
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThan">보다 작음</SelectItem>
+                            <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThanOrEqual">보다 작거나 같음</SelectItem>
+                        }
+                    </Select>
+                </Div>
+
+                <Div>
+                    <Button Clicked="context.Filter" Color="Color.Primary"><Icon Name="IconName.Filter"></Icon>적용</Button>
+                    <Button Clicked="context.ClearFilter" Color="Color.Light"><Icon Name="IconName.Clear"></Icon>지우기</Button>
+                </Div>
+            </Grid>
+        </FilterMenuTemplate>
+        <EmptyTemplate>
+            <Alert Color="Color.Info" Visible="true">
+                <AlertMessage>등록된 자료가 없습니다.</AlertMessage>
+            </Alert>
+        </EmptyTemplate>
+        <ButtonRowTemplate>
+            <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
+            <Button Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+            <Button Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+        </ButtonRowTemplate>
+        <PageButtonTemplate>
+            <Span TextColor="TextColor.Success">
+                @context.PageNumber
+            </Span>
+        </PageButtonTemplate>
+        <NextPageButtonTemplate><Icon Name="IconName.StepForward" TextColor="TextColor.Success" /></NextPageButtonTemplate>
+        <PreviousPageButtonTemplate><Icon Name="IconName.StepBackward" TextColor="TextColor.Success" /></PreviousPageButtonTemplate>
+        <LastPageButtonTemplate><Icon Name="IconName.Forward" TextColor="TextColor.Success" /></LastPageButtonTemplate>
+        <FirstPageButtonTemplate><Icon Name="IconName.Backward" TextColor="TextColor.Success" /></FirstPageButtonTemplate>
+        <TotalItemsTemplate><Badge Color="Color.Success">@context.TotalItems 전체 항목</Badge></TotalItemsTemplate>
+        <TotalItemsShortTemplate><Badge Color="Color.Success">@context.TotalItems</Badge></TotalItemsShortTemplate>
+        <ItemsPerPageTemplate></ItemsPerPageTemplate>
+        <PageSelectorTemplate>
+            <Select TextColor="TextColor.Success" @bind-SelectedValue="@context.CurrentPage">
+                @for (int i = context.FirstVisiblePage; i <= context.LastVisiblePage; ++i)
+                {
+                    var pageNumber = i;
+                    <SelectItem Value="@pageNumber">@pageNumber</SelectItem>
+                }
+            </Select>
+        </PageSelectorTemplate>
+        <PageSizesTemplate>
+            <Select TextColor="TextColor.Success" @bind-SelectedValue="@context.CurrentPageSize">
+                @foreach (var curPageSize in context.PageSizes)
+                {
+                    <SelectItem Value="@curPageSize">@curPageSize</SelectItem>
+                }
+            </Select>
+        </PageSizesTemplate>
+        <PopupTitleTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">
+                항목 수정
+            </Div>
+        </PopupTitleTemplate>
+    </DataGrid>
+}
 
 @code {
-    private ObservableCollection<TItem>? _items;
-    private TItem? _selectedItem;
-    private int _totalItems;
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    private ObservableCollection<TItem> _items = new();
+    private bool _isLoading;
+    private PersistingComponentStateSubscription _persistingSubscription;
+    private TItem _selectedItem = default!;
 
     [Parameter, EditorRequired]
-    public required Func<UpdateItemsEventArgs, UpdateItemsEventResult<TItem>> OnUpdateItems { get; set; }
+    public RenderFragment ChildContent { get; set; } = default!;
 
     [Parameter, EditorRequired]
-    public required Func<SaveItemEventArgs<TItem>, Task> OnSaveItem { get; set; }
+    public required Func<Task<List<TItem>>> OnUpdateItems { get; set; }
 
-    private void OnReadData(DataGridReadDataEventArgs<TItem> e)
+    [Parameter, EditorRequired]
+    public required Func<TItem, Task> OnSaveItem { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<TItem, Task> OnDeleteItem { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        if (!e.CancellationToken.IsCancellationRequested)
+        _isLoading = true;
+
+        _persistingSubscription =
+            ApplicationState.RegisterOnPersisting(PersistItems);
+
+        if (!ApplicationState.TryTakeFromJson<ObservableCollection<TItem>>(
+            nameof(_items), out var items))
         {
-            List<TItem> response = new();
-            var skipCount = 0;
-            var takeCount = 0;
-
-            if (e.ReadDataMode is DataGridReadDataMode.Virtualize)
-            {
-                skipCount = e.VirtualizeOffset;
-                takeCount = e.VirtualizeCount;
-            }
-            else if (e.ReadDataMode is DataGridReadDataMode.Paging)
-            {
-                skipCount = (e.Page - 1) * e.PageSize;
-                takeCount = e.PageSize;
-            }
-            else
-                throw new Exception("Unhandled ReadDataMode");
-
-            if (!e.CancellationToken.IsCancellationRequested)
-            {
-                var result = OnUpdateItems(new UpdateItemsEventArgs
-                {
-                    SkipCount = skipCount,
-                    TakeCount = takeCount,
-                });
-
-                _totalItems = result.TotalItems;
-                _items = new ObservableCollection<TItem>(result.Items);
-            }
+            var result = await OnUpdateItems();
+            _items = new ObservableCollection<TItem>(result);
         }
+        else
+        {
+            _items = items!;
+        }
+
+        _isLoading = false;
+
+        await base.OnInitializedAsync();
     }
 
-    private async Task SaveAsset(CommandContext<TItem> context)
+    void IDisposable.Dispose()
+    {
+        _persistingSubscription.Dispose();
+    }
+
+    private Task PersistItems()
+    {
+        ApplicationState.PersistAsJson(nameof(_items), _items);
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveItem(CommandContext<TItem> context)
     {
         await context.Clicked.InvokeAsync();
-
         var newItem = context.Item;
+        await OnSaveItem(newItem);
+    }
 
-        await OnSaveItem(new SaveItemEventArgs<TItem>
+    private async Task DeleteItem(CommandContext<TItem> context)
+    {
+        if (await MessageService.Confirm("항목을 삭제 하시겠습니까?", "확인", (option) =>
         {
-            Item = newItem
-        });
+            option.ConfirmButtonText = "예";
+            option.CancelButtonText = "아니오";
+        }))
+        {
+            await context.Clicked.InvokeAsync();
+            await OnDeleteItem(context.Item);
+        }
     }
 }

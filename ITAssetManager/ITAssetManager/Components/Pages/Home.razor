@@ -1,5 +1,5 @@
 ﻿@page "/"
 @attribute [Authorize]
+@attribute [StreamRendering(true)]
 
-<HeaderTitle Title="자산관리" />
-<AssetGrid @rendermode="InteractiveServer" />
+<ServerDataGrid @rendermode="InteractiveServer" />

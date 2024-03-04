@@ -2,15 +2,12 @@
 
 namespace ITAssetManagerLibrary.Models
 {
-    public class CommonAsset
+    public class AssetCommon
     {
         public int Id { get; set; }
 
         [Required]
         public required string ManagementTag { get; set; }
-
-        [Required]
-        public required string AssetTag { get; set; }
 
         [Required]
         public required string Name { get; set; }
