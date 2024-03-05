@@ -21,6 +21,7 @@ namespace ITAssetManagerLibrary.Models
         [Timestamp]
         public byte[] Version { get; set; } = [];
 
-        public ICollection<ServerDevice> ServerDevices { get; } = [];
+        public Server? Server { get; set; }
+
     }
 }

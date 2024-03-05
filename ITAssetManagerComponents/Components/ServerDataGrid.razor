@@ -19,14 +19,15 @@
             </ModalHeader>
             <ModalBody>
                 <BaseDataGrid TItem="ServerDevice"
-                              OnUpdateItems=@UpdateServers
-                              OnSaveItem="@SaveServer"
+                              OnUpdateItems=@UpdateServerDevices
+                              OnSaveItem="@SaveServerDevice"
                               OnDeleteItem="@DeleteServer">
                     <DataGridColumn Field="@nameof(ServerDevice.Manufacturer)" Caption="제조사" Editable="true" Width="100%" />
                     <DataGridColumn Field="@nameof(ServerDevice.Model)" Caption="모델명" Editable="true" Width="100%" />
                     <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="Ram(GB)" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="Disk(TB)" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="100%" />
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="100%" />
                 </BaseDataGrid>
             </ModalBody>
         </ModalContent>
@@ -40,7 +41,9 @@
     private async Task<List<CommonAsset>> UpdateAssets()
     {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.CommonAssets
+        var items = await context.Servers
+            .Include(s => s.CommonAsset)
+            .Select(s => s.CommonAsset)
             .ToListAsync();
         return items;
     }
@@ -51,6 +54,12 @@
 
         if (asset.Id == 0)
         {
+            asset.Server = new Server()
+            {
+                CommonAssetId = asset.Id,
+                CommonAsset = asset
+            };
+
             await context.CommonAssets.AddAsync(asset);
         }
         else
@@ -76,23 +85,25 @@
         await Task.CompletedTask;
     }
 
-    private async Task<List<ServerDevice>> UpdateServers()
+    private async Task<List<ServerDevice>> UpdateServerDevices()
     {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.ServerDevices
+        var items = await context.Servers
             .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.ServerDevices)
+            .SelectMany(s => s.ServerDevices)
             .ToListAsync();
         return items;
     }
 
-    private async Task SaveServer(ServerDevice server)
+    private async Task SaveServerDevice(ServerDevice server)
     {
         using var context = DbFactory.CreateDbContext();
 
         if (server.Id == 0)
         {
             Debug.Assert(_selectedAsset.Id != 0);
-            server.CommonAssetId = _selectedAsset.Id;
+            server.ServerId = _selectedAsset.Server!.Id;
             context.ServerDevices.Add(server);
         }
         else
