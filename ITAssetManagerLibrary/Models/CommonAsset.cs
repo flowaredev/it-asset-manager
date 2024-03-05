@@ -25,6 +25,7 @@ namespace ITAssetManagerLibrary.Models
         public byte[] Version { get; set; } = [];
 
         public Server? Server { get; set; }
+        public Utility? Utility { get; set; }
 
     }
 }

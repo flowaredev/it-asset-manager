@@ -154,7 +154,7 @@ else
     public required Func<TItem, Task> OnDeleteItem { get; set; }
 
     [Parameter]
-    public Func<RowOverlayContext<TItem>, Task>? OnShowDetailView { get; set; }
+    public Func<RowOverlayContext<TItem>, Task> OnShowDetailView { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {

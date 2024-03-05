@@ -9,5 +9,6 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<CommonAsset> CommonAssets { get; set; }
         public DbSet<Server> Servers { get; set; }
         public DbSet<ServerDevice> ServerDevices { get; set; }
+        public DbSet<Utility> Utilities { get; set; }
     }
 }

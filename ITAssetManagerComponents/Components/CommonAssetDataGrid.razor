@@ -1,0 +1,27 @@
+﻿@using System.Diagnostics.CodeAnalysis
+<HeaderTitle Title="@Title" />
+
+<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@OnUpdateItems" OnSaveItem="@OnSaveItem" OnDeleteItem="@OnDeleteItem" OnShowDetailView=@OnShowDetailView>
+    <DataGridColumn Field="@nameof(CommonAsset.Category)" Caption="자산분류" Editable="true" Width="100%" />
+    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="100%" />
+    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="100%" />
+    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="100%" />
+    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="100%" />
+</BaseDataGrid>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public required Func<Task<List<CommonAsset>>> OnUpdateItems { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<CommonAsset, Task> OnSaveItem { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<CommonAsset, Task> OnDeleteItem { get; set; }
+
+    [Parameter, AllowNull]
+    public Func<RowOverlayContext<CommonAsset>, Task> OnShowDetailView { get; set; } = default!;
+}
