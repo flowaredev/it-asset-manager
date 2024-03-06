@@ -8,7 +8,6 @@ using Blazorise;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.Bootstrap5;
 using ITAssetManagerLibrary.Data;
-using ITAssetManagerLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,8 +53,6 @@ builder.Services
     })
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
-
-builder.Services.AddScoped<FilterService>();
 
 var app = builder.Build();
 

@@ -4,6 +4,7 @@ using ITAssetManagerLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITAssetManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240306121700_AddCommonAssetIsComputer")]
+    partial class AddCommonAssetIsComputer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,6 +105,9 @@ namespace ITAssetManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsComputer")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ManagementTag")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -171,7 +177,7 @@ namespace ITAssetManager.Migrations
                     b.ToTable("Failures");
                 });
 
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,28 +187,6 @@ namespace ITAssetManager.Migrations
 
                     b.Property<int>("CommonAssetId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("Servers");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Cpu")
                         .HasColumnType("float");
@@ -225,9 +209,6 @@ namespace ITAssetManager.Migrations
                     b.Property<double>("Ram")
                         .HasColumnType("float");
 
-                    b.Property<int>("ServerId")
-                        .HasColumnType("int");
-
                     b.Property<byte[]>("Version")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -236,34 +217,9 @@ namespace ITAssetManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServerId");
+                    b.HasIndex("CommonAssetId");
 
                     b.ToTable("ServerDevices");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Utility", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("Utilities");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -410,33 +366,11 @@ namespace ITAssetManager.Migrations
                     b.Navigation("CommonAsset");
                 });
 
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("Server")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.Server", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
             modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
                 {
-                    b.HasOne("ITAssetManagerLibrary.Models.Server", "Server")
-                        .WithMany("ServerDevices")
-                        .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Server");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Utility", b =>
-                {
                     b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("Utility")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.Utility", "CommonAssetId")
+                        .WithMany("ServerDevices")
+                        .HasForeignKey("CommonAssetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -498,13 +432,6 @@ namespace ITAssetManager.Migrations
                 {
                     b.Navigation("Failures");
 
-                    b.Navigation("Server");
-
-                    b.Navigation("Utility");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
-                {
                     b.Navigation("ServerDevices");
                 });
 #pragma warning restore 612, 618

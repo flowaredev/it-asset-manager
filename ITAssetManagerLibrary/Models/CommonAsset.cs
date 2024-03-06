@@ -29,11 +29,12 @@ namespace ITAssetManagerLibrary.Models
 
         [Required]
         public string ResponsiblePersonPhone { get; set; } = string.Empty;
-
+       
         [Timestamp]
         public byte[] Version { get; set; } = [];
 
-        public ICollection<ServerDevice> ServerDevices { get; } = [];
+        public Server? Server { get; set; }
+        public Utility? Utility { get; set; }
 
         public ICollection<Failure> Failures { get; } = [];
 

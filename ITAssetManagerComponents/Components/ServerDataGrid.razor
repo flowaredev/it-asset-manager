@@ -1,6 +1,10 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<CommonAssetDataGrid Title="서버장비" OnShowDetail="@ShowDetailView" />
+<CommonAssetDataGrid Title="서버장비"
+                     OnUpdateItems=@UpdateAssets
+                     OnSaveItem=@SaveAsset
+                     OnDeleteItem=@DeleteAsset
+                     OnShowDetail="@ShowDetailView" />
 
 @if (_modalVisible)
 {
@@ -55,6 +59,45 @@
     private bool _modalVisible;
     private CommonAsset _selectedAsset = new();
 
+    private async Task<List<CommonAsset>> UpdateAssets()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Servers
+            .Include(s => s.CommonAsset)
+            .Select(s => s.CommonAsset)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveAsset(CommonAsset asset)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (asset.Id == 0)
+        {
+            asset.Server = new Server()
+                {
+                    CommonAssetId = asset.Id,
+                    CommonAsset = asset
+                };
+
+            await context.CommonAssets.AddAsync(asset);
+        }
+        else
+        {
+            context.CommonAssets.Update(asset);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteAsset(CommonAsset asset)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.CommonAssets.Remove(asset);
+        await context.SaveChangesAsync();
+    }
+
     private async Task ShowDetailView(CommonAsset asset)
     {
         _selectedAsset = asset;
@@ -66,34 +109,36 @@
     private async Task<List<ServerDevice>> UpdateServerDevices()
     {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.ServerDevices
+        var items = await context.Servers
             .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.ServerDevices)
+            .SelectMany(s => s.ServerDevices)
             .ToListAsync();
         return items;
     }
 
-    private async Task SaveServerDevice(ServerDevice serverDevice)
+    private async Task SaveServerDevice(ServerDevice device)
     {
         using var context = DbFactory.CreateDbContext();
 
-        if (serverDevice.Id == 0)
+        if (device.Id == 0)
         {
             Debug.Assert(_selectedAsset.Id != 0);
-            serverDevice.CommonAssetId = _selectedAsset.Id;
-            context.ServerDevices.Add(serverDevice);
+            device.ServerId = _selectedAsset.Server!.Id;
+            context.ServerDevices.Add(device);
         }
         else
         {
-            context.ServerDevices.Update(serverDevice);
+            context.ServerDevices.Update(device);
         }
 
         await context.SaveChangesAsync();
     }
 
-    private async Task DeleteServer(ServerDevice serverDevice)
+    private async Task DeleteServer(ServerDevice device)
     {
         using var context = DbFactory.CreateDbContext();
-        context.ServerDevices.Remove(serverDevice);
+        context.ServerDevices.Remove(device);
         await context.SaveChangesAsync();
     }
 }
