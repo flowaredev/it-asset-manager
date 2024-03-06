@@ -1,13 +1,13 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<CommonAssetDataGrid Title="서버장비" OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset OnShowDetailView="@ShowDetailView" />
+<CommonAssetDataGrid Title="서버장비" OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset OnShowDetail="@ShowDetailView" />
 
 @if (_modalVisible)
 {
     <Modal @bind-Visible="@_modalVisible">
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
-                <ModalTitle>장비 사양</ModalTitle>
+                <ModalTitle>장비사양</ModalTitle>
                 <CloseButton />
             </ModalHeader>
             <ModalBody>
@@ -15,12 +15,36 @@
                               OnUpdateItems=@UpdateServerDevices
                               OnSaveItem="@SaveServerDevice"
                               OnDeleteItem="@DeleteServer">
-                    <DataGridColumn Field="@nameof(ServerDevice.Manufacturer)" Caption="제조사" Editable="true" Width="100%" />
-                    <DataGridColumn Field="@nameof(ServerDevice.Model)" Caption="모델명" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="100%" />
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="100%" />
+                    <DataGridColumn Field="@nameof(ServerDevice.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Manufacturer</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.Model)" Caption="모델명" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Model</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="180px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Cpu</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="180px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Ram</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="180px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Disk</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="180px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Rack</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
                 </BaseDataGrid>
             </ModalBody>
         </ModalContent>
@@ -48,10 +72,10 @@
         if (asset.Id == 0)
         {
             asset.Server = new Server()
-            {
-                CommonAssetId = asset.Id,
-                CommonAsset = asset
-            };
+                {
+                    CommonAssetId = asset.Id,
+                    CommonAsset = asset
+                };
 
             await context.CommonAssets.AddAsync(asset);
         }
@@ -70,9 +94,9 @@
         await context.SaveChangesAsync();
     }
 
-    private async Task ShowDetailView(RowOverlayContext<CommonAsset> context)
+    private async Task ShowDetailView(CommonAsset asset)
     {
-        _selectedAsset = context.Item;
+        _selectedAsset = asset;
         _modalVisible = true;
         StateHasChanged();
         await Task.CompletedTask;

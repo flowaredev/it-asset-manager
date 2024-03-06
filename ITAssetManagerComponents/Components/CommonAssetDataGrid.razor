@@ -1,12 +1,51 @@
 ﻿@using System.Diagnostics.CodeAnalysis
 <HeaderTitle Title="@Title" />
 
-<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@OnUpdateItems" OnSaveItem="@OnSaveItem" OnDeleteItem="@OnDeleteItem" OnShowDetailView=@OnShowDetailView>
-    <DataGridColumn Field="@nameof(CommonAsset.Category)" Caption="자산분류" Editable="true" Width="100%" />
-    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="100%" />
-    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="100%" />
-    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="100%" />
-    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="100%" />
+<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@OnUpdateItems" OnSaveItem="@OnSaveItem" OnDeleteItem="@OnDeleteItem" OnShowDetail=@OnShowDetail>
+    <DataGridColumn Field="@nameof(CommonAsset.Category)" Caption="자산분류" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Category</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ManagementTag</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Name</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ApplyDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Role</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsibleCompany)" Caption="담당업체" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsibleCompany</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePerson)" Caption="담당자" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePerson</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="연락처" Editable="true" Width="150px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePersonPhone</Div>
+        </DisplayTemplate>
+
+        <EditTemplate>
+            <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+        </EditTemplate>
+    </DataGridColumn>
 </BaseDataGrid>
 
 @code {
@@ -23,5 +62,5 @@
     public required Func<CommonAsset, Task> OnDeleteItem { get; set; }
 
     [Parameter, AllowNull]
-    public Func<RowOverlayContext<CommonAsset>, Task> OnShowDetailView { get; set; } = default!;
+    public Func<CommonAsset, Task> OnShowDetail { get; set; } = default!;
 }

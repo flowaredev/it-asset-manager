@@ -14,8 +14,15 @@ namespace ITAssetManagerLibrary.Models
         public DateTime FailureDateTime { get; set; } = DateTime.Now;
 
         [Required]
-        public required string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        public required ServerDevice CommonAsset { get; set; }
+        [Required]
+        public bool IsResolved { get; set; } = false;
+
+        [Timestamp]
+        public byte[] Version { get; set; } = [];
+
+        public int CommonAssetId { get; set; }
+        public CommonAsset CommonAsset { get; set; } = null!;
     }
 }

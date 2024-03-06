@@ -45,13 +45,6 @@ else
             @ChildContent
         </DataGridColumns>
 
-        <RowOverlayTemplate>
-            @if (OnShowDetailView is not null)
-            {
-                <Button Color="Color.Primary" Size="Size.ExtraSmall" Clicked="@(async () => await OnShowDetailView(context))">자세히 보기<Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ArrowCircleRight" /></Button>
-            }
-        </RowOverlayTemplate>
-
         <FilterMenuTemplate>
             <Grid Columns="GridColumns.Are3" Width="Width.Px(600)">
                 <Div>
@@ -94,9 +87,15 @@ else
             </Alert>
         </EmptyTemplate>
         <ButtonRowTemplate>
-            <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
-            <Button Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
-            <Button Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+            <Div>
+                <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
+                <Button Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+                <Button Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+                @if (OnShowDetail is not null)
+                {
+                    <Button Margin="Margin.Is1" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">자세히</Button>
+                }
+            </Div>
         </ButtonRowTemplate>
         <PageButtonTemplate>
             <Span TextColor="TextColor.Success">
@@ -154,7 +153,7 @@ else
     public required Func<TItem, Task> OnDeleteItem { get; set; }
 
     [Parameter]
-    public Func<RowOverlayContext<TItem>, Task> OnShowDetailView { get; set; } = default!;
+    public Func<TItem, Task> OnShowDetail { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {

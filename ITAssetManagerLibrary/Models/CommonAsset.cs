@@ -21,11 +21,21 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public DateTime ApplyDateTime { get; set; } = DateTime.Now;
 
+        [Required]
+        public string ResponsibleCompany { get; set; } = string.Empty;
+
+        [Required]
+        public string ResponsiblePerson { get; set; } = string.Empty;
+
+        [Required]
+        public string ResponsiblePersonPhone { get; set; } = string.Empty;
+
         [Timestamp]
         public byte[] Version { get; set; } = [];
 
         public Server? Server { get; set; }
         public Utility? Utility { get; set; }
+        public ICollection<Failure> Failures { get; } = [];
 
     }
 }
