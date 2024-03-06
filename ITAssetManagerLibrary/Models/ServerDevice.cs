@@ -27,7 +27,7 @@ namespace ITAssetManagerLibrary.Models
         [Timestamp]
         public byte[] Version { get; set; } = [];
 
-        public int ServerId { get; set; }
-        public Server Server { get; set; } = null!;
+        public int CommonAssetId { get; set; }
+        public CommonAsset CommonAsset { get; set; } = null!;
     }
 }

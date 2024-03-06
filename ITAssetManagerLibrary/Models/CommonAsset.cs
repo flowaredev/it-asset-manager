@@ -33,8 +33,8 @@ namespace ITAssetManagerLibrary.Models
         [Timestamp]
         public byte[] Version { get; set; } = [];
 
-        public Server? Server { get; set; }
-        public Utility? Utility { get; set; }
+        public ICollection<ServerDevice> ServerDevices { get; } = [];
+
         public ICollection<Failure> Failures { get; } = [];
 
     }
