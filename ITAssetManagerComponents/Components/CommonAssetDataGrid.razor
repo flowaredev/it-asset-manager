@@ -1,7 +1,13 @@
-﻿@using System.Diagnostics.CodeAnalysis
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
 <HeaderTitle Title="@Title" />
 
-<BaseDataGrid TItem="CommonAsset" OnUpdateItems="@OnUpdateItems" OnSaveItem="@OnSaveItem" OnDeleteItem="@OnDeleteItem" OnShowDetail=@OnShowDetail>
+<BaseDataGrid TItem="CommonAsset"
+              OnUpdateItems="@OnUpdateItems"
+              OnSaveItem="@OnSaveItem"
+              OnDeleteItem="@OnDeleteItem"
+              OnShowFailure="@ShowFailureView"
+              OnShowDetail=@OnShowDetail>
     <DataGridColumn Field="@nameof(CommonAsset.Category)" Caption="자산분류" Editable="true" Width="150px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.Category</Div>
@@ -48,7 +54,44 @@
     </DataGridColumn>
 </BaseDataGrid>
 
+@if (_modalVisible)
+{
+    <Modal @bind-Visible="@_modalVisible">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.Large">
+            <ModalHeader>
+                <ModalTitle>장애관리</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <BaseDataGrid TItem="Failure"
+                              OnUpdateItems=@UpdateServerDevices
+                              OnSaveItem="@SaveServerDevice"
+                              OnDeleteItem="@DeleteServer">
+                    <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
+                        </DisplayTemplate>
+                    </DataGridDateColumn>
+                    <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(Failure.Description)" Caption="완료상태" Editable="true" Width="100px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.IsResolved</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                </BaseDataGrid>
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
+
 @code {
+    private bool _modalVisible;
+    private CommonAsset _selectedAsset = new();
+
     [Parameter]
     public string Title { get; set; } = string.Empty;
 
@@ -61,6 +104,50 @@
     [Parameter, EditorRequired]
     public required Func<CommonAsset, Task> OnDeleteItem { get; set; }
 
-    [Parameter, AllowNull]
+    [Parameter]
     public Func<CommonAsset, Task> OnShowDetail { get; set; } = default!;
+
+    private async Task ShowFailureView(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<Failure>> UpdateServerDevices()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Servers
+            .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.ServerDevices)
+            .SelectMany(s => s.ServerDevices)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveServerDevice(ServerDevice server)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (server.Id == 0)
+        {
+            Debug.Assert(_selectedAsset.Id != 0);
+            server.ServerId = _selectedAsset.Server!.Id;
+            context.ServerDevices.Add(server);
+        }
+        else
+        {
+            context.ServerDevices.Update(server);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteServer(ServerDevice server)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.ServerDevices.Remove(server);
+        await context.SaveChangesAsync();
+    }
 }

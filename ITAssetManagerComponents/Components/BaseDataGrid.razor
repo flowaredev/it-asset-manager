@@ -91,10 +91,17 @@ else
                 <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
                 <Button Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
                 <Button Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+
                 @if (OnShowDetail is not null)
                 {
-                    <Button Margin="Margin.Is1" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">자세히</Button>
+                    <Button Margin="Margin.Is1.FromStart" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">상세보기</Button>
                 }
+
+                @if (OnShowFailure is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart" Color="Color.Warning" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애관리</Button>
+                }
+
             </Div>
         </ButtonRowTemplate>
         <PageButtonTemplate>
@@ -128,7 +135,7 @@ else
         </PageSizesTemplate>
         <PopupTitleTemplate>
             <Div TextOverflow="TextOverflow.Truncate">
-                항목 수정
+                항목수정
             </Div>
         </PopupTitleTemplate>
     </DataGrid>
@@ -154,6 +161,9 @@ else
 
     [Parameter]
     public Func<TItem, Task> OnShowDetail { get; set; } = default!;
+
+    [Parameter]
+    public Func<TItem, Task> OnShowFailure { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {

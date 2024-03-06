@@ -1,6 +1,10 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<CommonAssetDataGrid Title="서버장비" OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset OnShowDetail="@ShowDetailView" />
+<CommonAssetDataGrid Title="서버장비"
+                     OnUpdateItems=@UpdateAssets
+                     OnSaveItem=@SaveAsset
+                     OnDeleteItem=@DeleteAsset
+                     OnShowDetail="@ShowDetailView" />
 
 @if (_modalVisible)
 {
@@ -40,11 +44,11 @@
                             <Div TextOverflow="TextOverflow.Truncate">@context.Disk</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="180px">
+                    <DataGridColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Rack</Div>
                         </DisplayTemplate>
-                    </DataGridNumericColumn>
+                    </DataGridColumn>
                 </BaseDataGrid>
             </ModalBody>
         </ModalContent>
