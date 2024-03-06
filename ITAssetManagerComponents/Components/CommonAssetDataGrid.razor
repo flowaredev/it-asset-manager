@@ -67,20 +67,7 @@
                               OnUpdateItems=@UpdateFailures
                               OnSaveItem="@SaveFailure"
                               OnDeleteItem="@DeleteFailure">
-                    <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
-                        </DisplayTemplate>
-                    </DataGridDateColumn>
-                    <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="550px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
-                        </DisplayTemplate>
-                        <EditTemplate>
-                            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
-                        </EditTemplate>
-                    </DataGridColumn>
-                    <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="100px">
+                    <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
                         <EditTemplate>
                             <Check TValue="bool" Checked="@((bool)context.CellValue)" CheckedChanged="@(value => context.CellValue = value)">완료</Check>
                         </EditTemplate>
@@ -88,6 +75,38 @@
                             <Div TextOverflow="TextOverflow.Truncate">@(context.IsResolved ? "완료" : "진행중")</Div>
                         </DisplayTemplate>
                     </DataGridCheckColumn>
+                    <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="300px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
+                        </DisplayTemplate>
+                        <EditTemplate>
+                            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+                        </EditTemplate>
+                    </DataGridColumn>
+                    <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
+                        </DisplayTemplate>
+                    </DataGridDateColumn>
+                    <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="방문일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
+                        </DisplayTemplate>
+                    </DataGridDateColumn>
+                    <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
+                        </DisplayTemplate>
+                    </DataGridDateColumn>
+                    <DataGridNumericColumn Field="@nameof(Failure.DisabilityHours)" Caption="장애시간" Width="120px" />
+                    <DataGridColumn Field="@nameof(Failure.ResolveDescription)" Caption="복구내용" Editable="true" Width="300px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDescription</Div>
+                        </DisplayTemplate>
+                        <EditTemplate>
+                            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+                        </EditTemplate>
+                    </DataGridColumn>
                 </BaseDataGrid>
             </ModalBody>
         </ModalContent>
@@ -112,7 +131,7 @@
 
     [Parameter]
     public Func<CommonAsset, Task> OnShowDetail { get; set; } = default!;
-    
+
     private async Task ShowFailureView(CommonAsset asset)
     {
         _selectedAsset = asset;
@@ -133,6 +152,7 @@
     private async Task SaveFailure(Failure failure)
     {
         using var context = DbFactory.CreateDbContext();
+        failure.DisabilityHours = (int)((failure.ResolveDateTime - failure.FailureDateTime).TotalHours);
 
         if (failure.Id == 0)
         {
