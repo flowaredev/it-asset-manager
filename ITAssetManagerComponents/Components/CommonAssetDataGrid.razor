@@ -1,7 +1,6 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <HeaderTitle Title="@Title" />
-
 <BaseDataGrid TItem="CommonAsset"
               OnUpdateItems="@OnUpdateItems"
               OnSaveItem="@OnSaveItem"
@@ -56,6 +55,7 @@
 
 @if (_modalVisible)
 {
+
     <Modal @bind-Visible="@_modalVisible">
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
@@ -63,51 +63,54 @@
                 <CloseButton />
             </ModalHeader>
             <ModalBody>
-                <BaseDataGrid TItem="Failure"
-                              OnUpdateItems=@UpdateFailures
-                              OnSaveItem="@SaveFailure"
-                              OnDeleteItem="@DeleteFailure">
-                    <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
-                        <EditTemplate>
-                            <Check TValue="bool" Checked="@((bool)context.CellValue)" CheckedChanged="@(value => context.CellValue = value)">완료</Check>
-                        </EditTemplate>
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@(context.IsResolved ? "완료" : "진행중")</Div>
-                        </DisplayTemplate>
-                    </DataGridCheckColumn>
-                    <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="300px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
-                        </DisplayTemplate>
-                        <EditTemplate>
-                            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
-                        </EditTemplate>
-                    </DataGridColumn>
-                    <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
-                        </DisplayTemplate>
-                    </DataGridDateColumn>
-                    <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="방문일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
-                        </DisplayTemplate>
-                    </DataGridDateColumn>
-                    <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
-                        </DisplayTemplate>
-                    </DataGridDateColumn>
-                    <DataGridNumericColumn Field="@nameof(Failure.DisabilityHours)" Caption="장애시간" Width="120px" />
-                    <DataGridColumn Field="@nameof(Failure.ResolveDescription)" Caption="복구내용" Editable="true" Width="300px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDescription</Div>
-                        </DisplayTemplate>
-                        <EditTemplate>
-                            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
-                        </EditTemplate>
-                    </DataGridColumn>
-                </BaseDataGrid>
+                <LoadingIndicator @ref="_loadingIndicator">
+
+                    <BaseDataGrid TItem="Failure"
+                                  OnUpdateItems=@UpdateFailures
+                                  OnSaveItem="@SaveFailure"
+                                  OnDeleteItem="@DeleteFailure">
+                        <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
+                            <EditTemplate>
+                                <Check TValue="bool" Checked="@((bool)context.CellValue)" CheckedChanged="@(value => context.CellValue = value)">완료</Check>
+                            </EditTemplate>
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@(context.IsResolved ? "완료" : "진행중")</Div>
+                            </DisplayTemplate>
+                        </DataGridCheckColumn>
+                        <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="300px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
+                            </DisplayTemplate>
+                            <EditTemplate>
+                                <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+                            </EditTemplate>
+                        </DataGridColumn>
+                        <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
+                            </DisplayTemplate>
+                        </DataGridDateColumn>
+                        <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="방문일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
+                            </DisplayTemplate>
+                        </DataGridDateColumn>
+                        <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
+                            </DisplayTemplate>
+                        </DataGridDateColumn>
+                        <DataGridNumericColumn Field="@nameof(Failure.DisabilityHours)" Caption="장애시간" Width="120px" />
+                        <DataGridColumn Field="@nameof(Failure.ResolveDescription)" Caption="복구내용" Editable="true" Width="300px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDescription</Div>
+                            </DisplayTemplate>
+                            <EditTemplate>
+                                <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+                            </EditTemplate>
+                        </DataGridColumn>
+                    </BaseDataGrid>
+                </LoadingIndicator>
             </ModalBody>
         </ModalContent>
     </Modal>
@@ -116,6 +119,7 @@
 @code {
     private bool _modalVisible;
     private CommonAsset _selectedAsset = new();
+    private LoadingIndicator _loadingIndicator = null!;
 
     [Parameter]
     public string Title { get; set; } = string.Empty;
@@ -166,6 +170,8 @@
         }
 
         await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(failure.FailureDateTime);
     }
 
     private async Task DeleteFailure(Failure failure)
@@ -173,5 +179,89 @@
         using var context = DbFactory.CreateDbContext();
         context.Failures.Remove(failure);
         await context.SaveChangesAsync();
+    }
+
+    private async Task UpdateServiceLevelAgreement(DateTime failureDateTime)
+    {
+        await _loadingIndicator.Show();
+
+        using var context = DbFactory.CreateDbContext();
+
+        var failuresInMonth = context.Failures
+                .Where(f => f.FailureDateTime.Year == failureDateTime.Year
+                    && f.FailureDateTime.Month == failureDateTime.Month);
+
+        var endDays = DateTime.DaysInMonth(failureDateTime.Year, failureDateTime.Month);
+        var disabiltiyHoursAverage = await failuresInMonth.AverageAsync(f => f.DisabilityHours);
+        var disabiltiyHoursLevel = disabiltiyHoursAverage switch
+        {
+            var hours when hours >= 0 && hours <= 4 => ServiceLevel.Excellent,
+            var hours when hours <= 6 => ServiceLevel.Good,
+            var hours when hours <= 8 => ServiceLevel.Average,
+            var hours when hours <= 10 => ServiceLevel.Insufficient,
+            var hours when hours > 10 => ServiceLevel.Poor,
+            _ => ServiceLevel.None
+        };
+
+        var uptimeRate = 1 - ((await failuresInMonth.ToArrayAsync())
+            .Sum(f => (f.ResolveDateTime - f.FailureDateTime).TotalHours) / (24 * endDays));
+
+        var uptimeLevel = uptimeRate switch
+        {
+            var rate when rate >= 1 => ServiceLevel.Excellent,
+            var rate when rate >= 0.98 => ServiceLevel.Good,
+            var rate when rate >= 0.94 => ServiceLevel.Average,
+            var rate when rate >= 0.92 => ServiceLevel.Insufficient,
+            var rate when rate < 0.92 => ServiceLevel.Poor,
+            _ => ServiceLevel.None
+        };
+
+        var resolvedIn48HourCount = await failuresInMonth.CountAsync(f => f.IsResolved && f.DisabilityHours <= 48);
+        var failureCount = await failuresInMonth.CountAsync();
+        var technicalSupportCompletionRate = (double)resolvedIn48HourCount / failureCount;
+        var technicalSupportLevel = technicalSupportCompletionRate switch
+        {
+            var rate when rate >= 0.98 => ServiceLevel.Excellent,
+            var rate when rate >= 0.94 => ServiceLevel.Good,
+            var rate when rate >= 0.92 => ServiceLevel.Average,
+            var rate when rate >= 0.9 => ServiceLevel.Insufficient,
+            var rate when rate < 0.9 => ServiceLevel.Poor,
+            _ => ServiceLevel.None
+        };
+
+        var serviceLevelAgreement = await context.ServiceLevelAgreements
+            .SingleOrDefaultAsync(s => s.EndDateOfMonth.Year == failureDateTime.Year
+                && s.EndDateOfMonth.Month == failureDateTime.Month);
+
+        if (serviceLevelAgreement == null)
+        {
+            var newServiceLevelAgreement = new ServiceLevelAgreement
+                {
+                    EndDateOfMonth = new DateOnly(failureDateTime.Year, failureDateTime.Month, endDays),
+                    DisabilityHoursAverage = disabiltiyHoursAverage,
+                    DisabilityHoursLevel = disabiltiyHoursLevel,
+                    UptimeRate = uptimeRate,
+                    UptimeLevel = uptimeLevel,
+                    TechnicalSupportCompletionRate = technicalSupportCompletionRate,
+                    TechnicalSupportLevel = technicalSupportLevel,
+                };
+
+            await context.ServiceLevelAgreements.AddAsync(newServiceLevelAgreement);
+        }
+        else
+        {
+            serviceLevelAgreement.DisabilityHoursAverage = disabiltiyHoursAverage;
+            serviceLevelAgreement.DisabilityHoursLevel = disabiltiyHoursLevel;
+            serviceLevelAgreement.UptimeRate = uptimeRate;
+            serviceLevelAgreement.UptimeLevel = uptimeLevel;
+            serviceLevelAgreement.TechnicalSupportCompletionRate = technicalSupportCompletionRate;
+            serviceLevelAgreement.TechnicalSupportLevel = technicalSupportLevel;
+
+            context.ServiceLevelAgreements.Update(serviceLevelAgreement);
+        }
+
+        await context.SaveChangesAsync();
+
+        await _loadingIndicator.Hide();
     }
 }

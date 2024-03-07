@@ -1,0 +1,61 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<HeaderTitle Title="Service Level Agreement" />
+
+<BaseDataGrid TItem="ServiceLevelAgreement"
+              DisableButtonRow="true"
+              OnUpdateItems="@UpdateServiceLevels">
+    <DataGridDateColumn Field="@nameof(ServiceLevelAgreement.EndDateOfMonth)" Caption="등급산출월" Editable="true" InputMode="DateInputMode.Month" Width="150px" />
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.DisabilityHoursAverage)" Caption="장애복구시간" Editable="true" Width="150px" />
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.DisabilityHoursLevel)" Caption="장애복구등급" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @(ServiceLevelConverter.ToString(context.DisabilityHoursLevel))
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.UptimeRate)" Caption="서비스가동율" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @context.UptimeRate.ToString("P")
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.UptimeLevel)" Caption="서비스가동등급" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @(ServiceLevelConverter.ToString(context.UptimeLevel))
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.InspectionComplianceRate)" Caption="정기점검율" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @context.InspectionComplianceRate.ToString("P")
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.InspectionComplianceLevel)" Caption="정기점검등급" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @(ServiceLevelConverter.ToString(context.InspectionComplianceLevel))
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.TechnicalSupportCompletionRate)" Caption="기술지원율" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @context.TechnicalSupportCompletionRate.ToString("P")
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.TechnicalSupportLevel)" Caption="기술지원등급" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @(ServiceLevelConverter.ToString(context.TechnicalSupportLevel))
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.SecurityIssues)" Caption="보안지적건" Editable="true" Width="150px" />
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.SecurityIssuesLevel)" Caption="보안등급" Editable="true" Width="150px">
+        <DisplayTemplate>
+            @(ServiceLevelConverter.ToString(context.SecurityIssuesLevel))
+        </DisplayTemplate>
+    </DataGridColumn>
+</BaseDataGrid>
+
+@code {
+    private async Task<List<ServiceLevelAgreement>> UpdateServiceLevels()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.ServiceLevelAgreements
+            .ToListAsync();
+        return items;
+    }
+}

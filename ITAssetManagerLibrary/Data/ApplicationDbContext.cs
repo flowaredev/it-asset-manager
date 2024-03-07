@@ -11,5 +11,6 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<Server> Servers { get; set; }
         public DbSet<Utility> Utilities { get; set; }
         public DbSet<Failure> Failures { get; set; }
+        public DbSet<ServiceLevelAgreement> ServiceLevelAgreements { get; set; }
     }
 }

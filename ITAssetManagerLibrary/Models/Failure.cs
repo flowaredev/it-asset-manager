@@ -23,7 +23,7 @@ namespace ITAssetManagerLibrary.Models
         public DateTime ResolveDateTime { get; set; } = DateTime.Now;
 
         [Required]
-        public int DisabilityHours { get; set; }
+        public int DisabilityHours { get; set; } = -1;
 
         [Required]
         public string ResolveDescription { get; set; } = string.Empty;
