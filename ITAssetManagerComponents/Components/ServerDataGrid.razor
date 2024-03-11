@@ -70,7 +70,7 @@
     }
 
     private async Task SaveAsset(CommonAsset asset)
-    {
+    {       
         using var context = DbFactory.CreateDbContext();
 
         if (asset.Id == 0)

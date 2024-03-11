@@ -7,16 +7,13 @@ namespace ITAssetManagerLibrary.Models
         public int Id { get; set; }
 
         [Required]
-        public string Category { get; set; } = string.Empty;
-
-        [Required]
         public string ManagementTag { get; set; } = string.Empty;
 
         [Required]
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        public string Role { get; set; } = string.Empty;        
+        public string Role { get; set; } = string.Empty;
 
         [Required]
         public DateTime ApplyDateTime { get; set; } = DateTime.Now;
@@ -29,7 +26,13 @@ namespace ITAssetManagerLibrary.Models
 
         [Required]
         public string ResponsiblePersonPhone { get; set; } = string.Empty;
-       
+
+        [Required]
+        public string OnSiteManager { get; set; } = string.Empty;
+
+        [Required]
+        public string OnSiteManagerPhone { get; set; } = string.Empty;
+
         [Timestamp]
         public byte[] Version { get; set; } = [];
 

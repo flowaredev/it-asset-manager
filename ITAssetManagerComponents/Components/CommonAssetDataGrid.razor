@@ -1,4 +1,6 @@
-﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+﻿@using System.Text.RegularExpressions
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <HeaderTitle Title="@Title" />
 <BaseDataGrid TItem="CommonAsset"
@@ -7,9 +9,9 @@
               OnDeleteItem="@OnDeleteItem"
               OnShowFailure="@ShowFailureView"
               OnShowDetail=@OnShowDetail>
-    <DataGridColumn Field="@nameof(CommonAsset.Category)" Caption="자산분류" Editable="true" Width="150px">
+    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
         <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">@context.Category</Div>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Name</Div>
         </DisplayTemplate>
     </DataGridColumn>
     <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
@@ -17,12 +19,7 @@
             <Div TextOverflow="TextOverflow.Truncate">@context.ManagementTag</Div>
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
-        <DisplayTemplate>
-            <Div TextOverflow="TextOverflow.Truncate">@context.Name</Div>
-        </DisplayTemplate>
-    </DataGridColumn>
-    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.Date" Width="200px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.ApplyDateTime</Div>
         </DisplayTemplate>
@@ -37,25 +34,48 @@
             <Div TextOverflow="TextOverflow.Truncate">@context.ResponsibleCompany</Div>
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePerson)" Caption="담당자" Editable="true" Width="130px">
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePerson)" Caption="업체담당자" Editable="true" Width="130px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePerson</Div>
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="연락처" Editable="true" Width="130px">
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="업체연락처" Editable="true" Width="130px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePersonPhone</Div>
         </DisplayTemplate>
-
         <EditTemplate>
-            <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+            <Validation Validator="@CheckPhoneNumber">
+                <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)">
+                    <Feedback>
+                        <ValidationError />
+                    </Feedback>
+                </TextEdit>
+            </Validation>
+        </EditTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManager)" Caption="현업담당자" Editable="true" Width="130px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManager</Div>
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManagerPhone)" Caption="현업연락처" Editable="true" Width="130px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManagerPhone</Div>
+        </DisplayTemplate>
+        <EditTemplate>
+            <Validation Validator="@CheckPhoneNumber">
+                <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)">
+                    <Feedback>
+                        <ValidationError />
+                    </Feedback>
+                </TextEdit>
+            </Validation>
         </EditTemplate>
     </DataGridColumn>
 </BaseDataGrid>
 
 @if (_modalVisible)
 {
-
     <Modal @bind-Visible="@_modalVisible">
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
@@ -90,12 +110,12 @@
                                 <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
                             </DisplayTemplate>
                         </DataGridDateColumn>
-                        <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="방문일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="복구시작" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
                             <DisplayTemplate>
                                 <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
                             </DisplayTemplate>
                         </DataGridDateColumn>
-                        <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+                        <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구완료" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
                             <DisplayTemplate>
                                 <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
                             </DisplayTemplate>
@@ -264,4 +284,21 @@
 
         await _loadingIndicator.Hide();
     }
+
+    private void CheckPhoneNumber(ValidatorEventArgs validatorEventArgs)
+    {
+        if (validatorEventArgs.Value is string phoneNumber)
+        {
+            if (!Regex.IsMatch(phoneNumber, @"^\d{2,3}-?\d{3,4}-?\d{4}$"))
+            {
+                validatorEventArgs.Status = ValidationStatus.Error;
+                validatorEventArgs.ErrorText = "전화번호 형식이 아닙니다.";
+            }
+            else
+            {
+                validatorEventArgs.Status = ValidationStatus.Success;
+            }
+        }
+    }
+
 }

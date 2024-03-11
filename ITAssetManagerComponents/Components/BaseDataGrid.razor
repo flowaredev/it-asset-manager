@@ -16,12 +16,15 @@ else
 {
     <DataGrid TItem="TItem"
               Data="@_items"
-              @bind-SelectedRow="@_selectedItem"
+              @ref="_dataGrid"
+              @bind-SelectedRow="_selectedItem"
               PopupSize="ModalSize.ExtraLarge"
               ShowPager="true"
               ShowPageSizes="true"
               Editable="true"
               UseValidation="true"
+              ShowValidationsSummary="false"
+              ShowValidationFeedback="true"
               Sortable="true"
               SortMode="DataGridSortMode.Single"
               Filterable="true"
@@ -150,6 +153,7 @@ else
     private bool _isLoading;
     private PersistingComponentStateSubscription _persistingSubscription;
     private TItem? _selectedItem;
+    private DataGrid<TItem> _dataGrid = null!;
 
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = default!;
@@ -183,7 +187,6 @@ else
             nameof(_items), out var items))
         {
             var result = await OnUpdateItems();
-            result.Reverse();
             _items = new ObservableCollection<TItem>(result);
         }
         else
@@ -209,9 +212,12 @@ else
 
     private async Task SaveItem(CommandContext<TItem> context)
     {
-        await context.Clicked.InvokeAsync();
-        var newItem = context.Item;
-        await OnSaveItem(newItem);
+        if (await _dataGrid.ValidateAll())
+        {
+            Debug.WriteLine("SaveItem");
+            await context.Clicked.InvokeAsync();
+            await OnSaveItem(context.Item);
+        }
     }
 
     private async Task DeleteItem(CommandContext<TItem> context)

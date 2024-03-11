@@ -8,6 +8,7 @@ using Blazorise;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.Bootstrap5;
 using ITAssetManagerLibrary.Data;
+using ITAssetManagerLibrary.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +50,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services
     .AddBlazorise(options =>
     {
-        options.Immediate = true;
+        options.ValidationMessageLocalizer = ValidationMessageLocalizingHelper.GetValidationMessage;
     })
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
