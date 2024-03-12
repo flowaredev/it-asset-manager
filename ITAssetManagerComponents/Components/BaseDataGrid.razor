@@ -108,6 +108,11 @@ else
                         <Button Margin="Margin.Is1.FromStart" Color="Color.Warning" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애관리</Button>
                     }
 
+                    @if (OnShowMaintenance is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart" Color="Color.Info" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수관리</Button>
+                    }
+
                 </Div>
             }
         </ButtonRowTemplate>
@@ -172,6 +177,9 @@ else
 
     [Parameter]
     public Func<TItem, Task> OnShowFailure { get; set; } = default!;
+
+    [Parameter]
+    public Func<TItem, Task> OnShowMaintenance { get; set; } = default!;
 
     [Parameter]
     public bool DisableButtonRow { get; set; } = false;

@@ -17,6 +17,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<SupportEquipment> SupportEquipments { get; set; }
         public DbSet<MiscellaneousEquipment> MiscellaneousEquipments { get; set; }
         public DbSet<Failure> Failures { get; set; }
+        public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<ServiceLevelAgreement> ServiceLevelAgreements { get; set; }
     }
 }

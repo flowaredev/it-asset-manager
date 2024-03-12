@@ -1,0 +1,61 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<BaseDataGrid TItem="Maintenance"
+              OnUpdateItems=@UpdateMaintenances
+              OnSaveItem="@SaveMaintenance"
+              OnDeleteItem="@DeleteMaintenance">
+    <DataGridColumn Field="@nameof(Maintenance.Description)" Caption="작업내용" Editable="true" Width="300px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
+        </DisplayTemplate>
+        <EditTemplate>
+            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+        </EditTemplate>
+    </DataGridColumn>
+    <DataGridDateColumn Field="@nameof(Maintenance.VisitDateTime)" Caption="작업시작일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridDateColumn Field="@nameof(Maintenance.ResolveDateTime)" Caption="작업종료일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+</BaseDataGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CommonAssetId { get; set; }
+
+    private async Task<List<Maintenance>> UpdateMaintenances()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Maintenances
+            .Where(x => x.CommonAssetId == CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        if (item.Id == 0)
+        {
+            item.CommonAssetId = CommonAssetId;
+            context.Maintenances.Add(item);
+        }
+        else
+        {
+            context.Maintenances.Update(item);
+        }
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Maintenances.Remove(item);
+        await context.SaveChangesAsync();
+    }
+}
