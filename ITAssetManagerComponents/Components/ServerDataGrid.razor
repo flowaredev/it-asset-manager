@@ -29,17 +29,22 @@
                             <Div TextOverflow="TextOverflow.Truncate">@context.Model</Div>
                         </DisplayTemplate>
                     </DataGridColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="180px">
+                    <DataGridColumn Field="@nameof(ServerDevice.SerialNumber)" Caption="시리얼번호" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.SerialNumber</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Cpu</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="180px">
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Ram</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="180px">
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Disk</Div>
                         </DisplayTemplate>
@@ -70,7 +75,7 @@
     }
 
     private async Task SaveAsset(CommonAsset asset)
-    {       
+    {
         using var context = DbFactory.CreateDbContext();
 
         if (asset.Id == 0)

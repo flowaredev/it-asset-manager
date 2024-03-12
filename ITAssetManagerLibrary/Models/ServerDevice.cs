@@ -13,6 +13,9 @@ namespace ITAssetManagerLibrary.Models
         public string Model { get; set; } = string.Empty;
 
         [Required]
+        public string SerialNumber { get; set; } = string.Empty;
+
+        [Required]
         public double Cpu { get; set; }
 
         [Required]
