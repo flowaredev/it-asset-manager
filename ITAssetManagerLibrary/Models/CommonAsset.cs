@@ -37,7 +37,13 @@ namespace ITAssetManagerLibrary.Models
         public byte[] Version { get; set; } = [];
 
         public Server? Server { get; set; }
-        public Utility? Utility { get; set; }
+        public Software? Software { get; set; }
+        public Storage? Storage { get; set; }
+        public BackupEquipment? BackupEquipment { get; set; }
+        public NetworkEquipment? NetworkEquipment { get; set; }
+        public SecurityEquipment? SecurityEquipment { get; set; }
+        public SupportEquipment? SupportEquipment { get; set; }
+        public MiscellaneousEquipment? MiscellaneousEquipment { get; set; }
 
         public ICollection<Failure> Failures { get; } = [];
 

@@ -4,6 +4,7 @@ using ITAssetManagerLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITAssetManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240312042856_AddSoftware")]
+    partial class AddSoftware
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,31 +88,6 @@ namespace ITAssetManager.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.BackupEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("BackupEquipments");
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.CommonAsset", b =>
@@ -211,81 +189,6 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId");
 
                     b.ToTable("Failures");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.MiscellaneousEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("MiscellaneousEquipments");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.NetworkEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("NetworkEquipments");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.SecurityEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("SecurityEquipments");
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
@@ -439,56 +342,6 @@ namespace ITAssetManager.Migrations
                     b.ToTable("Softwares");
                 });
 
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Storage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("Storages");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.SupportEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommonAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommonAssetId")
-                        .IsUnique();
-
-                    b.ToTable("SupportEquipments");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -622,55 +475,11 @@ namespace ITAssetManager.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.BackupEquipment", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("BackupEquipment")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.BackupEquipment", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Failure", b =>
                 {
                     b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
                         .WithMany("Failures")
                         .HasForeignKey("CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.MiscellaneousEquipment", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("MiscellaneousEquipment")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.MiscellaneousEquipment", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.NetworkEquipment", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("NetworkEquipment")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.NetworkEquipment", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.SecurityEquipment", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("SecurityEquipment")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.SecurityEquipment", "CommonAssetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -704,28 +513,6 @@ namespace ITAssetManager.Migrations
                     b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
                         .WithOne("Software")
                         .HasForeignKey("ITAssetManagerLibrary.Models.Software", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.Storage", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("Storage")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.Storage", "CommonAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommonAsset");
-                });
-
-            modelBuilder.Entity("ITAssetManagerLibrary.Models.SupportEquipment", b =>
-                {
-                    b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
-                        .WithOne("SupportEquipment")
-                        .HasForeignKey("ITAssetManagerLibrary.Models.SupportEquipment", "CommonAssetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -785,23 +572,11 @@ namespace ITAssetManager.Migrations
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.CommonAsset", b =>
                 {
-                    b.Navigation("BackupEquipment");
-
                     b.Navigation("Failures");
-
-                    b.Navigation("MiscellaneousEquipment");
-
-                    b.Navigation("NetworkEquipment");
-
-                    b.Navigation("SecurityEquipment");
 
                     b.Navigation("Server");
 
                     b.Navigation("Software");
-
-                    b.Navigation("Storage");
-
-                    b.Navigation("SupportEquipment");
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
