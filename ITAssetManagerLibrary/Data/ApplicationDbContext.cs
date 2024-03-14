@@ -19,5 +19,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<Failure> Failures { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<ServiceLevelAgreement> ServiceLevelAgreements { get; set; }
+        public DbSet<RoutineCheck> RoutineChecks { get; set; }
+        public DbSet<SecurityVulnerability> SecurityVulnerabilities { get; set; }
     }
 }

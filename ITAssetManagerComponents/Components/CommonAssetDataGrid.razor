@@ -9,6 +9,8 @@
               OnDeleteItem="@OnDeleteItem"
               OnShowFailure="@ShowFailureView"
               OnShowMaintenance="@ShowMaintenance"
+              OnShowRoutineCheck="@ShowRoutineCheck"
+              OnShowSecurityVulnerability="@ShowSecurityVulnerability"
               OnShowDetail=@OnShowDetail>
     <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
         <DisplayTemplate>
@@ -80,7 +82,7 @@
     <Modal @bind-Visible="@_isShowFailureView">
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
-                <ModalTitle>장애관리</ModalTitle>
+                <ModalTitle>장애 관리</ModalTitle>
                 <CloseButton />
             </ModalHeader>
             <ModalBody>
@@ -95,7 +97,7 @@
     <Modal @bind-Visible="@_isShowMaintenanceView">
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
-                <ModalTitle>유지보수관리</ModalTitle>
+                <ModalTitle>유지보수 관리</ModalTitle>
                 <CloseButton />
             </ModalHeader>
             <ModalBody>
@@ -105,8 +107,38 @@
     </Modal>
 }
 
+@if (_isShowRoutineCheck)
+{
+    <Modal @bind-Visible="@_isShowRoutineCheck">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+            <ModalHeader>
+                <ModalTitle>정기점검 관리</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <RoutineCheckDataGrid CommonAssetId="@_selectedAsset.Id" />
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
+
+@if (_isShowSecurityVulnerability)
+{
+    <Modal @bind-Visible="@_isShowSecurityVulnerability">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+            <ModalHeader>
+                <ModalTitle>보안 취약점 관리</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <SecurityVulnerabilityDataGrid CommonAssetId="@_selectedAsset.Id" />
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
+
 @code {
-    private bool _isShowFailureView, _isShowMaintenanceView;
+    private bool _isShowFailureView, _isShowMaintenanceView, _isShowRoutineCheck, _isShowSecurityVulnerability;
     private CommonAsset _selectedAsset = new();
 
     [Parameter]
@@ -136,6 +168,22 @@
     {
         _selectedAsset = asset;
         _isShowMaintenanceView = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task ShowRoutineCheck(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _isShowRoutineCheck = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task ShowSecurityVulnerability(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _isShowSecurityVulnerability = true;
         StateHasChanged();
         await Task.CompletedTask;
     }

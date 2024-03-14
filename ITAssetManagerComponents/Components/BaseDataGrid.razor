@@ -87,34 +87,39 @@ else
             </Grid>
         </FilterMenuTemplate>
         <EmptyTemplate>
-            <Alert Color="Color.Secondary" Visible="true">
-                <AlertMessage>등록된 자료가 없습니다.</AlertMessage>
-            </Alert>
+            등록된 자료가 없습니다.
         </EmptyTemplate>
         <ButtonRowTemplate>
             @if (!DisableButtonRow)
             {
-                <Div>
-                    <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
-                    <Button Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
-                    <Button Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+                <Button Margin="Margin.Is1.FromBottom" Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
+                <Button Margin="Margin.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+                <Button Margin="Margin.Is1.FromBottom" Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
 
-                    @if (OnShowDetail is not null)
-                    {
-                        <Button Margin="Margin.Is1.FromStart" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">상세보기</Button>
-                    }
+                @if (OnShowDetail is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">사양</Button>
+                }
 
-                    @if (OnShowFailure is not null)
-                    {
-                        <Button Margin="Margin.Is1.FromStart" Color="Color.Warning" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애관리</Button>
-                    }
+                @if (OnShowFailure is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Warning" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
+                }
 
-                    @if (OnShowMaintenance is not null)
-                    {
-                        <Button Margin="Margin.Is1.FromStart" Color="Color.Info" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수관리</Button>
-                    }
+                @if (OnShowSecurityVulnerability is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Warning" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowSecurityVulnerability(_selectedItem!))">보안취약</Button>
+                }
 
-                </Div>
+                @if (OnShowMaintenance is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Info" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수</Button>
+                }
+
+                @if (OnShowRoutineCheck is not null)
+                {
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Info" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowRoutineCheck(_selectedItem!))">정기점검</Button>
+                }
             }
         </ButtonRowTemplate>
         <PageButtonTemplate>
@@ -182,7 +187,13 @@ else
     [Parameter]
     public Func<TItem, Task> OnShowMaintenance { get; set; } = default!;
 
-    [Parameter] 
+    [Parameter]
+    public Func<TItem, Task> OnShowRoutineCheck { get; set; } = default!;
+
+    [Parameter]
+    public Func<TItem, Task> OnShowSecurityVulnerability { get; set; } = default!;
+
+    [Parameter]
     public Action<TItem, DataGridRowStyling> OnRowStyling { get; set; } = default!;
 
     [Parameter]
