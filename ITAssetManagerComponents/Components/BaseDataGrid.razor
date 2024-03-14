@@ -18,6 +18,7 @@ else
               Data="@_items"
               @ref="_dataGrid"
               @bind-SelectedRow="_selectedItem"
+              RowStyling="@OnRowStyling"
               PopupSize="ModalSize.ExtraLarge"
               ShowPager="true"
               ShowPageSizes="true"
@@ -180,6 +181,9 @@ else
 
     [Parameter]
     public Func<TItem, Task> OnShowMaintenance { get; set; } = default!;
+
+    [Parameter] 
+    public Action<TItem, DataGridRowStyling> OnRowStyling { get; set; } = default!;
 
     [Parameter]
     public bool DisableButtonRow { get; set; } = false;

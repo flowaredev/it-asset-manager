@@ -4,6 +4,7 @@
     <BaseDataGrid TItem="Failure"
                   OnUpdateItems=@UpdateFailures
                   OnSaveItem="@SaveFailure"
+                  OnRowStyling="@RowStyling"
                   OnDeleteItem="@DeleteFailure">
         <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
             <EditTemplate>
@@ -173,5 +174,13 @@
         await context.SaveChangesAsync();
 
         await _loadingIndicator.Hide();
+    }
+
+    private void RowStyling(Failure failure, DataGridRowStyling styling)
+    {
+        if (!failure.IsResolved)
+        {
+            styling.Color = Color.Danger;
+        }
     }
 }
