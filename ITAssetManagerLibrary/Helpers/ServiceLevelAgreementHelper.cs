@@ -90,5 +90,50 @@ namespace ITAssetManagerLibrary.Helpers
 
             await context.SaveChangesAsync();
         }
+
+        public static async Task UpdateSecurityVulnerability(IDbContextFactory<ApplicationDbContext> dbFactory, DateTime discoveryDateTime)
+        {
+            using var context = dbFactory.CreateDbContext();
+            var securityVulnerabilitiesInMonth = context.SecurityVulnerabilities
+                .Where(s => s.DiscoveryDateTime.Year == discoveryDateTime.Year
+                                   && s.DiscoveryDateTime.Month == discoveryDateTime.Month);
+            var endDays = DateTime.DaysInMonth(discoveryDateTime.Year, discoveryDateTime.Month);
+            var lowCount = await securityVulnerabilitiesInMonth.CountAsync(s => s.Level == SecurityVulnerabilityLevel.Low);
+            var mediumCount = await securityVulnerabilitiesInMonth.CountAsync(s => s.Level == SecurityVulnerabilityLevel.Medium);
+            var securityVulnerabilityServiceLevel = (lowCount, mediumCount) switch
+            {
+                ( >= 0, >= 1) => ServiceLevel.Poor,
+                ( > 3, 0) => ServiceLevel.Poor,
+                (3, 0) => ServiceLevel.Insufficient,
+                (2, 0) => ServiceLevel.Average,
+                (1, 0) => ServiceLevel.Good,
+                (0, 0) => ServiceLevel.Excellent,
+                _ => ServiceLevel.None
+            };
+
+            var serviceLevelAgreement = await context.ServiceLevelAgreements
+                .SingleOrDefaultAsync(s => s.EndDateOfMonth.Year == discoveryDateTime.Year
+                                   && s.EndDateOfMonth.Month == discoveryDateTime.Month);
+
+            if (serviceLevelAgreement == null)
+            {
+                var newServiceLevelAgreement = new ServiceLevelAgreement
+                {
+                    EndDateOfMonth = new DateOnly(discoveryDateTime.Year, discoveryDateTime.Month, endDays),
+                    SecurityIssues = lowCount + mediumCount,
+                    SecurityIssuesLevel = securityVulnerabilityServiceLevel
+                };
+
+                await context.ServiceLevelAgreements.AddAsync(newServiceLevelAgreement);
+            }
+            else
+            {
+                serviceLevelAgreement.SecurityIssues = lowCount + mediumCount;
+                serviceLevelAgreement.SecurityIssuesLevel = securityVulnerabilityServiceLevel;
+                context.ServiceLevelAgreements.Update(serviceLevelAgreement);
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

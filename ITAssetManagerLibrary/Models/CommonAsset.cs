@@ -44,8 +44,8 @@ namespace ITAssetManagerLibrary.Models
         public SecurityEquipment? SecurityEquipment { get; set; }
         public SupportEquipment? SupportEquipment { get; set; }
         public MiscellaneousEquipment? MiscellaneousEquipment { get; set; }
-        public RoutineCheck? RoutineCheck { get; set; }
-        public SecurityVulnerability? SecurityVulnerability { get; set; }
+        public ICollection<RoutineCheck> RoutineChecks { get; } = [];
+        public ICollection<SecurityVulnerability> SecurityVulnerabilities { get; } = [];
 
         public ICollection<Failure> Failures { get; } = [];
 
