@@ -54,6 +54,15 @@
             context.RoutineChecks.Update(item);
         }
         await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(item.EndDateTime);
+    }
+
+    private async Task UpdateServiceLevelAgreement(DateTime targetDateTime)
+    {
+        await _loadingIndicator.Show();
+        await ServiceLevelAgreementHelper.UpdateRoutineCheck(DbFactory, targetDateTime);
+        await _loadingIndicator.Hide();
     }
 
     private async Task DeleteItems(RoutineCheck item)
@@ -61,5 +70,7 @@
         using var context = DbFactory.CreateDbContext();
         context.RoutineChecks.Remove(item);
         await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(item.EndDateTime);
     }
 }

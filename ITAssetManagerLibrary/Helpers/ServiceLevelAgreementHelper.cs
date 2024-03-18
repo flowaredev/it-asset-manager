@@ -135,5 +135,52 @@ namespace ITAssetManagerLibrary.Helpers
 
             await context.SaveChangesAsync();
         }
+
+        public static async Task UpdateRoutineCheck(IDbContextFactory<ApplicationDbContext> dbFactory, DateTime targetDateTime)
+        {
+            using var context = dbFactory.CreateDbContext();
+            var routineChecksInMonth = context.RoutineChecks
+                .Where(r => r.EndDateTime.Year == targetDateTime.Year
+                    && r.EndDateTime.Month == targetDateTime.Month)
+                .AsEnumerable()
+                .DistinctBy(r => r.CommonAssetId);
+            var endDays = DateTime.DaysInMonth(targetDateTime.Year, targetDateTime.Month);
+            var routineCheckCount = routineChecksInMonth.Count();
+            var assetCount = await context.CommonAssets.CountAsync();
+            var routineCheckRate = (double)routineCheckCount / assetCount;
+            var routineCheckServiceLevelAgreement = routineCheckRate switch
+            {
+                var rate when rate >= 1 => ServiceLevel.Excellent,
+                var rate when rate >= 0.99 => ServiceLevel.Good,
+                var rate when rate >= 0.98 => ServiceLevel.Average,
+                var rate when rate >= 0.97 => ServiceLevel.Insufficient,
+                var rate when rate < 0.97 => ServiceLevel.Poor,
+                _ => ServiceLevel.None
+            };
+
+            var serviceLevelAgreement = await context.ServiceLevelAgreements
+                .SingleOrDefaultAsync(s => s.EndDateOfMonth.Year == targetDateTime.Year
+                                   && s.EndDateOfMonth.Month == targetDateTime.Month);
+
+            if (serviceLevelAgreement == null)
+            {
+                var newServiceLevelAgreement = new ServiceLevelAgreement
+                {
+                    EndDateOfMonth = new DateOnly(targetDateTime.Year, targetDateTime.Month, endDays),
+                    InspectionComplianceRate = routineCheckRate,
+                    InspectionComplianceLevel = routineCheckServiceLevelAgreement
+                };
+
+                await context.ServiceLevelAgreements.AddAsync(newServiceLevelAgreement);
+            }
+            else
+            {
+                serviceLevelAgreement.InspectionComplianceRate = routineCheckRate;
+                serviceLevelAgreement.InspectionComplianceLevel = routineCheckServiceLevelAgreement;
+                context.ServiceLevelAgreements.Update(serviceLevelAgreement);
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }
