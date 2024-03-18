@@ -167,16 +167,16 @@ namespace ITAssetManagerLibrary.Helpers
                 var newServiceLevelAgreement = new ServiceLevelAgreement
                 {
                     EndDateOfMonth = new DateOnly(targetDateTime.Year, targetDateTime.Month, endDays),
-                    InspectionComplianceRate = routineCheckRate,
-                    InspectionComplianceLevel = routineCheckServiceLevelAgreement
+                    RoutineCheckRate = routineCheckRate,
+                    RoutineCheckLevel = routineCheckServiceLevelAgreement
                 };
 
                 await context.ServiceLevelAgreements.AddAsync(newServiceLevelAgreement);
             }
             else
             {
-                serviceLevelAgreement.InspectionComplianceRate = routineCheckRate;
-                serviceLevelAgreement.InspectionComplianceLevel = routineCheckServiceLevelAgreement;
+                serviceLevelAgreement.RoutineCheckRate = routineCheckRate;
+                serviceLevelAgreement.RoutineCheckLevel = routineCheckServiceLevelAgreement;
                 context.ServiceLevelAgreements.Update(serviceLevelAgreement);
             }
 

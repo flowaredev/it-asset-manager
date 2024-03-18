@@ -1,0 +1,59 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject AntiforgeryStateProvider Antiforgery
+
+<AuthorizeView>
+    <Authorized>
+        <BarItem>
+            <BarLink To="Account/Manage">
+                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
+                @context.User.Identity?.Name
+            </BarLink>
+        </BarItem>
+
+        <form action="Account/Logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+            <BarItem>
+                <Button Type="ButtonType.Submit" Class="b-bar-link" TextAlignment="TextAlignment.Start">
+                    <Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignOutAlt" />
+                    로그아웃
+                </Button>
+            </BarItem>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <BarItem>
+            <BarLink To="Account/Register">
+                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserPlus" />
+                회원가입
+            </BarLink>
+        </BarItem>
+        <BarItem>
+            <BarLink To="Account/Login">
+                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
+                로그인
+            </BarLink>
+        </BarItem>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

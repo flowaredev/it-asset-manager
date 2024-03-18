@@ -19,6 +19,31 @@
         "js/*",
         "webfonts/*"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@kfonts/nanum-gothic@0.1.3",
+      "destination": "wwwroot/lib/kfonts/nanum-gothic/",
+      "files": [
+        "index.min.css",
+        "NanumGothic.eot",
+        "NanumGothic.ttf",
+        "NanumGothic.woff",
+        "NanumGothic.woff2",
+        "NanumGothicBold.eot",
+        "NanumGothicBold.ttf",
+        "NanumGothicBold.woff",
+        "NanumGothicBold.woff2",
+        "NanumGothicExtraBold.eot",
+        "NanumGothicExtraBold.ttf",
+        "NanumGothicExtraBold.woff",
+        "NanumGothicExtraBold.woff2",
+        "NanumGothicLight.eot",
+        "NanumGothicLight.ttf",
+        "NanumGothicLight.woff",
+        "NanumGothicLight.woff2",
+        "README.md"
+      ]
     }
   ]
 }

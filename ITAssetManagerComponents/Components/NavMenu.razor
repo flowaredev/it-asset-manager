@@ -1,7 +1,4 @@
-﻿@implements IDisposable
-@inject NavigationManager NavigationManager
-@inject AntiforgeryStateProvider Antiforgery
-
+﻿
 <Bar Mode="BarMode.VerticalInline"
      CollapseMode="BarCollapseMode.Small"
      Background="Background.Dark"
@@ -62,74 +59,41 @@
                 </BarDropdown>
             </BarItem>
             <BarItem>
-                <BarLink To="/faultmanagement">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.HeartBroken" />
-                    장애관리
-                </BarLink>
+                <BarDropdown>
+                    <BarDropdownToggle>
+                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ChartBar" />
+                        자산현황
+                    </BarDropdownToggle>
+                    <BarDropdownMenu>
+                        <BarDropdownItem To="/fault">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.HeartBroken" />
+                            장애
+                        </BarDropdownItem>
+                        <BarDropdownItem To="/securityvulnerability">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bug" />
+                            보안취약점
+                        </BarDropdownItem>
+                        <BarDropdownItem To="/routinecheck">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
+                            정기점검
+                        </BarDropdownItem>
+                        <BarDropdownItem To="/maintenance">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Wrench" />
+                            유지보수
+                        </BarDropdownItem>
+                    </BarDropdownMenu>
+                </BarDropdown>
             </BarItem>
             <BarItem>
                 <BarLink To="/servicelevelagreements">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.LevelUpAlt" />
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
                     SLA
                 </BarLink>
             </BarItem>
-            <AuthorizeView>
-                <Authorized>
-                    <BarItem>
-                        <BarLink To="Account/Manage">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
-                            @context.User.Identity?.Name
-                        </BarLink>
-                    </BarItem>
-
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <BarItem>
-                            <Button Type="ButtonType.Submit" Class="b-bar-link" TextAlignment="TextAlignment.Start">
-                                <Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignOutAlt" />
-                                로그아웃
-                            </Button>
-                        </BarItem>
-                    </form>
-                </Authorized>
-                <NotAuthorized>
-                    <BarItem>
-                        <BarLink To="Account/Register">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserPlus" />
-                            회원가입
-                        </BarLink>
-                    </BarItem>
-                    <BarItem>
-                        <BarLink To="Account/Login">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
-                            로그인
-                        </BarLink>
-                    </BarItem>
-                </NotAuthorized>
-            </AuthorizeView>
 
         </BarStart>
     </BarMenu>
 </Bar>
 
-@code {
-    private string? currentUrl;
 
-    protected override void OnInitialized()
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-}
 

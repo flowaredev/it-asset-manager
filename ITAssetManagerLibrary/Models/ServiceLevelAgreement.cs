@@ -37,10 +37,10 @@ namespace ITAssetManagerLibrary.Models
         public ServiceLevel UptimeLevel { get; set; } = ServiceLevel.None;
 
         [Required]
-        public double InspectionComplianceRate { get; set; }
+        public double RoutineCheckRate { get; set; }
 
         [Required]
-        public ServiceLevel InspectionComplianceLevel { get; set; } = ServiceLevel.None;
+        public ServiceLevel RoutineCheckLevel { get; set; } = ServiceLevel.None;
 
         [Required]
         public double TechnicalSupportCompletionRate { get; set; }

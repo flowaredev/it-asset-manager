@@ -22,14 +22,14 @@
             @(ServiceLevelConverter.ToString(context.UptimeLevel))
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(ServiceLevelAgreement.InspectionComplianceRate)" Caption="정기점검율" Editable="true" Width="150px">
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.RoutineCheckRate)" Caption="정기점검율" Editable="true" Width="150px">
         <DisplayTemplate>
-            @context.InspectionComplianceRate.ToString("P")
+            @context.RoutineCheckRate.ToString("P")
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(ServiceLevelAgreement.InspectionComplianceLevel)" Caption="정기점검등급" Editable="true" Width="150px">
+    <DataGridColumn Field="@nameof(ServiceLevelAgreement.RoutineCheckLevel)" Caption="정기점검등급" Editable="true" Width="150px">
         <DisplayTemplate>
-            @(ServiceLevelConverter.ToString(context.InspectionComplianceLevel))
+            @(ServiceLevelConverter.ToString(context.RoutineCheckLevel))
         </DisplayTemplate>
     </DataGridColumn>
     <DataGridColumn Field="@nameof(ServiceLevelAgreement.TechnicalSupportCompletionRate)" Caption="기술지원율" Editable="true" Width="150px">

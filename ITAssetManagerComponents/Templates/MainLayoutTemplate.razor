@@ -8,10 +8,11 @@
     <link href="_content/Blazorise.Bootstrap5/blazorise.bootstrap5.css" rel="stylesheet" />
     <link href="_content/Blazorise.SpinKit/blazorise.spinkit.css" rel="stylesheet" />
     <link href="_content/Blazorise.LoadingIndicator/blazorise.loadingindicator.css" rel="stylesheet" />
+    <link href="_content/ITAssetManagerComponents/lib/kfonts/nanum-gothic/index.min.css" rel="stylesheet" />
 </HeadContent>
 
 <Blazorise.ThemeProvider Theme="@theme">
-    <Layout Sider="true">
+    <Layout Sider="true" Style="font-family: nanum-gothic">
         <LayoutSider>
             <LayoutSiderContent>
                 @SidebarContent
@@ -19,7 +20,7 @@
         </LayoutSider>
         <Layout Padding="Padding.Is3.OnAll">
             <LayoutHeader>
-                <Heading Size="HeadingSize.Is3">
+                <Heading Size="HeadingSize.Is1">
                     <SectionOutlet SectionId="HeadbarSection" />
                     <Divider />
                 </Heading>
@@ -57,7 +58,7 @@
 
     private Theme theme = new Theme
     {
-
+        
     };
 
     [Parameter]

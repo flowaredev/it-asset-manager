@@ -42,17 +42,17 @@
             <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePerson</Div>
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="업체연락처" Editable="true" Width="130px">
+    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="업체연락처" Editable="true" Width="150px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePersonPhone</Div>
         </DisplayTemplate>
         <EditTemplate>
             <Validation Validator="@CheckPhoneNumber">
-                <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)">
+                <InputMask Mask="999-9999-9999" Value="@((string)context.CellValue)" ValueChanged="@(value => context.CellValue = value)">
                     <Feedback>
                         <ValidationError />
                     </Feedback>
-                </TextEdit>
+                </InputMask>
             </Validation>
         </EditTemplate>
     </DataGridColumn>
@@ -61,17 +61,17 @@
             <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManager</Div>
         </DisplayTemplate>
     </DataGridColumn>
-    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManagerPhone)" Caption="현업연락처" Editable="true" Width="130px">
+    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManagerPhone)" Caption="현업연락처" Editable="true" Width="150px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManagerPhone</Div>
         </DisplayTemplate>
         <EditTemplate>
             <Validation Validator="@CheckPhoneNumber">
-                <TextEdit Role="TextRole.Telephone" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)">
+                <InputMask Mask="999-9999-9999" Value="@((string)context.CellValue)" ValueChanged="@(value => context.CellValue = value)">
                     <Feedback>
                         <ValidationError />
                     </Feedback>
-                </TextEdit>
+                </InputMask>
             </Validation>
         </EditTemplate>
     </DataGridColumn>

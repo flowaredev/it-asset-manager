@@ -494,10 +494,10 @@ namespace ITAssetManager.Migrations
                     b.Property<DateOnly>("EndDateOfMonth")
                         .HasColumnType("date");
 
-                    b.Property<int>("InspectionComplianceLevel")
+                    b.Property<int>("RoutineCheckLevel")
                         .HasColumnType("int");
 
-                    b.Property<double>("InspectionComplianceRate")
+                    b.Property<double>("RoutineCheckRate")
                         .HasColumnType("float");
 
                     b.Property<int>("SecurityIssues")
