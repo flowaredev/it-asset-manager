@@ -1,105 +1,69 @@
-﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+﻿<HeaderTitle Title="장애" />
 
-<LoadingIndicator @ref="_loadingIndicator">
-    <BaseDataGrid TItem="Failure"
-                  OnUpdateItems=@UpdateFailures
-                  OnSaveItem="@SaveFailure"
-                  OnRowStyling="@RowStyling"
-                  OnDeleteItem="@DeleteFailure">
-        <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
-            <EditTemplate>
-                <Check TValue="bool" Checked="@((bool)context.CellValue)" CheckedChanged="@(value => context.CellValue = value)">완료</Check>
-            </EditTemplate>
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@(context.IsResolved ? "완료" : "진행중")</Div>
-            </DisplayTemplate>
-        </DataGridCheckColumn>
-        <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="300px">
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
-            </DisplayTemplate>
-            <EditTemplate>
-                <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
-            </EditTemplate>
-        </DataGridColumn>
-        <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
-            </DisplayTemplate>
-        </DataGridDateColumn>
-        <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="복구시작" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
-            </DisplayTemplate>
-        </DataGridDateColumn>
-        <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구완료" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
-            </DisplayTemplate>
-        </DataGridDateColumn>
-        <DataGridNumericColumn Field="@nameof(Failure.DisabilityHours)" Caption="장애시간" Width="120px" />
-        <DataGridColumn Field="@nameof(Failure.ResolveDescription)" Caption="복구내용" Editable="true" Width="300px">
-            <DisplayTemplate>
-                <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDescription</Div>
-            </DisplayTemplate>
-            <EditTemplate>
-                <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
-            </EditTemplate>
-        </DataGridColumn>
-    </BaseDataGrid>
-</LoadingIndicator>
+<BaseDataGrid TItem="Failure"
+              OnUpdateItems=@UpdateFailures
+              OnSaveItem="@SaveFailure"
+              OnRowStyling="@RowStyling"
+              OnDeleteItem="@DeleteFailure"
+              OnShowDetail="@OnShowDetail"
+              IsDisableNew="@IsDisableNew">
+    <DataGridCheckColumn Field="@nameof(Failure.IsResolved)" Caption="진행상태" Editable="true" Width="120px">
+        <EditTemplate>
+            <Check TValue="bool" Checked="@((bool)context.CellValue)" CheckedChanged="@(value => context.CellValue = value)">완료</Check>
+        </EditTemplate>
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@(context.IsResolved ? "완료" : "진행중")</Div>
+        </DisplayTemplate>
+    </DataGridCheckColumn>
+    <DataGridColumn Field="@nameof(Failure.Description)" Caption="장애내용" Editable="true" Width="300px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
+        </DisplayTemplate>
+        <EditTemplate>
+            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+        </EditTemplate>
+    </DataGridColumn>
+    <DataGridDateColumn Field="@nameof(Failure.FailureDateTime)" Caption="장애일시" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.FailureDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridDateColumn Field="@nameof(Failure.VisitDateTime)" Caption="복구시작" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.VisitDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridDateColumn Field="@nameof(Failure.ResolveDateTime)" Caption="복구완료" Editable="true" InputMode="DateInputMode.DateTime" Width="200px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDateTime</Div>
+        </DisplayTemplate>
+    </DataGridDateColumn>
+    <DataGridNumericColumn Field="@nameof(Failure.DisabilityHours)" Caption="장애시간" Width="120px" />
+    <DataGridColumn Field="@nameof(Failure.ResolveDescription)" Caption="복구내용" Editable="true" Width="300px">
+        <DisplayTemplate>
+            <Div TextOverflow="TextOverflow.Truncate">@context.ResolveDescription</Div>
+        </DisplayTemplate>
+        <EditTemplate>
+            <MemoEdit AutoSize="true" Text="@((string)context.CellValue)" TextChanged="@(value => context.CellValue = value)" />
+        </EditTemplate>
+    </DataGridColumn>
+</BaseDataGrid>
 
 @code {
     [Parameter, EditorRequired]
-    public int CommonAssetId { get; set; }
+    public required Func<Task<List<Failure>>> UpdateFailures { get; set; }
 
-    private LoadingIndicator _loadingIndicator = null!;
+    [Parameter]
+    public required Func<Failure, Task> SaveFailure { get; set; }
 
-    private async Task<List<Failure>> UpdateFailures()
-    {
-        using var context = DbFactory.CreateDbContext();
-        var items = await context.Failures
-            .Where(f => f.CommonAssetId == CommonAssetId)
-            .ToListAsync();
-        return items;
-    }
+    [Parameter]
+    public required Func<Failure, Task> DeleteFailure { get; set; }
 
-    private async Task SaveFailure(Failure failure)
-    {
-        using var context = DbFactory.CreateDbContext();
-        failure.DisabilityHours = (int)((failure.ResolveDateTime - failure.FailureDateTime).TotalHours);
+    [Parameter]
+    public bool IsDisableNew { get; set; } = false;
 
-        if (failure.Id == 0)
-        {
-            Debug.Assert(CommonAssetId != 0);
-            failure.CommonAssetId = CommonAssetId;
-            context.Failures.Add(failure);
-        }
-        else
-        {
-            context.Failures.Update(failure);
-        }
-
-        await context.SaveChangesAsync();
-
-        await UpdateServiceLevelAgreement(failure.FailureDateTime);
-    }
-
-    private async Task DeleteFailure(Failure failure)
-    {
-        using var context = DbFactory.CreateDbContext();
-        context.Failures.Remove(failure);
-        await context.SaveChangesAsync();
-
-        await UpdateServiceLevelAgreement(failure.FailureDateTime);
-    }
-
-    private async Task UpdateServiceLevelAgreement(DateTime failureDateTime)
-    {
-        await _loadingIndicator.Show();
-        await ServiceLevelAgreementHelper.UpdateFailure(DbFactory, failureDateTime);
-        await _loadingIndicator.Hide();
-    }
+    [Parameter]
+    public Func<Failure, Task> OnShowDetail { get; set; } = default!;
 
     private void RowStyling(Failure failure, DataGridRowStyling styling)
     {

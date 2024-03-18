@@ -1,6 +1,3 @@
 ﻿@page "/fault"
-<HeaderTitle Title="장애" />
-
-@code {
-
-}
+@attribute [StreamRendering(true)]
+<FailureDataGridByAll @rendermode="InteractiveServer" />

@@ -92,13 +92,16 @@ else
         <ButtonRowTemplate>
             @if (!DisableButtonRow)
             {
-                <Button Margin="Margin.Is1.FromBottom" Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
+                @if (!IsDisableNew)
+                {
+                    <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Success" Clicked="context.NewCommand.Clicked">추가</Button>
+                }
                 <Button Margin="Margin.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
                 <Button Margin="Margin.Is1.FromBottom" Color="Color.Danger" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
 
                 @if (OnShowDetail is not null)
                 {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">사양</Button>
+                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">세부사항</Button>
                 }
 
                 @if (OnShowFailure is not null)
@@ -198,6 +201,9 @@ else
 
     [Parameter]
     public bool DisableButtonRow { get; set; } = false;
+
+    [Parameter]
+    public bool IsDisableNew { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {

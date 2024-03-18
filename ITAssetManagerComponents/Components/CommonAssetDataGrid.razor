@@ -83,10 +83,10 @@
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
                 <ModalTitle>장애 관리</ModalTitle>
-                <CloseButton />
+                <CloseButton Margin="Margin.Is2.FromEnd" />
             </ModalHeader>
             <ModalBody>
-                <FailureDataGrid CommonAssetId="@_selectedAsset.Id" />
+                <FailureDataGridByCommonAsset CommonAssetId="@_selectedAsset.Id" />
             </ModalBody>
         </ModalContent>
     </Modal>
@@ -98,10 +98,10 @@
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
                 <ModalTitle>유지보수 관리</ModalTitle>
-                <CloseButton />
+                <CloseButton Margin="Margin.Is2.FromEnd" />
             </ModalHeader>
             <ModalBody>
-                <MaintenanceDataGrid CommonAssetId="@_selectedAsset.Id" />
+                <MaintenanceDataGridByCommonAsset CommonAssetId="@_selectedAsset.Id" />
             </ModalBody>
         </ModalContent>
     </Modal>
@@ -113,7 +113,7 @@
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
                 <ModalTitle>정기점검 관리</ModalTitle>
-                <CloseButton />
+                <CloseButton Margin="Margin.Is2.FromEnd" />
             </ModalHeader>
             <ModalBody>
                 <RoutineCheckDataGrid CommonAssetId="@_selectedAsset.Id" />
@@ -128,7 +128,7 @@
         <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
             <ModalHeader>
                 <ModalTitle>보안 취약점 관리</ModalTitle>
-                <CloseButton />
+                <CloseButton Margin="Margin.Is2.FromEnd" />
             </ModalHeader>
             <ModalBody>
                 <SecurityVulnerabilityDataGrid CommonAssetId="@_selectedAsset.Id" />

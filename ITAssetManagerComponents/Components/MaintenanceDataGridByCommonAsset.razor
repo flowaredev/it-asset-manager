@@ -1,0 +1,41 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MaintenanceDataGrid UpdateMaintenances="@UpdateMaintenances"
+                     SaveMaintenance="@SaveMaintenance"
+                     DeleteMaintenance="@DeleteMaintenance" />
+
+@code {
+    [Parameter, EditorRequired]
+    public int CommonAssetId { get; set; }
+
+    private async Task<List<Maintenance>> UpdateMaintenances()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Maintenances
+            .Where(x => x.CommonAssetId == CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        if (item.Id == 0)
+        {
+            item.CommonAssetId = CommonAssetId;
+            context.Maintenances.Add(item);
+        }
+        else
+        {
+            context.Maintenances.Update(item);
+        }
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Maintenances.Remove(item);
+        await context.SaveChangesAsync();
+    }
+}

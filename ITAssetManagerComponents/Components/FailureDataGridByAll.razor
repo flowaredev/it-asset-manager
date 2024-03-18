@@ -1,0 +1,71 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+<LoadingIndicator @ref="_loadingIndicator">
+    <FailureDataGrid UpdateFailures="@UpdateFailures"
+                     SaveFailure="@SaveFailure"
+                     DeleteFailure="@DeleteFailure"
+                     OnShowDetail="@OnShowDetail"
+                     IsDisableNew="true" />
+</LoadingIndicator>
+
+<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" OnUpdateItems="@OnUpdateItems" />
+
+@code {
+    private LoadingIndicator _loadingIndicator = null!;
+    private string _overlayText = string.Empty;
+    private bool _modalVisible;
+    private Failure _selectedFailure = new();
+
+    private async Task<List<Failure>> UpdateFailures()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Failures
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveFailure(Failure failure)
+    {
+        using var context = DbFactory.CreateDbContext();
+        failure.DisabilityHours = (int)((failure.ResolveDateTime - failure.FailureDateTime).TotalHours);
+
+        Debug.Assert(failure.Id != 0);
+        context.Failures.Update(failure);
+
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(failure.FailureDateTime);
+    }
+
+    private async Task DeleteFailure(Failure failure)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Failures.Remove(failure);
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(failure.FailureDateTime);
+    }
+
+    private async Task UpdateServiceLevelAgreement(DateTime failureDateTime)
+    {
+        await _loadingIndicator.Show();
+        await ServiceLevelAgreementHelper.UpdateFailure(DbFactory, failureDateTime);
+        await _loadingIndicator.Hide();
+    }
+
+    private async Task OnShowDetail(Failure failure)
+    {
+        _selectedFailure = failure;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<CommonAsset>> OnUpdateItems()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.CommonAssets
+            .Where(c => c.Id == _selectedFailure.CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+}

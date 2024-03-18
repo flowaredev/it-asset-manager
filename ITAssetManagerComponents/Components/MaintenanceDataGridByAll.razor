@@ -1,0 +1,53 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MaintenanceDataGrid UpdateMaintenances="@UpdateMaintenances"
+                     SaveMaintenance="@SaveMaintenance"
+                     DeleteMaintenance="@DeleteMaintenance"
+                     OnShowDetail="@OnShowDetail"
+                     IsDisableNew="true" />
+
+<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" OnUpdateItems="@OnUpdateItems" />
+
+@code {
+    private Maintenance _selectedItem = new();
+    private bool _modalVisible;
+
+    private async Task<List<Maintenance>> UpdateMaintenances()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Maintenances.ToListAsync();
+        return items;
+    }
+
+    private async Task SaveMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        Debug.Assert(item.Id != 0);
+        context.Maintenances.Update(item);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteMaintenance(Maintenance item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Maintenances.Remove(item);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task OnShowDetail(Maintenance item)
+    {
+        _selectedItem = item;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<CommonAsset>> OnUpdateItems()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.CommonAssets
+            .Where(c => c.Id == _selectedItem.CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+}

@@ -1,0 +1,61 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+<LoadingIndicator @ref="_loadingIndicator">
+    <FailureDataGrid UpdateFailures="@UpdateFailures"
+                     SaveFailure="@SaveFailure"
+                     DeleteFailure="@DeleteFailure" />
+</LoadingIndicator>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CommonAssetId { get; set; }
+
+    private LoadingIndicator _loadingIndicator = null!;
+
+    private async Task<List<Failure>> UpdateFailures()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Failures
+            .Where(f => f.CommonAssetId == CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveFailure(Failure failure)
+    {
+        using var context = DbFactory.CreateDbContext();
+        failure.DisabilityHours = (int)((failure.ResolveDateTime - failure.FailureDateTime).TotalHours);
+
+        if (failure.Id == 0)
+        {
+            Debug.Assert(CommonAssetId != 0);
+            failure.CommonAssetId = CommonAssetId;
+            context.Failures.Add(failure);
+        }
+        else
+        {
+            context.Failures.Update(failure);
+        }
+
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(failure.FailureDateTime);
+    }
+
+    private async Task DeleteFailure(Failure failure)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Failures.Remove(failure);
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(failure.FailureDateTime);
+    }
+
+    private async Task UpdateServiceLevelAgreement(DateTime failureDateTime)
+    {
+        await _loadingIndicator.Show();
+        await ServiceLevelAgreementHelper.UpdateFailure(DbFactory, failureDateTime);
+        await _loadingIndicator.Hide();
+    }
+
+
+}

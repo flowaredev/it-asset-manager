@@ -1,9 +1,11 @@
-﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+﻿<HeaderTitle Title="유지보수" />
 
 <BaseDataGrid TItem="Maintenance"
               OnUpdateItems=@UpdateMaintenances
               OnSaveItem="@SaveMaintenance"
-              OnDeleteItem="@DeleteMaintenance">
+              OnDeleteItem="@DeleteMaintenance"
+              OnShowDetail="@OnShowDetail"
+              IsDisableNew="@IsDisableNew">
     <DataGridColumn Field="@nameof(Maintenance.Description)" Caption="작업내용" Editable="true" Width="300px">
         <DisplayTemplate>
             <Div TextOverflow="TextOverflow.Truncate">@context.Description</Div>
@@ -26,36 +28,17 @@
 
 @code {
     [Parameter, EditorRequired]
-    public int CommonAssetId { get; set; }
+    public required Func<Task<List<Maintenance>>> UpdateMaintenances { get; set; }
 
-    private async Task<List<Maintenance>> UpdateMaintenances()
-    {
-        using var context = DbFactory.CreateDbContext();
-        var items = await context.Maintenances
-            .Where(x => x.CommonAssetId == CommonAssetId)
-            .ToListAsync();
-        return items;
-    }
+    [Parameter]
+    public required Func<Maintenance, Task> SaveMaintenance { get; set; }
 
-    private async Task SaveMaintenance(Maintenance item)
-    {
-        using var context = DbFactory.CreateDbContext();
-        if (item.Id == 0)
-        {
-            item.CommonAssetId = CommonAssetId;
-            context.Maintenances.Add(item);
-        }
-        else
-        {
-            context.Maintenances.Update(item);
-        }
-        await context.SaveChangesAsync();
-    }
+    [Parameter]
+    public required Func<Maintenance, Task> DeleteMaintenance { get; set; }
 
-    private async Task DeleteMaintenance(Maintenance item)
-    {
-        using var context = DbFactory.CreateDbContext();
-        context.Maintenances.Remove(item);
-        await context.SaveChangesAsync();
-    }
+    [Parameter]
+    public bool IsDisableNew { get; set; } = false;
+
+    [Parameter]
+    public Func<Maintenance, Task> OnShowDetail { get; set; } = default!;
 }
