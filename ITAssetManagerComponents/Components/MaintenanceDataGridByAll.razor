@@ -9,7 +9,6 @@
 <CommonAssetReadOnlyDataGrid Visible="@_modalVisible" CommonAssets="@_commonAssets" />
 
 @code {
-    private Maintenance _selectedItem = new();
     private bool _modalVisible;
     private List<CommonAsset> _commonAssets = new();
 
@@ -37,12 +36,11 @@
 
     private async Task OnShowDetail(Maintenance item)
     {
-        _selectedItem = item;
         _modalVisible = true;
 
         using var context = DbFactory.CreateDbContext();
         var assets = await context.CommonAssets
-            .Where(c => c.Id == _selectedItem.CommonAssetId)
+            .Where(c => c.Id == item.CommonAssetId)
             .ToListAsync();
         _commonAssets = assets;
         

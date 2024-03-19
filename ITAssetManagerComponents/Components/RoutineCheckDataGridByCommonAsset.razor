@@ -1,0 +1,55 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+<LoadingIndicator @ref="_loadingIndicator">
+    <RoutineCheckDataGrid UpdateRoutineChecks="@UpdateItems"
+                          SaveRoutineCheck="@SaveItems"
+                          DeleteRoutineCheck="@DeleteItems" />
+</LoadingIndicator>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CommonAssetId { get; set; }
+
+    private LoadingIndicator _loadingIndicator = null!;
+
+    private async Task<List<RoutineCheck>> UpdateItems()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.RoutineChecks
+            .Where(x => x.CommonAssetId == CommonAssetId)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveItems(RoutineCheck item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        if (item.Id == 0)
+        {
+            item.CommonAssetId = CommonAssetId;
+            context.RoutineChecks.Add(item);
+        }
+        else
+        {
+            context.RoutineChecks.Update(item);
+        }
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(item.EndDateTime);
+    }
+
+    private async Task UpdateServiceLevelAgreement(DateTime targetDateTime)
+    {
+        await _loadingIndicator.Show();
+        await ServiceLevelAgreementHelper.UpdateRoutineCheck(DbFactory, targetDateTime);
+        await _loadingIndicator.Hide();
+    }
+
+    private async Task DeleteItems(RoutineCheck item)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.RoutineChecks.Remove(item);
+        await context.SaveChangesAsync();
+
+        await UpdateServiceLevelAgreement(item.EndDateTime);
+    }
+}
