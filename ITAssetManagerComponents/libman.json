@@ -44,6 +44,15 @@
         "NanumGothicLight.woff2",
         "README.md"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "Chart.js@3.7.1",
+      "destination": "wwwroot/lib/chart.js/",
+      "files": [
+        "chart.js",
+        "chart.min.js"
+      ]
     }
   ]
 }

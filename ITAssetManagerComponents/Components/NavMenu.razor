@@ -17,13 +17,19 @@
     <BarMenu>
         <BarStart>
             <BarItem>
+                <BarLink To="/" Match="Match.All">
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
+                    대시보드
+                </BarLink>
+            </BarItem>
+            <BarItem>
                 <BarDropdown>
                     <BarDropdownToggle>
                         <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" />
                         자산관리
                     </BarDropdownToggle>
                     <BarDropdownMenu>
-                        <BarDropdownItem To="/" Match="Match.All">
+                        <BarDropdownItem To="/servers">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" />
                             서버
                         </BarDropdownItem>

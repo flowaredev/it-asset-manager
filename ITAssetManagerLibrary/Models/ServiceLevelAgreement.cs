@@ -31,16 +31,16 @@ namespace ITAssetManagerLibrary.Models
         public ServiceLevel DisabilityHoursLevel { get; set; } = ServiceLevel.None;
 
         [Required]
-        public double UptimeRate { get; set; }
+        public double UptimeRate { get; set; } = 1.0;
 
         [Required]
-        public ServiceLevel UptimeLevel { get; set; } = ServiceLevel.None;
+        public ServiceLevel UptimeLevel { get; set; } = ServiceLevel.Excellent;
 
         [Required]
         public double RoutineCheckRate { get; set; }
 
         [Required]
-        public ServiceLevel RoutineCheckLevel { get; set; } = ServiceLevel.None;
+        public ServiceLevel RoutineCheckLevel { get; set; } = ServiceLevel.Poor;
 
         [Required]
         public double TechnicalSupportCompletionRate { get; set; }
@@ -52,7 +52,7 @@ namespace ITAssetManagerLibrary.Models
         public int SecurityIssues { get; set; }
 
         [Required]
-        public ServiceLevel SecurityIssuesLevel { get; set; } = ServiceLevel.None;
+        public ServiceLevel SecurityIssuesLevel { get; set; } = ServiceLevel.Excellent;
 
         [Timestamp]
         public byte[] Version { get; set; } = [];

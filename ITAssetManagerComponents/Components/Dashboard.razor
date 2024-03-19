@@ -1,0 +1,142 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<Grid>
+    <Column ColumnSize="ColumnSize.Is6">
+        <LineChart TItem="UpTimeRateChartModel" @ref="_uptimeRateChart" Options="@_uptimeRateChartOptions" />
+    </Column>
+    <Column ColumnSize="ColumnSize.Is6">
+        <Alert Color="Color.Primary" Visible Margin="Margin.Is0">
+            Col 6
+        </Alert>
+    </Column>
+    <Column ColumnSize="ColumnSize.Is6">
+        <Alert Color="Color.Primary" Visible Margin="Margin.Is0">
+            Col 6
+        </Alert>
+    </Column>
+    <Column ColumnSize="ColumnSize.Is6">
+        <Alert Color="Color.Primary" Visible Margin="Margin.Is0">
+            Col 6
+        </Alert>
+    </Column>
+</Grid>
+
+@code {
+    public class UpTimeRateChartModel
+    {
+        public string Month { get; set; } = string.Empty;
+        public int Rate { get; set; }
+    }
+
+    private LineChart<UpTimeRateChartModel> _uptimeRateChart = null!;
+    private List<UpTimeRateChartModel> _upTimeRateChartModels = new();
+
+    private LineChartOptions _uptimeRateChartOptions = new()
+        {
+            Parsing = new ChartParsing
+            {
+                XAxisKey = nameof(UpTimeRateChartModel.Month).ToLower(),
+                YAxisKey = nameof(UpTimeRateChartModel.Rate).ToLower(),
+            },
+            Responsive = true,
+            Plugins = new()
+            {
+                Legend = new()
+                {
+                    Display = false
+                },
+                Title = new()
+                {
+                    Display = true,
+                    Text = "서비스가동률(%)"
+                }
+            },
+            Scales = new()
+            {
+                X = new()
+                {
+                    Display = true,
+                    Title = new()
+                    {
+                        Display = true,
+                        Text = "월",
+                    },
+                },
+                Y = new()
+                {
+                    SuggestedMin = 90,
+                    SuggestedMax = 100,
+                    Title = new()
+                    {
+                        Display = true,
+                        Text = "%"
+                    }
+                }
+            }
+        };
+
+    private bool isAlreadyInitialised;
+
+    private List<string> backgroundColors = new() {
+        ChartColor.FromRgba(255, 99, 132, 0.2f), 
+        ChartColor.FromRgba(54, 162, 235, 0.2f), 
+        ChartColor.FromRgba(255, 206, 86, 0.2f), 
+        ChartColor.FromRgba(75, 192, 192, 0.2f), 
+        ChartColor.FromRgba(153, 102, 255, 0.2f), 
+        ChartColor.FromRgba(255, 159, 64, 0.2f)
+    };
+
+    private List<string> borderColors = new() {
+        ChartColor.FromRgba(255, 99, 132, 1f), 
+        ChartColor.FromRgba(54, 162, 235, 1f), 
+        ChartColor.FromRgba(255, 206, 86, 1f), 
+        ChartColor.FromRgba(75, 192, 192, 1f), 
+        ChartColor.FromRgba(153, 102, 255, 1f), 
+        ChartColor.FromRgba(255, 159, 64, 1f)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var dbContext = DbFactory.CreateDbContext();
+        var serviceLevelAggrementsInYear = await dbContext.ServiceLevelAgreements
+            .Where(x => x.EndDateOfMonth.Year == DateTime.Now.Year)
+            .ToListAsync();
+
+        foreach (var sla in serviceLevelAggrementsInYear)
+        {
+            _upTimeRateChartModels.Add(new UpTimeRateChartModel
+                {
+                    Month = sla.EndDateOfMonth.Month.ToString(),
+                    Rate = (int)(sla.UptimeRate * 100.0)
+                });
+        }
+
+        _upTimeRateChartModels.Sort((x, y) => x.Month.CompareTo(y.Month));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isAlreadyInitialised)
+        {
+            isAlreadyInitialised = true;
+
+            await _uptimeRateChart.Clear();
+            await _uptimeRateChart.AddDataSet(GetUptimeRateDataset());
+        }
+    }
+
+    private LineChartDataset<UpTimeRateChartModel> GetUptimeRateDataset()
+    {
+        return new LineChartDataset<UpTimeRateChartModel>
+            {
+                Label = "서비스가동률",
+                Data = _upTimeRateChartModels,
+                BackgroundColor = backgroundColors[0],
+                BorderColor = borderColors[0],
+                Fill = true,
+                PointRadius = 3,
+                BorderWidth = 1,
+                CubicInterpolationMode = "monotone",
+            };
+    }
+}

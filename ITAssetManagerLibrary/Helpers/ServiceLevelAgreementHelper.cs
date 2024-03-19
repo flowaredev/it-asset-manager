@@ -71,7 +71,7 @@ namespace ITAssetManagerLibrary.Helpers
                     UptimeRate = uptimeRate,
                     UptimeLevel = uptimeLevel,
                     TechnicalSupportCompletionRate = technicalSupportCompletionRate,
-                    TechnicalSupportLevel = technicalSupportLevel,
+                    TechnicalSupportLevel = technicalSupportLevel
                 };
 
                 await context.ServiceLevelAgreements.AddAsync(newServiceLevelAgreement);

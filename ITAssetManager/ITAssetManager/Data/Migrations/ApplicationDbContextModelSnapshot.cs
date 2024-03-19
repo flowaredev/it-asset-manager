@@ -109,7 +109,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("BackupEquipments");
+                    b.ToTable("BackupEquipments", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.CommonAsset", b =>
@@ -163,7 +163,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CommonAssets");
+                    b.ToTable("CommonAssets", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Failure", b =>
@@ -210,7 +210,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasIndex("CommonAssetId");
 
-                    b.ToTable("Failures");
+                    b.ToTable("Failures", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Maintenance", b =>
@@ -244,7 +244,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasIndex("CommonAssetId");
 
-                    b.ToTable("Maintenances");
+                    b.ToTable("Maintenances", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.MiscellaneousEquipment", b =>
@@ -269,7 +269,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("MiscellaneousEquipments");
+                    b.ToTable("MiscellaneousEquipments", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.NetworkEquipment", b =>
@@ -294,7 +294,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("NetworkEquipments");
+                    b.ToTable("NetworkEquipments", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.RoutineCheck", b =>
@@ -328,7 +328,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasIndex("CommonAssetId");
 
-                    b.ToTable("RoutineChecks");
+                    b.ToTable("RoutineChecks", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.SecurityEquipment", b =>
@@ -353,7 +353,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("SecurityEquipments");
+                    b.ToTable("SecurityEquipments", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.SecurityVulnerability", b =>
@@ -400,7 +400,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasIndex("CommonAssetId");
 
-                    b.ToTable("SecurityVulnerabilities");
+                    b.ToTable("SecurityVulnerabilities", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Server", b =>
@@ -425,7 +425,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("Servers");
+                    b.ToTable("Servers", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.ServerDevice", b =>
@@ -474,7 +474,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasIndex("ServerId");
 
-                    b.ToTable("ServerDevices");
+                    b.ToTable("ServerDevices", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.ServiceLevelAgreement", b =>
@@ -526,7 +526,7 @@ namespace ITAssetManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceLevelAgreements");
+                    b.ToTable("ServiceLevelAgreements", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Software", b =>
@@ -551,7 +551,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("Softwares");
+                    b.ToTable("Softwares", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.Storage", b =>
@@ -576,7 +576,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("Storages");
+                    b.ToTable("Storages", (string)null);
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.SupportEquipment", b =>
@@ -601,7 +601,7 @@ namespace ITAssetManager.Migrations
                     b.HasIndex("CommonAssetId")
                         .IsUnique();
 
-                    b.ToTable("SupportEquipments");
+                    b.ToTable("SupportEquipments", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
