@@ -9,55 +9,59 @@
                 <CloseButton Margin="Margin.Is2.FromEnd" />
             </ModalHeader>
             <ModalBody>
-                <BaseDataGrid TItem="CommonAsset"
-                              DisableButtonRow="true"
-                              OnUpdateItems="@OnUpdateItems">
-                    <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.Name</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ManagementTag</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.Date" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ApplyDateTime</Div>
-                        </DisplayTemplate>
-                    </DataGridDateColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="200px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.Role</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.ResponsibleCompany)" Caption="담당업체" Editable="true" Width="150px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsibleCompany</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePerson)" Caption="업체담당자" Editable="true" Width="130px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePerson</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="업체연락처" Editable="true" Width="150px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePersonPhone</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManager)" Caption="현업담당자" Editable="true" Width="130px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManager</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    <DataGridColumn Field="@nameof(CommonAsset.OnSiteManagerPhone)" Caption="현업연락처" Editable="true" Width="150px">
-                        <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManagerPhone</Div>
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                </BaseDataGrid>
+                <DataGrid TItem="CommonAsset"
+                          FixedColumns="true"
+                          Resizable="true" 
+                          ResizeMode="TableResizeMode.Columns"
+                          Data="@CommonAssets">
+                    <DataGridColumns>
+                        <DataGridColumn Field="@nameof(CommonAsset.Name)" Caption="자산명" Editable="true" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.Name</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.ManagementTag)" Caption="자산번호" Editable="true" Width="150px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ManagementTag</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridDateColumn Field="@nameof(CommonAsset.ApplyDateTime)" Caption="도입일" Editable="true" InputMode="DateInputMode.Date" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ApplyDateTime</Div>
+                            </DisplayTemplate>
+                        </DataGridDateColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.Role)" Caption="업무용도" Editable="true" Width="200px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.Role</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.ResponsibleCompany)" Caption="담당업체" Editable="true" Width="150px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ResponsibleCompany</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePerson)" Caption="업체담당자" Editable="true" Width="130px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePerson</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.ResponsiblePersonPhone)" Caption="업체연락처" Editable="true" Width="150px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.ResponsiblePersonPhone</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.OnSiteManager)" Caption="현업담당자" Editable="true" Width="130px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManager</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn Field="@nameof(CommonAsset.OnSiteManagerPhone)" Caption="현업연락처" Editable="true" Width="150px">
+                            <DisplayTemplate>
+                                <Div TextOverflow="TextOverflow.Truncate">@context.OnSiteManagerPhone</Div>
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                    </DataGridColumns>
+                </DataGrid>
             </ModalBody>
         </ModalContent>
     </Modal>
@@ -68,5 +72,5 @@
     public bool Visible { get; set; }
 
     [Parameter, EditorRequired]
-    public required Func<Task<List<CommonAsset>>> OnUpdateItems { get; set; }
+    public required List<CommonAsset> CommonAssets { get; set; }
 }

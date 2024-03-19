@@ -6,11 +6,12 @@
                      OnShowDetail="@OnShowDetail"
                      IsDisableNew="true" />
 
-<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" OnUpdateItems="@OnUpdateItems" />
+<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" CommonAssets="@_commonAssets" />
 
 @code {
     private Maintenance _selectedItem = new();
     private bool _modalVisible;
+    private List<CommonAsset> _commonAssets = new();
 
     private async Task<List<Maintenance>> UpdateMaintenances()
     {
@@ -38,16 +39,14 @@
     {
         _selectedItem = item;
         _modalVisible = true;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
 
-    private async Task<List<CommonAsset>> OnUpdateItems()
-    {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.CommonAssets
+        var assets = await context.CommonAssets
             .Where(c => c.Id == _selectedItem.CommonAssetId)
             .ToListAsync();
-        return items;
+        _commonAssets = assets;
+        
+        StateHasChanged();
+        await Task.CompletedTask;
     }
 }

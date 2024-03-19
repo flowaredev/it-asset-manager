@@ -7,13 +7,14 @@
                      IsDisableNew="true" />
 </LoadingIndicator>
 
-<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" OnUpdateItems="@OnUpdateItems" />
+<CommonAssetReadOnlyDataGrid Visible="@_modalVisible" CommonAssets="_commonAssets" />
 
 @code {
     private LoadingIndicator _loadingIndicator = null!;
     private string _overlayText = string.Empty;
     private bool _modalVisible;
     private Failure _selectedFailure = new();
+    private List<CommonAsset> _commonAssets = new();
 
     private async Task<List<Failure>> UpdateFailures()
     {
@@ -56,16 +57,14 @@
     {
         _selectedFailure = failure;
         _modalVisible = true;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
 
-    private async Task<List<CommonAsset>> OnUpdateItems()
-    {
         using var context = DbFactory.CreateDbContext();
-        var items = await context.CommonAssets
+        var assets = await context.CommonAssets
             .Where(c => c.Id == _selectedFailure.CommonAssetId)
             .ToListAsync();
-        return items;
+        _commonAssets = assets;
+        
+        StateHasChanged();
+        await Task.CompletedTask;
     }
 }
