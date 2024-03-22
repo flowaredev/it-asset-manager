@@ -1,0 +1,183 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject PersistentComponentState ApplicationState
+
+@if (_isLoading)
+{
+    <LoadingSpinKit />
+}
+else
+{
+    <LineChart TItem="ChartModel" @ref="_lineChart" Options="@_lineChartOptions" />
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public required Func<ServiceLevelAgreement, int> GetValue { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string XAxisLabel { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string YAxisLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public int SuggestedMin { get; set; }
+
+    [Parameter]
+    public int SuggestedMax { get; set; }
+
+    [Parameter]
+    public ChartColor BackgroundColor { get; set; }
+
+    [Parameter]
+    public ChartColor BorderColor { get; set; }
+
+    private bool _isLoading;
+    private PersistingComponentStateSubscription _persistingSubscription;
+
+    public class ChartModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Value { get; set; }
+    }
+
+    private LineChart<ChartModel> _lineChart = null!;
+    private List<ChartModel> _chartModels = new();
+
+    private LineChartOptions _lineChartOptions = null!;
+
+    private bool isAlreadyInitialised;
+
+    private List<string> backgroundColors = new() {
+        ChartColor.FromRgba(255, 99, 132, 0.2f),
+        ChartColor.FromRgba(54, 162, 235, 0.2f),
+        ChartColor.FromRgba(255, 206, 86, 0.2f),
+        ChartColor.FromRgba(75, 192, 192, 0.2f),
+        ChartColor.FromRgba(153, 102, 255, 0.2f),
+        ChartColor.FromRgba(255, 159, 64, 0.2f)
+    };
+
+    private List<string> borderColors = new() {
+        ChartColor.FromRgba(255, 99, 132, 1f),
+        ChartColor.FromRgba(54, 162, 235, 1f),
+        ChartColor.FromRgba(255, 206, 86, 1f),
+        ChartColor.FromRgba(75, 192, 192, 1f),
+        ChartColor.FromRgba(153, 102, 255, 1f),
+        ChartColor.FromRgba(255, 159, 64, 1f)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        backgroundColors.Add(BackgroundColor);
+        borderColors.Add(BorderColor);
+
+        _lineChartOptions = new()
+            {
+                Parsing = new ChartParsing
+                {
+                    XAxisKey = nameof(ChartModel.Name).ToLower(),
+                    YAxisKey = nameof(ChartModel.Value).ToLower(),
+                },
+                Responsive = true,
+                Plugins = new()
+                {
+                    Legend = new()
+                    {
+                        Display = false
+                    },
+                    Title = new()
+                    {
+                        Display = true,
+                        Text = Title
+                    }
+                },
+                Scales = new()
+                {
+                    X = new()
+                    {
+                        Title = new()
+                        {
+                            Display = true,
+                            Text = XAxisLabel,
+                        },
+                    },
+                    Y = new()
+                    {
+                        SuggestedMin = SuggestedMin,
+                        SuggestedMax = SuggestedMax,
+                        Title = new()
+                        {
+                            Display = true,
+                            Text = YAxisLabel
+                        }
+                    }
+                }
+            };
+
+        _isLoading = true;
+
+        _persistingSubscription =
+            ApplicationState.RegisterOnPersisting(PersistItems);
+
+        if (!ApplicationState.TryTakeFromJson<List<ChartModel>>(
+                Title, out var items))
+        {
+            using var dbContext = DbFactory.CreateDbContext();
+            var serviceLevelAggrementsInYear = await dbContext.ServiceLevelAgreements
+                .Where(x => x.EndDateOfMonth.Year == DateTime.Now.Year)
+                .ToListAsync();
+
+            foreach (var sla in serviceLevelAggrementsInYear)
+            {
+                _chartModels.Add(new ChartModel
+                    {
+                        Name = sla.EndDateOfMonth.Month.ToString(),
+                        Value = GetValue(sla)
+                    });
+            }
+
+            _chartModels.Sort((x, y) => x.Name.CompareTo(y.Name));
+        }
+        else
+        {
+            _chartModels = items!;
+        }
+
+        _isLoading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isAlreadyInitialised && !_isLoading)
+        {
+            isAlreadyInitialised = true;
+
+            await _lineChart.Clear();
+            await _lineChart.AddDataSet(GetUptimeRateDataset());
+        }
+    }
+
+    private LineChartDataset<ChartModel> GetUptimeRateDataset()
+    {
+        return new LineChartDataset<ChartModel>
+            {
+                Label = Title,
+                Data = _chartModels,
+                BackgroundColor = backgroundColors.Last(),
+                BorderColor = borderColors.Last(),
+                Fill = true,
+                PointRadius = 3,
+                BorderWidth = 1,
+                CubicInterpolationMode = "monotone",
+            };
+    }
+
+    private Task PersistItems()
+    {
+        ApplicationState.PersistAsJson(Title, _chartModels);
+        return Task.CompletedTask;
+    }
+}

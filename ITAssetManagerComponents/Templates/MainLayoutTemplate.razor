@@ -21,7 +21,7 @@
         </LayoutSider>
         <Layout Padding="Padding.Is3.OnAll">
             <LayoutHeader>
-                <Heading Size="HeadingSize.Is1">
+                <Heading Size="HeadingSize.Is1" TextColor="TextColor.Primary" TextWeight="TextWeight.Bold">
                     <SectionOutlet SectionId="HeadbarSection" />
                     <Divider />
                 </Heading>
@@ -57,10 +57,54 @@
 @code {
     public static object HeadbarSection = new();
 
+    private const string PRIMARY_COLOR = "#375E97";
+    private const string SECONDARY_COLOR = "#FB6542";
+    private const string TERTIERTY_COLOR = "#FFBB00";
+
     private Theme theme = new Theme
-    {
-        
-    };
+        {
+            ColorOptions = new ThemeColorOptions
+            {
+                Primary = PRIMARY_COLOR,
+                Secondary = SECONDARY_COLOR,
+                Success = TERTIERTY_COLOR,
+            },
+            BackgroundOptions = new ThemeBackgroundOptions
+            {
+                Primary = PRIMARY_COLOR,
+                Secondary = SECONDARY_COLOR,
+                Success = TERTIERTY_COLOR,
+            },
+            TextColorOptions = new ThemeTextColorOptions
+            {
+                Primary = PRIMARY_COLOR,
+                Secondary = SECONDARY_COLOR,
+                Success = TERTIERTY_COLOR,
+            },
+            BarOptions = new ThemeBarOptions
+            {
+                LightColors = new ThemeBarColorOptions
+                {
+                    BackgroundColor = PRIMARY_COLOR,
+                    Color = TERTIERTY_COLOR,
+                    ItemColorOptions = new ThemeBarItemColorOptions
+                    {
+                        ActiveBackgroundColor = TERTIERTY_COLOR,
+                        ActiveColor = PRIMARY_COLOR,
+                        HoverBackgroundColor = TERTIERTY_COLOR,
+                        HoverColor = PRIMARY_COLOR,
+                    },
+                    DropdownColorOptions = new ThemeBarDropdownColorOptions
+                    {
+                        BackgroundColor = PRIMARY_COLOR,
+                    },
+                    BrandColorOptions = new ThemeBarBrandColorOptions
+                    {
+                        BackgroundColor = SECONDARY_COLOR,
+                    },
+                },
+            },
+        };
 
     [Parameter]
     public RenderFragment? SidebarContent { get; set; }
