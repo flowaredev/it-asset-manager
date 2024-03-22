@@ -3,7 +3,14 @@
      CollapseMode="BarCollapseMode.Small"
      Breakpoint="Breakpoint.Desktop"
      NavigationBreakpoint="Breakpoint.Tablet">
-    <BarToggler />
+    <BarToggler>
+        <Div Position="Position.Absolute.Top.Is0.Start.Is0" Background="Background.Secondary" Width="Width.Is100" Height="Height.Is100">
+            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bars"
+                     Position="Position.Absolute.Top.Is50.Start.Is50.Translate.Middle"
+                     IconSize="IconSize.Large"
+                     TextColor="TextColor.Primary" />
+        </Div>
+    </BarToggler>
     <BarBrand>
         <BarItem>
             <BarLink To="/" Match="Match.All" TextWeight="TextWeight.Bold" TextColor="TextColor.Primary">

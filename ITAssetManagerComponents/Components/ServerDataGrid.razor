@@ -129,7 +129,10 @@
         if (device.Id == 0)
         {
             Debug.Assert(_selectedAsset.Id != 0);
-            device.ServerId = _selectedAsset.Server!.Id;
+
+            var server = await context.Servers
+                .SingleAsync(s => s.CommonAssetId == _selectedAsset.Id);
+            device.ServerId = server.Id;
             context.ServerDevices.Add(device);
         }
         else
