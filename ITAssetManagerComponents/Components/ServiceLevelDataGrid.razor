@@ -5,7 +5,7 @@
 <BaseDataGrid TItem="ServiceLevelAgreement"
               DisableButtonRow="true"
               OnUpdateItems="@UpdateServiceLevels">
-    <DataGridDateColumn Field="@nameof(ServiceLevelAgreement.EndDateOfMonth)" Caption="등급산출월" Editable="true" InputMode="DateInputMode.Month" Width="150px" />
+    <DataGridDateColumn Field="@nameof(ServiceLevelAgreement.EndDateOfMonth)" Caption="월등급산출일" Editable="true" InputMode="DateInputMode.Month" Width="150px" />
     <DataGridColumn Field="@nameof(ServiceLevelAgreement.DisabilityHoursAverage)" Caption="장애복구시간" Editable="true" Width="150px" />
     <DataGridColumn Field="@nameof(ServiceLevelAgreement.DisabilityHoursLevel)" Caption="장애복구등급" Editable="true" Width="150px">
         <DisplayTemplate>
