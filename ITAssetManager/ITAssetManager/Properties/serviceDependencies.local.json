@@ -1,7 +1,10 @@
 {
   "dependencies": {
     "mssql1": {
-      "type": "mssql.local",
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ServiceLinker/locations/koreacentral/connectors/ConnectionStringsDefaultConnection_CAC0CB935D",
+      "secretStore": null,
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/goodmitsla/databases/goomisla",
+      "type": "mssql.azure",
       "connectionId": "ConnectionStrings:DefaultConnection"
     }
   }
