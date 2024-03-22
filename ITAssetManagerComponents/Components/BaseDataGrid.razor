@@ -87,37 +87,39 @@ else
         <ButtonRowTemplate>
             @if (!DisableButtonRow)
             {
-                @if (!IsDisableNew)
-                {
-                    <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Primary" Clicked="context.NewCommand.Clicked">추가</Button>
-                }
-                <Button Margin="Margin.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
-                <Button Margin="Margin.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+                <Div Margin="Margin.Is1.FromTop">
+                    @if (!IsDisableNew)
+                    {
+                        <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Primary" Clicked="context.NewCommand.Clicked">추가</Button>
+                    }
+                    <Button Margin="Margin.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+                    <Button Margin="Margin.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
 
-                @if (OnShowDetail is not null)
-                {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">세부사항</Button>
-                }
+                    @if (OnShowDetail is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">세부사항</Button>
+                    }
 
-                @if (OnShowFailure is not null)
-                {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
-                }
+                    @if (OnShowFailure is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
+                    }
 
-                @if (OnShowSecurityVulnerability is not null)
-                {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowSecurityVulnerability(_selectedItem!))">보안취약</Button>
-                }
+                    @if (OnShowSecurityVulnerability is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowSecurityVulnerability(_selectedItem!))">보안취약</Button>
+                    }
 
-                @if (OnShowMaintenance is not null)
-                {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수</Button>
-                }
+                    @if (OnShowMaintenance is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수</Button>
+                    }
 
-                @if (OnShowRoutineCheck is not null)
-                {
-                    <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowRoutineCheck(_selectedItem!))">정기점검</Button>
-                }
+                    @if (OnShowRoutineCheck is not null)
+                    {
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowRoutineCheck(_selectedItem!))">정기점검</Button>
+                    }
+                </Div>
             }
         </ButtonRowTemplate>
         <PageButtonTemplate>
