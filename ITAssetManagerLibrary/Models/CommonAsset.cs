@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ITAssetManagerLibrary.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace ITAssetManagerLibrary.Models
 {
@@ -16,7 +17,7 @@ namespace ITAssetManagerLibrary.Models
         public string Role { get; set; } = string.Empty;
 
         [Required]
-        public DateTime ApplyDateTime { get; set; } = DateTime.Now;
+        public DateTime ApplyDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Required]
         public string ResponsibleCompany { get; set; } = string.Empty;

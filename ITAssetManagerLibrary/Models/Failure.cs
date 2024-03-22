@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ITAssetManagerLibrary.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,16 +13,16 @@ namespace ITAssetManagerLibrary.Models
         public int Id { get; set; }
         
         [Required]
-        public DateTime FailureDateTime { get; set; } = DateTime.Now;
+        public DateTime FailureDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Required]
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        public DateTime VisitDateTime { get; set; } = DateTime.Now;
+        public DateTime VisitDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Required]
-        public DateTime ResolveDateTime { get; set; } = DateTime.Now;
+        public DateTime ResolveDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Required]
         public int DisabilityHours { get; set; } = -1;

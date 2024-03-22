@@ -127,7 +127,7 @@ else
         {
             using var dbContext = DbFactory.CreateDbContext();
             var serviceLevelAggrementsInYear = await dbContext.ServiceLevelAgreements
-                .Where(x => x.EndDateOfMonth.Year == DateTime.Now.Year)
+                .Where(x => x.EndDateOfMonth.Year == TimeZoneHelper.GetKoreaTimeNow().Year)
                 .ToListAsync();
 
             foreach (var sla in serviceLevelAggrementsInYear)

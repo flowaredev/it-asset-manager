@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ITAssetManagerLibrary.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,10 +16,10 @@ namespace ITAssetManagerLibrary.Models
         public string Detail { get; set; } = string.Empty;
 
         [Required]
-        public DateTime StartDateTime { get; set; } = DateTime.Now;
+        public DateTime StartDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Required]
-        public DateTime EndDateTime { get; set; } = DateTime.Now;
+        public DateTime EndDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
         [Timestamp]
         public byte[] Version { get; set; } = [];
