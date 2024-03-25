@@ -1,10 +1,11 @@
-﻿
+﻿@inject NavigationManager Navigation
+
 <Bar Mode="BarMode.VerticalInline"
      CollapseMode="BarCollapseMode.Small"
      Breakpoint="Breakpoint.Desktop"
      NavigationBreakpoint="Breakpoint.Tablet">
     <BarToggler>
-        <Div Position="Position.Absolute.Top.Is0.Start.Is0" Background="Background.Info" Width="Width.Is100" Height="Height.Is100">
+        <Div Position="Position.Absolute.Top.Is0.Start.Is0" Background="Background.White" Width="Width.Is100" Height="Height.Is100">
             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bars"
                      Position="Position.Absolute.Top.Is50.Start.Is50.Translate.Middle"
                      IconSize="IconSize.Large"
@@ -29,7 +30,7 @@
             </BarItem>
             <BarItem>
                 <BarDropdown>
-                    <BarDropdownToggle>
+                    <BarDropdownToggle Clicked="@(() => Navigation.NavigateTo("/servers"))">
                         <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" />
                         자산관리
                     </BarDropdownToggle>
@@ -71,7 +72,7 @@
             </BarItem>
             <BarItem>
                 <BarDropdown>
-                    <BarDropdownToggle>
+                    <BarDropdownToggle Clicked="@(() => Navigation.NavigateTo("/fault"))">
                         <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ChartBar" />
                         자산현황
                     </BarDropdownToggle>
