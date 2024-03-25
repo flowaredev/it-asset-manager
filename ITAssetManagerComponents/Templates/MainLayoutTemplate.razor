@@ -57,9 +57,10 @@
 @code {
     public static object HeadbarSection = new();
 
-    private const string PRIMARY_COLOR = "#375E97";
-    private const string SECONDARY_COLOR = "#FB6542";
-    private const string TERTIERTY_COLOR = "#FFBB00";
+    private const string PRIMARY_COLOR = "#023E8A";
+    private const string SECONDARY_COLOR = "#0077B6";
+    private const string SUCCESS_COLOR = "#90E0EF";
+    private const string INFO_COLOR = "#CAF0F8";
 
     private Theme theme = new Theme
         {
@@ -67,40 +68,43 @@
             {
                 Primary = PRIMARY_COLOR,
                 Secondary = SECONDARY_COLOR,
-                Success = TERTIERTY_COLOR,
+                Success = SUCCESS_COLOR,
+                Info = INFO_COLOR,
             },
             BackgroundOptions = new ThemeBackgroundOptions
             {
                 Primary = PRIMARY_COLOR,
                 Secondary = SECONDARY_COLOR,
-                Success = TERTIERTY_COLOR,
+                Success = SUCCESS_COLOR,
+                Info = INFO_COLOR,
             },
             TextColorOptions = new ThemeTextColorOptions
             {
                 Primary = PRIMARY_COLOR,
                 Secondary = SECONDARY_COLOR,
-                Success = TERTIERTY_COLOR,
+                Success = SUCCESS_COLOR,
+                Info = INFO_COLOR,
             },
             BarOptions = new ThemeBarOptions
             {
                 LightColors = new ThemeBarColorOptions
                 {
                     BackgroundColor = PRIMARY_COLOR,
-                    Color = TERTIERTY_COLOR,
+                    Color = INFO_COLOR,
                     ItemColorOptions = new ThemeBarItemColorOptions
                     {
-                        ActiveBackgroundColor = TERTIERTY_COLOR,
+                        ActiveBackgroundColor = SUCCESS_COLOR,
                         ActiveColor = PRIMARY_COLOR,
-                        HoverBackgroundColor = TERTIERTY_COLOR,
-                        HoverColor = PRIMARY_COLOR,
+                        HoverBackgroundColor = INFO_COLOR,
+                        HoverColor = SECONDARY_COLOR,
                     },
                     DropdownColorOptions = new ThemeBarDropdownColorOptions
                     {
-                        BackgroundColor = PRIMARY_COLOR,
+                        BackgroundColor = SECONDARY_COLOR,
                     },
                     BrandColorOptions = new ThemeBarBrandColorOptions
                     {
-                        BackgroundColor = SECONDARY_COLOR,
+                        BackgroundColor = INFO_COLOR,
                     },
                 },
             },
