@@ -32,7 +32,8 @@ else
               ResizeMode="TableResizeMode.Header"
               CommandMode="DataGridCommandMode.ButtonRow"
               Hoverable="true"
-              Responsive="true">
+              Responsive="true"
+              RowDoubleClicked="@(async _ => await _editButton.Clicked.InvokeAsync())">
         <DataGridColumns>
             <DataGridCommandColumn NewCommandAllowed="false" EditCommandAllowed="false" DeleteCommandAllowed="false">
                 <SaveCommandTemplate>
@@ -92,7 +93,7 @@ else
                     {
                         <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Primary" Clicked="context.NewCommand.Clicked">추가</Button>
                     }
-                    <Button Margin="Margin.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+                    <Button @ref="_editButton" Margin="Margin.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
                     <Button Margin="Margin.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
 
                     @if (OnShowDetail is not null)
@@ -165,6 +166,7 @@ else
     private PersistingComponentStateSubscription _persistingSubscription;
     private TItem? _selectedItem;
     private DataGrid<TItem> _dataGrid = null!;
+    private Button _editButton = null!;
 
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = default!;
@@ -257,5 +259,5 @@ else
             await context.Clicked.InvokeAsync();
             await OnDeleteItem(context.Item);
         }
-    }
+    }    
 }
