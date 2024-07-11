@@ -33,7 +33,10 @@ else
               CommandMode="DataGridCommandMode.ButtonRow"
               Hoverable="true"
               Responsive="true"
-              RowDoubleClicked="@(async _ => await _editButton.Clicked.InvokeAsync())">
+              RowDoubleClicked="@(async _ => {
+                    if(_editButton != null)
+                        await _editButton.Clicked.InvokeAsync();
+                })">
         <DataGridColumns>
             <DataGridCommandColumn NewCommandAllowed="false" EditCommandAllowed="false" DeleteCommandAllowed="false">
                 <SaveCommandTemplate>
@@ -166,7 +169,7 @@ else
     private PersistingComponentStateSubscription _persistingSubscription;
     private TItem? _selectedItem;
     private DataGrid<TItem> _dataGrid = null!;
-    private Button _editButton = null!;
+    private Button? _editButton;
 
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = default!;
@@ -259,5 +262,5 @@ else
             await context.Clicked.InvokeAsync();
             await OnDeleteItem(context.Item);
         }
-    }    
+    }
 }
