@@ -1,6 +1,5 @@
 ﻿@page "/fault"
-@attribute [StreamRendering]
 
-<HeaderTitle Title="장애" />
+<HeaderTitle Title="@LanguageHelper.FaultTitle" />
 
 <FailureDataGridByAll @rendermode="InteractiveServer" />

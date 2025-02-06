@@ -1,6 +1,5 @@
 ﻿@page "/routinecheck"
-@attribute [StreamRendering]
 
-<HeaderTitle Title="정기점검" />
+<HeaderTitle Title="@LanguageHelper.ScheduledMaintenanceTitle" />
 
 <RoutineCheckDataGridByAll @rendermode="InteractiveServer" />

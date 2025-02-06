@@ -1,6 +1,6 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<CommonAssetDataGrid Title="네트워크" OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
+<CommonAssetDataGrid OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
 
 @code {
     private async Task<List<CommonAsset>> UpdateAssets()

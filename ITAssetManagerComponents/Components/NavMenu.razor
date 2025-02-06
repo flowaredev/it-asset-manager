@@ -32,40 +32,40 @@
                 <BarDropdown>
                     <BarDropdownToggle Clicked="@(() => Navigation.NavigateTo("/servers"))">
                         <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" />
-                        자산관리
+                        관리항목
                     </BarDropdownToggle>
                     <BarDropdownMenu>
                         <BarDropdownItem To="/servers">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" />
-                            서버
+                            @LanguageHelper.ServerTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/storages">
                             <BarIcon IconName="@("fa-hard-drive")" />
-                            스토리지
+                            @LanguageHelper.StorageTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/backupequipments">
                             <BarIcon IconName="@("fa-download")" />
-                            백업장비
+                            @LanguageHelper.BackupEquipmentTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/networkequipments">
                             <BarIcon IconName="@("fa-network-wired")" />
-                            네트워크
+                            @LanguageHelper.NetworkEquipmentTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/securityequipments">
                             <BarIcon IconName="@("fa-user-secret")" />
-                            보안장비
+                            @LanguageHelper.SecurityEquipmentTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/softwares">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CompactDisc" />
-                            소프트웨어
+                            @LanguageHelper.SoftwareTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/supportequipments">
                             <BarIcon IconName="@("fa-toolbox")" />
-                            부대장비
+                            @LanguageHelper.SupportEquipmentTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/miscellaneousequipments">
                             <BarIcon IconName="@("fa-ethernet")" />
-                            기타
+                            @LanguageHelper.EtcTitle
                         </BarDropdownItem>
                     </BarDropdownMenu>
                 </BarDropdown>
@@ -83,15 +83,15 @@
                         </BarDropdownItem>
                         <BarDropdownItem To="/securityvulnerability">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bug" />
-                            취약점조치
+                            @LanguageHelper.VulnerabilityTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/routinecheck">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
-                            정기점검
+                            @LanguageHelper.ScheduledMaintenanceTitle
                         </BarDropdownItem>
                         <BarDropdownItem To="/maintenance">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Wrench" />
-                            유지보수
+                            @LanguageHelper.MaintenanceTitle
                         </BarDropdownItem>
                     </BarDropdownMenu>
                 </BarDropdown>

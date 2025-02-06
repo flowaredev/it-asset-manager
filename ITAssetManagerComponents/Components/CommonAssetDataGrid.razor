@@ -2,7 +2,6 @@
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<HeaderTitle Title="@Title" />
 <BaseDataGrid TItem="CommonAsset"
               OnUpdateItems="@OnUpdateItems"
               OnSaveItem="@OnSaveItem"
@@ -140,9 +139,6 @@
 @code {
     private bool _isShowFailureView, _isShowMaintenanceView, _isShowRoutineCheck, _isShowSecurityVulnerability;
     private CommonAsset _selectedAsset = new();
-
-    [Parameter]
-    public string Title { get; set; } = string.Empty;
 
     [Parameter, EditorRequired]
     public required Func<Task<List<CommonAsset>>> OnUpdateItems { get; set; }
