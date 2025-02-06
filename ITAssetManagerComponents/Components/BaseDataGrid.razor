@@ -106,7 +106,7 @@ else
 
                     @if (OnShowFailure is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">@LanguageHelper.FaultTitle</Button>
                     }
 
                     @if (OnShowSecurityVulnerability is not null)

@@ -33,9 +33,6 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public bool IsResolved { get; set; } = false;
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
-
         public int CommonAssetId { get; set; }
         public CommonAsset CommonAsset { get; set; } = null!;
     }

@@ -6,9 +6,6 @@ namespace ITAssetManagerLibrary.Models
     {
         public int Id { get; set; }
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
-
         public int CommonAssetId { get; set; }
         public CommonAsset CommonAsset { get; set; } = null!;
     }

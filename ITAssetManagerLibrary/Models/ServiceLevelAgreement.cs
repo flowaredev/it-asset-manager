@@ -54,7 +54,5 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public ServiceLevel SecurityIssuesLevel { get; set; } = ServiceLevel.Excellent;
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
     }
 }

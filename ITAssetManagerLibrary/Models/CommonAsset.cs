@@ -34,9 +34,6 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public string OnSiteManagerPhone { get; set; } = string.Empty;
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
-
         public Server? Server { get; set; }
         public Software? Software { get; set; }
         public Storage? Storage { get; set; }

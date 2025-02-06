@@ -33,10 +33,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var assemplbyName = typeof(Program).Assembly.GetName().Name;
 #if DEBUG
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString, b => b.MigrationsAssembly(assemplbyName)).EnableSensitiveDataLogging());
+    options.UseSqlite(connectionString, b => b.MigrationsAssembly(assemplbyName)).EnableSensitiveDataLogging());
 #else
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString, b => b.MigrationsAssembly(assemplbyName)));
+    options.UseSqlite(connectionString, b => b.MigrationsAssembly(assemplbyName)));
 #endif
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

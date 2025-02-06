@@ -27,8 +27,6 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public string Rack { get; set; } = string.Empty;
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
 
         public int ServerId { get; set; }
         public Server Server { get; set; } = null!;

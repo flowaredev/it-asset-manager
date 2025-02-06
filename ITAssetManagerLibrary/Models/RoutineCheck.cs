@@ -21,9 +21,6 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public DateTime EndDateTime { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
-        [Timestamp]
-        public byte[] Version { get; set; } = [];
-
         public int CommonAssetId { get; set; }
         public CommonAsset CommonAsset { get; set; } = null!;
     }
