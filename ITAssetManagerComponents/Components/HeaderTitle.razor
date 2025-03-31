@@ -1,10 +1,53 @@
-﻿<PageTitle>굿모닝아이텍 SLA - @Title</PageTitle>
+﻿@implements IDisposable
+@inject NavigationManager Navigation
+
+<PageTitle>굿모닝아이텍 SLA - @Title</PageTitle>
 
 <SectionContent SectionId="MainLayoutTemplate.HeadbarSection">
-    @Title
+    <Div Flex="Flex.JustifyContent.Between" Margin="Margin.Is3.FromBottom">
+        <Div>
+            @Title
+        </Div>
+        <AuthorizeView>
+            <Authorized>
+                <Div TextSize="TextSize.Heading5">
+                    <BarLink To="Account/Manage">
+                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
+                        @context.User.Identity?.Name
+                    </BarLink>
+                </Div>
+            </Authorized>
+            <NotAuthorized>
+                <Div TextSize="TextSize.Heading5">
+                    <BarLink To="Account/Login">
+                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
+                        로그인
+                    </BarLink>
+                </Div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </Div>
 </SectionContent>
 
 @code {
     [Parameter]
     public string? Title { get; set; }
+
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = Navigation.ToBaseRelativePath(e.Location);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
 }
