@@ -25,27 +25,10 @@
         <BarStart>
             <AuthorizeView>
                 <Authorized>
-                    @* <BarItem>
-                        <BarLink To="Account/Manage">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
-                            @context.User.Identity?.Name
-                        </BarLink>
-                    </BarItem> *@
-                    @* <BarItem>
-                        <form action="Account/Logout" method="post">
-                            <AntiforgeryToken />
-                            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <Button Type="ButtonType.Submit" Class="b-bar-link" TextAlignment="TextAlignment.Start">
-                                <Icon Name="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignOutAlt" />
-                                로그아웃
-                            </Button>
-                        </form>
-                    </BarItem> *@
-
                     <BarItem>
-                        <BarLink To="/" Match="Match.All">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
-                            대시보드
+                        <BarLink To="/schedule">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarPlus" />
+                            @LanguageHelper.SecheduleCalendarTitle
                         </BarLink>
                     </BarItem>
                     <BarItem>
@@ -121,19 +104,13 @@
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
                             SLA
                         </BarLink>
-                    </BarItem>
+                    </BarItem>                    
                 </Authorized>
                 <NotAuthorized>
-                    @* <BarItem>
-                        <BarLink To="Account/Register">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserPlus" />
-                            회원가입
-                        </BarLink>
-                    </BarItem> *@
                     <BarItem>
-                        <BarLink To="Account/Login">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
-                            로그인
+                        <BarLink To="/" Match="Match.All">
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
+                            대시보드
                         </BarLink>
                     </BarItem>
                 </NotAuthorized>

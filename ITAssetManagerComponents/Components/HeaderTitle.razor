@@ -1,4 +1,5 @@
-﻿@implements IDisposable
+﻿@using Blazorise.Icons.FontAwesome
+@implements IDisposable
 @inject NavigationManager Navigation
 
 <PageTitle>굿모닝아이텍 SLA - @Title</PageTitle>
@@ -10,18 +11,30 @@
         </Div>
         <AuthorizeView>
             <Authorized>
-                <Div TextSize="TextSize.Heading5">
+                <Div Flex="Flex.AlignItems.Center" TextSize="TextSize.Heading6">
                     <BarLink To="Account/Manage">
-                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.User" />
+                        <BarIcon IconName="FontAwesomeIcons.User" />
                         @context.User.Identity?.Name
                     </BarLink>
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <Button Type="ButtonType.Submit" TextColor="TextColor.Primary" TextWeight="TextWeight.Bold">
+                            <BarIcon IconName="FontAwesomeIcons.SignOutAlt" />
+                            로그아웃
+                        </Button>
+                    </form>
                 </Div>
             </Authorized>
             <NotAuthorized>
-                <Div TextSize="TextSize.Heading5">
+                <Div Flex="Flex.AlignItems.Center" TextSize="TextSize.Heading6" Gap="Gap.Is2">
                     <BarLink To="Account/Login">
-                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.SignInAlt" />
+                        <BarIcon IconName="FontAwesomeIcons.SignInAlt" />
                         로그인
+                    </BarLink>
+                    <BarLink To="Account/Register">
+                        <BarIcon IconName="FontAwesomeIcons.UserPlus" />
+                        회원가입
                     </BarLink>
                 </Div>
             </NotAuthorized>

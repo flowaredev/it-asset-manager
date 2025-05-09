@@ -20,5 +20,6 @@ namespace ITAssetManagerLibrary.Helpers
         public const string SoftwareTitle = "소프트웨어";
         public const string SupportEquipmentTitle = "부대장비";
         public const string EtcTitle = "기타";
+        public const string SecheduleCalendarTitle = "일정관리";
     }
 }
