@@ -37,28 +37,10 @@
                 </div>
                 <div>
                     <button type="submit" class="w-100 btn btn-lg btn-primary">로그인</button>
-                </div>
-                @* <div>
-                    <p>
-                        <a href="Account/ForgotPassword">비밀번호 찾기</a>
-                    </p>
-                    <p>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">회원가입</a>
-                    </p>
-                    <p>
-                        <a href="Account/ResendEmailConfirmation">인증메일 재전송</a>
-                    </p>
-                </div> *@
+                </div>               
             </EditForm>
         </section>
     </div>
-    @* <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>외부 서비스를 이용해 로그인.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div> *@
 </div>
 
 @code {
