@@ -21,5 +21,6 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<ServiceLevelAgreement> ServiceLevelAgreements { get; set; }
         public DbSet<RoutineCheck> RoutineChecks { get; set; }
         public DbSet<SecurityVulnerability> SecurityVulnerabilities { get; set; }
+        public DbSet<UserAppointment> UserAppointments { get; set; }
     }
 }
