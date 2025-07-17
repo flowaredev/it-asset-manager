@@ -72,6 +72,8 @@ else
 
 app.UseHttpsRedirection();
 
+// Map static assets before using static files
+app.MapStaticAssets();
 app.UseStaticFiles();
 app.UseAntiforgery();
 

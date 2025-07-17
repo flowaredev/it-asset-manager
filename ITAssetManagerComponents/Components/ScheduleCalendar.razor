@@ -22,10 +22,10 @@
 @code {
     private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
     private SchedulerView selectedView = SchedulerView.Week;
-    private TimeOnly startTime = new TimeOnly(7, 0);
-    private TimeOnly endTime = new TimeOnly(17, 0);
+    private TimeOnly startTime = new TimeOnly(6, 0);
+    private TimeOnly endTime = new TimeOnly(22, 0);
     private TimeOnly workDayStart = new TimeOnly(8, 0);
-    private TimeOnly workDayEnd = new TimeOnly(16, 0);
+    private TimeOnly workDayEnd = new TimeOnly(18, 0);
 
     private List<UserAppointmentModel> appointments = new();
     private string? currentUserId;

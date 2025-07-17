@@ -1,5 +1,6 @@
 ﻿@page "/schedule"
 @using ITAssetManagerLibrary.Helpers
+@attribute [Authorize]
 
 <HeaderTitle Title="@LanguageHelper.SecheduleCalendarTitle" />
-<ScheduleCalendar />
+<ScheduleCalendar @rendermode="InteractiveAuto" />

@@ -23,6 +23,12 @@
     </BarBrand>
     <BarMenu>
         <BarStart>
+            <BarItem>
+                <BarLink To="/" Match="Match.All">
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
+                    대시보드
+                </BarLink>
+            </BarItem>
             <AuthorizeView>
                 <Authorized>
                     <BarItem>
@@ -104,16 +110,8 @@
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
                             SLA
                         </BarLink>
-                    </BarItem>                    
-                </Authorized>
-                <NotAuthorized>
-                    <BarItem>
-                        <BarLink To="/" Match="Match.All">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
-                            대시보드
-                        </BarLink>
                     </BarItem>
-                </NotAuthorized>
+                </Authorized>
             </AuthorizeView>
         </BarStart>
     </BarMenu>

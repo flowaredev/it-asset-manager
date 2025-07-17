@@ -1,5 +1,5 @@
 ﻿@page "/servers"
-
+@attribute [Authorize]
 <HeaderTitle Title="@LanguageHelper.ServerTitle" />
 
 <ServerDataGrid @rendermode="InteractiveServer" />

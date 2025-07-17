@@ -1,3 +1,4 @@
 ﻿@page "/securityequipments"
+@attribute [Authorize]
 <HeaderTitle Title="@LanguageHelper.SecurityEquipmentTitle" />
 <SecurityEquipmentsDataGrid @rendermode="InteractiveServer" />

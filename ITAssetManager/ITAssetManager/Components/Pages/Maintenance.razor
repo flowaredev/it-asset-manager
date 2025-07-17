@@ -1,5 +1,5 @@
 ﻿@page "/maintenance"
-
+@attribute [Authorize]
 <HeaderTitle Title="@LanguageHelper.MaintenanceTitle" />
 
 <MaintenanceDataGridByAll @rendermode="InteractiveServer" />
