@@ -1,4 +1,6 @@
-﻿@using ITAssetManager.Client.Layout
+﻿@using Blazorise
+@using Blazorise.Components
+@using ITAssetManager.Components.Layout
 <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
@@ -9,3 +11,9 @@
         <FocusOnNavigate RouteData="routeData" Selector="h3" />
     </Found>
 </Router>
+
+<MessageProvider @rendermode="InteractiveServer" />
+<ModalProvider @rendermode="InteractiveServer" />
+<NotificationProvider @rendermode="InteractiveServer" />
+<PageProgressProvider @rendermode="InteractiveServer" />
+<ToastProvider @rendermode="InteractiveServer" />

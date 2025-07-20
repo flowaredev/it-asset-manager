@@ -12,3 +12,8 @@
     border-color: #929292;
 }
 
+*:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
