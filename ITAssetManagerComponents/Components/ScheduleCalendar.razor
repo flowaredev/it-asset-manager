@@ -109,7 +109,7 @@
     }
 
     // Sync all appointments to the database
-    
+
     // Helper method to save an appointment to the database
     private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
     {
@@ -118,7 +118,7 @@
         try
         {
             using var context = DbFactory.CreateDbContext();
-            
+
             var userAppointment = new UserAppointment
             {
                 Title = appointment.Title ?? "새 일정",
@@ -132,8 +132,9 @@
 
             context.UserAppointments.Add(userAppointment);
             await context.SaveChangesAsync();
-            
+
             Debug.WriteLine($"일정이 저장되었습니다: {appointment.Title}");
+            await LoadUserAppointments(); // Ensure it waits for the loading to complete
         }
         catch (Exception ex)
         {
