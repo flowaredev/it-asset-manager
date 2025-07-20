@@ -15,7 +15,7 @@ namespace ITAssetManagerLibrary.Helpers
 
         public static string GetValidationMessage(string message, IEnumerable<string> arguments)
         {
-            return string.Format(_applicationLocalizerDictionary[message], arguments.ToArray());
+            return string.Format(_applicationLocalizerDictionary[message], [.. arguments]);
         }
     }
 }

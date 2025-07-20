@@ -10,6 +10,7 @@
            @bind-SelectedView="@selectedView"
            Editable
            Draggable
+           Localizers="@schedulerLocalizers"
            SlotSelectionMode="SchedulerSlotSelectionMode.Mouse"
            ItemInserted="@OnAppointmentInserted"
            ItemUpdated="@OnAppointmentUpdated"
@@ -33,6 +34,39 @@
 
     private List<UserAppointmentModel> appointments = new();
     private string? currentUserId;
+
+    private SchedulerLocalizers schedulerLocalizers = new()
+    {
+        NewLocalizer = (_, _) => "새 일정",
+        EditLocalizer = (_, _) => "편집",
+        TitleLocalizer = (_, _) => "제목",
+        StartLocalizer = (_, _) => "시작",
+        EndLocalizer = (_, _) => "종료",
+        AllDayLocalizer = (_, _) => "하루 종일",
+        DescriptionLocalizer = (_, _) => "설명",
+        DeleteLocalizer = (_, _) => "삭제",
+        CancelLocalizer = (_, _) => "취소",
+        SaveLocalizer = (_, _) => "저장",
+        ItemDeleteConfirmationLocalizer = (_, _) => "이 일정을 삭제하시겠습니까?",
+        OccurrenceDeleteConfirmationLocalizer = (_, _) => "이 항목을 삭제하시겠습니까?",
+        SeriesDeleteConfirmationTextLocalizer = (_, _) => "이 시리즈를 삭제하시겠습니까?",
+        DeleteSeriesLocalizer = (_, _) => "시리즈 삭제",
+        DeleteOccurrenceLocalizer = (_, _) => "항목 삭제",
+        EditSeriesLocalizer = (_, _) => "시리즈 편집",
+        EditOccurrenceLocalizer = (_, _) => "항목 편집",
+        AppointmentLocalizer = (_, _) => "일정",
+        TodayLocalizer = (_, _) => "오늘",
+        PreviousLocalizer = (_, _) => "이전",
+        NextLocalizer = (_, _) => "다음",
+        DayLocalizer = (_, _) => "일",
+        WeekLocalizer = (_, _) => "주",
+        WorkWeekLocalizer = (_, _) => "작업 주",
+        MonthLocalizer = (_, _) => "월",
+        YearLocalizer = (_, _) => "년",
+        TitleRequiredValidationLocalizer = (_, _) => "제목은 필수입니다.",
+        StartDateHigherValidationLocalizer = (_, _) => "시작일은 종료일보다 늦을 수 없습니다.",
+        EndDateLowerValidationLocalizer = (_, _) => "종료일은 시작일보다 빠를 수 없습니다."
+    };
 
     public class UserAppointmentModel
     {
@@ -107,8 +141,6 @@
 
         await RemoveAppointmentAsync(item.OldItem);
     }
-
-    // Sync all appointments to the database
 
     // Helper method to save an appointment to the database
     private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
