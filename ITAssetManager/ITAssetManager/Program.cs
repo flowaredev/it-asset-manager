@@ -9,6 +9,7 @@ using Blazorise.Icons.FontAwesome;
 using Blazorise.Bootstrap5;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Helpers;
+using ITAssetManager.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 

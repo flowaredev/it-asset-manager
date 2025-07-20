@@ -1,10 +1,13 @@
-﻿@inject IHostEnvironment HostEnvironment
+﻿@using Blazorise.Components
+@inject IHostEnvironment HostEnvironment
 
 <HeadContent>
     <link href="_content/ITAssetManagerComponents/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="_content/Blazorise.Icons.FontAwesome/v6/css/all.min.css" rel="stylesheet">
-    <link href="_content/Blazorise/blazorise.css?v=1.7.6.0" rel="stylesheet" />
-    <link href="_content/Blazorise.Bootstrap5/blazorise.bootstrap5.css?v=1.7.6.0" rel="stylesheet" />
+    
+    <link href="_content/Blazorise/blazorise.css?v=1.8.0.0" rel="stylesheet" />
+    <link href="_content/Blazorise.Bootstrap5/blazorise.bootstrap5.css?v=1.8.0.0" rel="stylesheet" />
+    
     <link href="_content/Blazorise.SpinKit/blazorise.spinkit.css" rel="stylesheet" />
     <link href="_content/Blazorise.LoadingIndicator/blazorise.loadingindicator.css" rel="stylesheet" />
     <link href="_content/ITAssetManagerComponents/lib/kfonts/nanum-gothic/index.min.css" rel="stylesheet" />
@@ -49,9 +52,7 @@
                 </Div>
             </AlertDescription>
         </Alert>
-    </div>
-
-    <Blazorise.MessageProvider />
+    </div>    
 </Blazorise.ThemeProvider>
 
 <script src="_content/ITAssetManagerComponents/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

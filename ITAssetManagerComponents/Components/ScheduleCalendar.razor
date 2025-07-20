@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
+@using Blazorise.Scheduler
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -9,7 +10,10 @@
            @bind-SelectedView="@selectedView"
            Editable
            Draggable
-           SlotSelectionMode="SchedulerSlotSelectionMode.Mouse">
+           SlotSelectionMode="SchedulerSlotSelectionMode.Mouse"
+           ItemInserted="@OnAppointmentInserted"
+           ItemUpdated="@OnAppointmentUpdated"
+           ItemRemoved="@OnAppointmentRemoved">
     <SchedulerToolbar />
     <SchedulerViews>
         <SchedulerDayView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
@@ -45,15 +49,10 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         currentUserId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         if (!string.IsNullOrEmpty(currentUserId))
         {
             await LoadUserAppointments();
-        }
-        else
-        {
-            // Load some sample data for demo when no user is authenticated
-            LoadSampleData();
         }
     }
 
@@ -79,51 +78,40 @@
                 RecurrenceRule = ua.RecurrenceRule
             }).ToList();
 
-            StateHasChanged();
         }
         catch (Exception ex)
         {
             // Handle database errors gracefully
-            Console.WriteLine($"Error loading appointments: {ex.Message}");
-            LoadSampleData();
+            Debug.WriteLine($"Error loading appointments: {ex.Message}");
         }
     }
 
-    private void LoadSampleData()
+    // Event handlers for Blazorise Scheduler events
+    private async Task OnAppointmentInserted(SchedulerInsertedItem<UserAppointmentModel> item)
     {
-        var today10AM = DateTime.Today.AddHours(10);
-        
-        appointments = new List<UserAppointmentModel>
-        {
-            new UserAppointmentModel
-            {
-                Id = "sample1",
-                Title = "IT 자산 관리 회의",
-                Description = "월간 IT 자산 관리 현황 점검 회의",
-                Start = today10AM,
-                End = today10AM.AddHours(1)
-            },
-            new UserAppointmentModel
-            {
-                Id = "sample2", 
-                Title = "서버 점검",
-                Description = "정기 서버 상태 점검 및 유지보수",
-                Start = today10AM.AddDays(-2).AddHours(2),
-                End = today10AM.AddDays(-2).AddHours(3)
-            },
-            new UserAppointmentModel
-            {
-                Id = "sample3",
-                Title = "보안 취약점 점검",
-                Description = "주간 보안 취약점 점검 및 패치 적용",
-                Start = today10AM.AddDays(1).AddHours(-2),
-                End = today10AM.AddDays(1).AddHours(-1),
-                RecurrenceRule = "FREQ=WEEKLY;BYDAY=TU;INTERVAL=1;COUNT=4"
-            }
-        };
+        if (string.IsNullOrEmpty(currentUserId)) return;
+
+        await InsertAppointmentAsync(item.Item);
     }
 
-    public async Task SaveAppointmentAsync(UserAppointmentModel appointment)
+    private async Task OnAppointmentUpdated(SchedulerUpdatedItem<UserAppointmentModel> item)
+    {
+        if (string.IsNullOrEmpty(currentUserId)) return;
+
+        await UpdateAppointmentAsync(item.NewItem);
+    }
+
+    private async Task OnAppointmentRemoved(SchedulerUpdatedItem<UserAppointmentModel> item)
+    {
+        if (string.IsNullOrEmpty(currentUserId)) return;
+
+        await RemoveAppointmentAsync(item.OldItem);
+    }
+
+    // Sync all appointments to the database
+    
+    // Helper method to save an appointment to the database
+    private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
     {
         if (string.IsNullOrEmpty(currentUserId)) return;
 
@@ -133,8 +121,8 @@
             
             var userAppointment = new UserAppointment
             {
-                Title = appointment.Title,
-                Description = appointment.Description,
+                Title = appointment.Title ?? "새 일정",
+                Description = appointment.Description ?? string.Empty,
                 Start = appointment.Start,
                 End = appointment.End,
                 AllDay = appointment.AllDay,
@@ -145,11 +133,91 @@
             context.UserAppointments.Add(userAppointment);
             await context.SaveChangesAsync();
             
-            await LoadUserAppointments();
+            Debug.WriteLine($"일정이 저장되었습니다: {appointment.Title}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving appointment: {ex.Message}");
+            Debug.WriteLine($"일정 저장 중 오류 발생: {ex.Message}");
+        }
+    }
+
+    // Helper method to update an appointment in the database
+    private async Task UpdateAppointmentAsync(UserAppointmentModel appointment)
+    {
+        if (string.IsNullOrEmpty(currentUserId)) return;
+
+        try
+        {
+            using var context = DbFactory.CreateDbContext();
+            
+            if (int.TryParse(appointment.Id, out int appointmentId))
+            {
+                var userAppointment = await context.UserAppointments
+                    .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+
+                if (userAppointment != null)
+                {
+                    userAppointment.Title = appointment.Title ?? "일정";
+                    userAppointment.Description = appointment.Description ?? string.Empty;
+                    userAppointment.Start = appointment.Start;
+                    userAppointment.End = appointment.End;
+                    userAppointment.AllDay = appointment.AllDay;
+                    userAppointment.RecurrenceRule = appointment.RecurrenceRule;
+
+                    await context.SaveChangesAsync();
+                    
+                    Debug.WriteLine($"일정이 수정되었습니다: {appointment.Title} (ID: {appointment.Id})");
+                }
+                else
+                {
+                    Debug.WriteLine($"수정할 일정을 찾을 수 없습니다: ID {appointment.Id}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"일정 수정 중 오류 발생: {ex.Message}");
+        }
+    }
+
+    // Helper method to remove an appointment from the database
+    private async Task RemoveAppointmentAsync(UserAppointmentModel appointment)
+    {
+        if (string.IsNullOrEmpty(currentUserId)) return;
+
+        try
+        {
+            using var context = DbFactory.CreateDbContext();
+            
+            if (int.TryParse(appointment.Id, out int appointmentId))
+            {
+                var userAppointment = await context.UserAppointments
+                    .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+
+                if (userAppointment != null)
+                {
+                    context.UserAppointments.Remove(userAppointment);
+                    await context.SaveChangesAsync();
+                    
+                    Debug.WriteLine($"일정이 삭제되었습니다: {appointment.Title} (ID: {appointment.Id})");
+                }
+                else
+                {
+                    Debug.WriteLine($"삭제할 일정을 찾을 수 없습니다: ID {appointment.Id}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"일정 삭제 중 오류 발생: {ex.Message}");
         }
     }
 }
