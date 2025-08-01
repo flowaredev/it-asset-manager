@@ -9,7 +9,7 @@ using Blazorise.Icons.FontAwesome;
 using Blazorise.Bootstrap5;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Helpers;
-using ITAssetManager.Client;
+using ITAssetManagerLibrary.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +43,17 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 #endif
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>()
+// Configure Identity with roles support
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
+    .AddRoles<IdentityRole>() // Add role support
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -57,6 +67,11 @@ builder.Services
     })
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
+
+// Add authorization policies
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(PolicyConstants.ADMINISTRATOR_POLICY, policy => policy.RequireRole(RoleConstants.Administrator))
+    .AddPolicy(PolicyConstants.USER_POLICY, policy => policy.RequireRole(RoleConstants.Administrator, RoleConstants.User));
 
 var app = builder.Build();
 

@@ -34,7 +34,7 @@
                     <BarItem>
                         <BarLink To="/schedule">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarPlus" />
-                            @LanguageHelper.SecheduleCalendarTitle
+                            @HeaderConstant.SecheduleCalendarTitle
                         </BarLink>
                     </BarItem>
                     <BarItem>
@@ -46,35 +46,35 @@
                             <BarDropdownMenu>
                                 <BarDropdownItem To="/servers">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" />
-                                    @LanguageHelper.ServerTitle
+                                    @HeaderConstant.ServerTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/storages">
                                     <BarIcon IconName="@("fa-hard-drive")" />
-                                    @LanguageHelper.StorageTitle
+                                    @HeaderConstant.StorageTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/backupequipments">
                                     <BarIcon IconName="@("fa-download")" />
-                                    @LanguageHelper.BackupEquipmentTitle
+                                    @HeaderConstant.BackupEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/networkequipments">
                                     <BarIcon IconName="@("fa-network-wired")" />
-                                    @LanguageHelper.NetworkEquipmentTitle
+                                    @HeaderConstant.NetworkEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/securityequipments">
                                     <BarIcon IconName="@("fa-user-secret")" />
-                                    @LanguageHelper.SecurityEquipmentTitle
+                                    @HeaderConstant.SecurityEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/softwares">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CompactDisc" />
-                                    @LanguageHelper.SoftwareTitle
+                                    @HeaderConstant.SoftwareTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/supportequipments">
                                     <BarIcon IconName="@("fa-toolbox")" />
-                                    @LanguageHelper.SupportEquipmentTitle
+                                    @HeaderConstant.SupportEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/miscellaneousequipments">
                                     <BarIcon IconName="@("fa-ethernet")" />
-                                    @LanguageHelper.EtcTitle
+                                    @HeaderConstant.EtcTitle
                                 </BarDropdownItem>
                             </BarDropdownMenu>
                         </BarDropdown>
@@ -88,19 +88,19 @@
                             <BarDropdownMenu>
                                 <BarDropdownItem To="/fault">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.HeartBroken" />
-                                    @LanguageHelper.FaultTitle
+                                    @HeaderConstant.FaultTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/securityvulnerability">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bug" />
-                                    @LanguageHelper.VulnerabilityTitle
+                                    @HeaderConstant.VulnerabilityTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/routinecheck">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
-                                    @LanguageHelper.ScheduledMaintenanceTitle
+                                    @HeaderConstant.ScheduledMaintenanceTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/maintenance">
                                     <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Wrench" />
-                                    @LanguageHelper.MaintenanceTitle
+                                    @HeaderConstant.MaintenanceTitle
                                 </BarDropdownItem>
                             </BarDropdownMenu>
                         </BarDropdown>
@@ -111,6 +111,25 @@
                             SLA
                         </BarLink>
                     </BarItem>
+                    <!-- Administrator menu -->
+                    <AuthorizeView Policy="@PolicyConstants.ADMINISTRATOR_POLICY" Context="adminContext">
+                        <Authorized Context="adminAuthorized">
+                            <BarItem>
+                                <BarDropdown>
+                                    <BarDropdownToggle>
+                                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserCog" />
+                                        관리자
+                                    </BarDropdownToggle>
+                                    <BarDropdownMenu>
+                                        <BarDropdownItem To="/admin/usermanagement">
+                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Users" />
+                                            사용자 관리
+                                        </BarDropdownItem>
+                                    </BarDropdownMenu>
+                                </BarDropdown>
+                            </BarItem>
+                        </Authorized>
+                    </AuthorizeView>
                 </Authorized>
             </AuthorizeView>
         </BarStart>

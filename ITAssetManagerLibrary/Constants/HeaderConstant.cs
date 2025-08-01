@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ITAssetManagerLibrary.Helpers
+namespace ITAssetManagerLibrary.Constants
 {
-    public class LanguageHelper
+    public class HeaderConstant
     {
         public const string FaultTitle = "장애조치";
         public const string VulnerabilityTitle = "취약점조치";
@@ -21,5 +21,6 @@ namespace ITAssetManagerLibrary.Helpers
         public const string SupportEquipmentTitle = "부대장비";
         public const string EtcTitle = "기타";
         public const string SecheduleCalendarTitle = "일정관리";
+        public const string UserManagementTitle = "사용자관리";
     }
 }

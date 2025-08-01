@@ -1,4 +1,5 @@
 using ITAssetManagerLibrary.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,5 +23,27 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<RoutineCheck> RoutineChecks { get; set; }
         public DbSet<SecurityVulnerability> SecurityVulnerabilities { get; set; }
         public DbSet<UserAppointment> UserAppointments { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSeeding((context, _) =>
+            {
+                // Seed data can be added here if needed
+                var administrator = context.Set<ApplicationUser>().FirstOrDefault(u => u.UserName == "administrator");
+                if (administrator == null)
+                {
+                    administrator = new ApplicationUser
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = "administrator@itsm.com",
+                        Email = "administrator@itsm.com"
+                    };
+                    var passwordHasher = new PasswordHasher<ApplicationUser>();
+                    administrator.PasswordHash = passwordHasher.HashPassword(administrator, "Admin@1234");
+                    context.Set<ApplicationUser>().Add(administrator);
+                    context.SaveChanges();
+                }
+            });
+        }
     }
 }

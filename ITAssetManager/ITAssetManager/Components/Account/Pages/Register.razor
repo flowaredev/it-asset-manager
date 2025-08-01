@@ -5,6 +5,7 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using ITAssetManagerLibrary.Data
 
 
 @inject UserManager<ApplicationUser> UserManager
@@ -68,6 +69,9 @@
             identityErrors = result.Errors;
             return;
         }
+
+        // Assign "None" role to newly registered users
+        await UserManager.AddToRoleAsync(user, RoleConstants.None);
 
         Logger.LogInformation("User created a new account with password.");
 
