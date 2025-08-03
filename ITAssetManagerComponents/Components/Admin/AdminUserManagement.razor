@@ -1,0 +1,285 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Logging
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject ILogger<AdminUserManagement> Logger
+
+<HeaderTitle Title="@HeaderConstant.UserManagementTitle" />
+
+<Container Fluid>
+    <Row>
+        <Column>
+            <Card>
+                <CardHeader>
+                    <CardTitle>@HeaderConstant.UserManagementTitle</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <DataGrid TItem="UserViewModel"
+                              Data="@users"
+                              ReadData="@OnReadData"
+                              TotalItems="@totalUsers"
+                              ShowPager="true"
+                              PageSize="10"
+                              Responsive="true"
+                              ShowPageSizes="true">
+                        <DataGridColumns>
+                            <DataGridColumn Field="@nameof(UserViewModel.Email)" Caption="이메일" Sortable="false">
+                                <DisplayTemplate>
+                                    @context.Email
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn Field="@nameof(UserViewModel.UserName)" Caption="사용자명" Sortable="false">
+                                <DisplayTemplate>
+                                    @context.UserName
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn Field="@nameof(UserViewModel.PhoneNumber)" Caption="전화번호" Sortable="false">
+                                <DisplayTemplate>
+                                    @context.PhoneNumber
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn Field="@nameof(UserViewModel.Role)" Caption="역할" Sortable="false">
+                                <DisplayTemplate>
+                                    <Badge Color="@GetRoleBadgeColor(context.Role)">@context.Role</Badge>
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn Field="@nameof(UserViewModel.EmailConfirmed)" Caption="이메일 확인" Sortable="false">
+                                <DisplayTemplate>
+                                    <Badge Color="@(context.EmailConfirmed? Color.Success: Color.Warning)">
+                                        @(context.EmailConfirmed ? "확인됨" : "미확인")
+                                    </Badge>
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Sortable="false" Width="200px">
+                                <DisplayTemplate>
+                                    <Buttons Size="Size.Small">
+                                        <Button Color="Color.Primary" Size="Size.Small"
+                                                Clicked="@(() => OpenEditRoleModal(context))">
+                                            <Icon Name="IconName.Edit" /> 역할 변경
+                                        </Button>
+                                        <Button Color="Color.Danger" Size="Size.Small"
+                                                Clicked="@(() => DeleteUser(context))"
+                                                Disabled="@(context.Role == RoleConstants.Administrator)">
+                                            <Icon Name="IconName.Delete" /> 삭제
+                                        </Button>
+                                    </Buttons>
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                        </DataGridColumns>
+                    </DataGrid>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+</Container>
+
+<!-- Edit Role Modal -->
+<Modal @ref="editRoleModalRef">
+    <ModalContent Centered="true">
+        <ModalHeader>
+            <ModalTitle>역할 변경</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            @if (selectedUser != null)
+            {
+                <Field>
+                    <FieldLabel>사용자: @selectedUser.Email</FieldLabel>
+                </Field>
+                <Field>
+                    <FieldLabel>현재 역할: @selectedUser.Role</FieldLabel>
+                </Field>
+                <Field>
+                    <FieldLabel>새 역할</FieldLabel>
+                    <Select @bind-SelectedValue="newRole">
+                        <SelectItem Value="@RoleConstants.Administrator">Administrator</SelectItem>
+                        <SelectItem Value="@RoleConstants.User">User</SelectItem>
+                        <SelectItem Value="@RoleConstants.None">None</SelectItem>
+                    </Select>
+                </Field>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideEditRoleModal">취소</Button>
+            <Button Color="Color.Primary" Clicked="@UpdateUserRole">저장</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+<!-- Delete Confirmation Modal -->
+<Modal @ref="deleteConfirmModalRef">
+    <ModalContent Centered="true">
+        <ModalHeader>
+            <ModalTitle>사용자 삭제 확인</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            @if (selectedUser != null)
+            {
+                <Alert Color="Color.Danger">
+                    <AlertMessage>경고!</AlertMessage>
+                    <AlertDescription>
+                        사용자 <strong>@selectedUser.Email</strong>을(를) 영구적으로 삭제하시겠습니까?
+                        이 작업은 되돌릴 수 없습니다.
+                    </AlertDescription>
+                </Alert>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideDeleteConfirmModal">취소</Button>
+            <Button Color="Color.Danger" Clicked="@ConfirmDeleteUser">삭제</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+    private List<UserViewModel> users = new();
+    private int totalUsers = 0;
+    private UserViewModel? selectedUser;
+    private string newRole = "";
+
+    private Modal editRoleModalRef = default!;
+    private Modal deleteConfirmModalRef = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task OnReadData(DataGridReadDataEventArgs<UserViewModel> e)
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = new List<UserViewModel>();
+
+        var allUsers = UserManager.Users.ToList();
+        totalUsers = allUsers.Count;
+
+        foreach (var user in allUsers)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? RoleConstants.None;
+
+            users.Add(new UserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email ?? "",
+                UserName = user.UserName ?? "",
+                PhoneNumber = user.PhoneNumber ?? "",
+                Role = role,
+                EmailConfirmed = user.EmailConfirmed
+            });
+        }
+
+        StateHasChanged();
+    }
+
+    private void OpenEditRoleModal(UserViewModel user)
+    {
+        selectedUser = user;
+        newRole = user.Role;
+        editRoleModalRef.Show();
+    }
+
+    private void HideEditRoleModal()
+    {
+        editRoleModalRef.Hide();
+        selectedUser = null;
+        newRole = "";
+    }
+
+    private async Task UpdateUserRole()
+    {
+        if (selectedUser == null) return;
+
+        try
+        {
+            var user = await UserManager.FindByIdAsync(selectedUser.Id);
+            if (user == null) return;
+
+            // Remove user from all roles
+            var currentRoles = await UserManager.GetRolesAsync(user);
+            if (currentRoles.Any())
+            {
+                await UserManager.RemoveFromRolesAsync(user, currentRoles);
+            }
+
+            // Add user to new role
+            await UserManager.AddToRoleAsync(user, newRole);
+
+            Logger.LogInformation("User {Email} role changed to {Role}", user.Email, newRole);
+
+            await LoadUsers();
+            HideEditRoleModal();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error updating user role");
+        }
+    }
+
+    private void DeleteUser(UserViewModel user)
+    {
+        selectedUser = user;
+        deleteConfirmModalRef.Show();
+    }
+
+    private void HideDeleteConfirmModal()
+    {
+        deleteConfirmModalRef.Hide();
+        selectedUser = null;
+    }
+
+    private async Task ConfirmDeleteUser()
+    {
+        if (selectedUser == null) return;
+
+        try
+        {
+            var user = await UserManager.FindByIdAsync(selectedUser.Id);
+            if (user == null) return;
+
+            var result = await UserManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("User {Email} deleted", user.Email);
+                await LoadUsers();
+            }
+            else
+            {
+                Logger.LogError("Failed to delete user {Email}: {Errors}",
+                    user.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            HideDeleteConfirmModal();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error deleting user");
+        }
+    }
+
+    private Color GetRoleBadgeColor(string role)
+    {
+        return role switch
+        {
+            RoleConstants.Administrator => Color.Danger,
+            RoleConstants.User => Color.Success,
+            RoleConstants.None => Color.Secondary,
+            _ => Color.Light
+        };
+    }
+
+    public class UserViewModel
+    {
+        public string Id { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string PhoneNumber { get; set; } = "";
+        public string Role { get; set; } = "";
+        public bool EmailConfirmed { get; set; }
+    }
+}

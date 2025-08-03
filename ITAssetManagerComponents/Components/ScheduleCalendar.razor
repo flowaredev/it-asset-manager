@@ -5,6 +5,7 @@
 @using Blazorise.Localization
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
+<HeaderTitle Title="@HeaderConstant.SecheduleCalendarTitle" />
 
 <Scheduler TItem="UserAppointmentModel" @bind-Date="@selectedDate"
            Data="@appointments"

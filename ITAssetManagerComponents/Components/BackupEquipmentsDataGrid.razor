@@ -1,5 +1,7 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
+<HeaderTitle Title="@HeaderConstant.BackupEquipmentTitle" />
+
 <CommonAssetDataGrid OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
 
 @code {

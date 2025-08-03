@@ -8,6 +8,7 @@ namespace ITAssetManagerLibrary.Constants
 {
     public class HeaderConstant
     {
+        public const string DashboardTitle = "대시보드";
         public const string FaultTitle = "장애조치";
         public const string VulnerabilityTitle = "취약점조치";
         public const string ScheduledMaintenanceTitle = "정기점검";
