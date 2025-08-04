@@ -3,6 +3,8 @@
 @typeparam TItem
 @inject PersistentComponentState ApplicationState
 @inject IMessageService MessageService
+@inject ITextLocalizerService LocalizationService
+@inject ITextLocalizer<DataGrid<TItem>> DataGridLocalizer
 
 @if (_isLoading)
 {
@@ -34,20 +36,20 @@ else
               Hoverable="true"
               Responsive="true"
               RowDoubleClicked="@(async _ => {
-                    if(_editButton != null)
-                        await _editButton.Clicked.InvokeAsync();
-                })">
-        <DataGridColumns>
-            <DataGridCommandColumn NewCommandAllowed="false" EditCommandAllowed="false" DeleteCommandAllowed="false">
-                <SaveCommandTemplate>
-                    <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Primary" Clicked="@(async () => await SaveItem(context))">저장</Button>
-                </SaveCommandTemplate>
-                <CancelCommandTemplate>
-                    <Button Color="Color.Secondary" Clicked="@context.Clicked">취소</Button>
-                </CancelCommandTemplate>
-            </DataGridCommandColumn>
-            @ChildContent
-        </DataGridColumns>
+                  if (_editButton != null)
+                      await _editButton.Clicked.InvokeAsync();
+              })">
+          <DataGridColumns>
+              <DataGridCommandColumn NewCommandAllowed="false" EditCommandAllowed="false" DeleteCommandAllowed="false">
+                  <SaveCommandTemplate>
+                      <Button Type="ButtonType.Submit" PreventDefaultOnSubmit="true" Color="Color.Primary" Clicked="@(async () => await SaveItem(context))">저장</Button>
+                  </SaveCommandTemplate>
+                  <CancelCommandTemplate>
+                      <Button Color="Color.Secondary" Clicked="@context.Clicked">취소</Button>
+                  </CancelCommandTemplate>
+              </DataGridCommandColumn>
+              @ChildContent
+          </DataGridColumns>
 
         <FilterMenuTemplate>
             <Grid Columns="GridColumns.Are3" Width="Width.Px(600)">
@@ -94,34 +96,34 @@ else
                 <Div Margin="Margin.Is1.FromTop">
                     @if (!IsDisableNew)
                     {
-                        <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Primary" Clicked="context.NewCommand.Clicked">추가</Button>
+                        <Button Margin="Margin.Is1.FromBottom.Is1.FromEnd" Color="Color.Primary" Size="Size.Small" Clicked="context.NewCommand.Clicked">추가</Button>
                     }
-                    <Button @ref="_editButton" Margin="Margin.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
-                    <Button Margin="Margin.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
+                    <Button @ref="_editButton" Margin="Margin.Is1.FromBottom" Size="Size.Small" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="context.EditCommand.Clicked">수정</Button>
+                    <Button Margin="Margin.Is1.FromBottom" Size="Size.Small" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await DeleteItem(context.DeleteCommand))">삭제</Button>
 
                     @if (OnShowDetail is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">세부사항</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Size="Size.Small" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowDetail(_selectedItem!))">세부사항</Button>
                     }
 
                     @if (OnShowFailure is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Size="Size.Small" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowFailure(_selectedItem!))">장애</Button>
                     }
 
                     @if (OnShowSecurityVulnerability is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowSecurityVulnerability(_selectedItem!))">보안취약</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Size="Size.Small" Color="Color.Success" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowSecurityVulnerability(_selectedItem!))">보안취약</Button>
                     }
 
                     @if (OnShowMaintenance is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Size="Size.Small" Color="Color.Primary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowMaintenance(_selectedItem!))">유지보수</Button>
                     }
 
                     @if (OnShowRoutineCheck is not null)
                     {
-                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowRoutineCheck(_selectedItem!))">정기점검</Button>
+                        <Button Margin="Margin.Is1.FromStart.Is1.FromBottom" Size="Size.Small" Color="Color.Secondary" Disabled="(_selectedItem is null)" Clicked="@(async () => await OnShowRoutineCheck(_selectedItem!))">정기점검</Button>
                     }
                 </Div>
             }
@@ -135,18 +137,19 @@ else
         <PreviousPageButtonTemplate><Icon Name="IconName.StepBackward" TextColor="TextColor.Primary" /></PreviousPageButtonTemplate>
         <LastPageButtonTemplate><Icon Name="IconName.Forward" TextColor="TextColor.Primary" /></LastPageButtonTemplate>
         <FirstPageButtonTemplate><Icon Name="IconName.Backward" TextColor="TextColor.Primary" /></FirstPageButtonTemplate>
-        <TotalItemsTemplate><Badge Color="Color.Primary">@context.TotalItems 전체 항목</Badge></TotalItemsTemplate>
-        <TotalItemsShortTemplate><Badge Color="Color.Primary">@context.TotalItems</Badge></TotalItemsShortTemplate>
         <ItemsPerPageTemplate></ItemsPerPageTemplate>
-        <PageSelectorTemplate>
-            <Select TextColor="TextColor.Primary" @bind-SelectedValue="@context.CurrentPage">
-                @for (int i = context.FirstVisiblePage; i <= context.LastVisiblePage; ++i)
-                {
-                    var pageNumber = i;
-                    <SelectItem Value="@pageNumber">@pageNumber</SelectItem>
+        <!-- 페이지네이션 정보 표시 템플릿 커스터마이징 -->
+        <TotalItemsTemplate>
+            <Small TextColor="TextColor.Muted">
+                @{
+                    var startItem = (context.CurrentPage - 1) * context.CurrentPageSize + 1;
+                    var endItem = context.CurrentPage * context.CurrentPageSize;
                 }
-            </Select>
-        </PageSelectorTemplate>
+                @startItem - @endItem / @context.TotalItems 항목
+            </Small>
+        </TotalItemsTemplate>
+
+        <!-- 페이지 사이즈 선택 템플릿 -->
         <PageSizesTemplate>
             <Select TextColor="TextColor.Primary" @bind-SelectedValue="@context.CurrentPageSize">
                 @foreach (var curPageSize in context.PageSizes)
@@ -210,6 +213,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
+
+        // DataGrid 한글 localization 설정
+        DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
+        LocalizationService.ChangeLanguage("ko-KR", true);
 
         _persistingSubscription =
             ApplicationState.RegisterOnPersisting(PersistItems);

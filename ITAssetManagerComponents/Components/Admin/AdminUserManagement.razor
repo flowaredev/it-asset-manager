@@ -1,8 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Microsoft.Extensions.Logging
+@using Blazorise.Localization
 @inject UserManager<ApplicationUser> UserManager
 @inject RoleManager<IdentityRole> RoleManager
 @inject ILogger<AdminUserManagement> Logger
+@inject ITextLocalizerService LocalizationService
+@inject ITextLocalizer<DataGrid<UserViewModel>> DataGridLocalizer
 
 <HeaderTitle Title="@HeaderConstant.UserManagementTitle" />
 
@@ -66,6 +69,27 @@
                                 </DisplayTemplate>
                             </DataGridColumn>
                         </DataGridColumns>
+                        
+                        <!-- 페이지네이션 정보 표시 템플릿 커스터마이징 -->
+                        <TotalItemsTemplate>
+                            <Small TextColor="TextColor.Muted">
+                                @{
+                                    var startItem = (context.CurrentPage - 1) * context.CurrentPageSize + 1;
+                                    var endItem = context.CurrentPage * context.CurrentPageSize;
+                                }
+                                @startItem - @endItem / @context.TotalItems 항목
+                            </Small>
+                        </TotalItemsTemplate>
+                        
+                        <!-- 페이지 사이즈 선택 템플릿 -->
+                        <PageSizesTemplate>
+                            <Select TextColor="TextColor.Primary" @bind-SelectedValue="@context.CurrentPageSize">
+                                @foreach (var curPageSize in context.PageSizes)
+                                {
+                                    <SelectItem Value="@curPageSize">@curPageSize</SelectItem>
+                                }
+                            </Select>
+                        </PageSizesTemplate>
                     </DataGrid>
                 </CardBody>
             </Card>
@@ -143,6 +167,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // DataGrid 한글 localization 설정
+        DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
+
+        // 한국어 언어로 설정
+        LocalizationService.ChangeLanguage("ko-KR", true);
+
         await LoadUsers();
     }
 
