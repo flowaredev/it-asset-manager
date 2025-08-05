@@ -4,11 +4,12 @@ namespace ITAssetManagerComponents.Helpers
 {
     public static class DataGridLocalizationHelper
     {
+        public const string KoreanCulture = "ko-KR";
         public static TextLocalizationResource GetKoreanDataGridResource()
         {
             return new TextLocalizationResource
             {
-                Culture = "ko-KR",
+                Culture = KoreanCulture,
                 Translations = new Dictionary<string, string>()
                 {
                     { "First", "처음" },

@@ -5,7 +5,6 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject RoleManager<IdentityRole> RoleManager
 @inject ILogger<AdminUserManagement> Logger
-@inject ITextLocalizerService LocalizationService
 @inject ITextLocalizer<DataGrid<UserViewModel>> DataGridLocalizer
 
 <HeaderTitle Title="@HeaderConstant.UserManagementTitle" />
@@ -179,9 +178,6 @@
     {
         // DataGrid 한글 localization 설정
         DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
-
-        // 한국어 언어로 설정
-        LocalizationService.ChangeLanguage("ko-KR", false);
 
         await LoadUser();
 

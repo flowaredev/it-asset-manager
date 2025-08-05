@@ -3,7 +3,6 @@
 @typeparam TItem
 @inject PersistentComponentState ApplicationState
 @inject IMessageService MessageService
-@inject ITextLocalizerService LocalizationService
 @inject ITextLocalizer<DataGrid<TItem>> DataGridLocalizer
 
 @if (_isLoading)
@@ -216,7 +215,6 @@ else
 
         // DataGrid 한글 localization 설정
         DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
-        LocalizationService.ChangeLanguage("ko-KR", false);
 
         _persistingSubscription =
             ApplicationState.RegisterOnPersisting(PersistItems);

@@ -1,5 +1,6 @@
 ﻿@using Blazorise.Components
 @inject IHostEnvironment HostEnvironment
+@inject ITextLocalizerService LocalizationService
 
 <HeadContent>
     <link href="@Assets["_content/ITAssetManagerComponents/lib/bootstrap/dist/css/bootstrap.min.css"]" rel="stylesheet">
@@ -119,5 +120,12 @@
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // 한국어 언어로 설정
+        LocalizationService.ChangeLanguage(DataGridLocalizationHelper.KoreanCulture);
+    }
 
 }
