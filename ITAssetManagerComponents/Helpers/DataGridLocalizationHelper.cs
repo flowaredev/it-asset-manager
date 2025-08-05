@@ -53,7 +53,42 @@ namespace ITAssetManagerComponents.Helpers
                     { "0 to 0 of 0 entries", "0에서 0까지 표시 (총 0 항목)" },
                     { "Displaying items {0} - {1} of {2}", "{0} - {1} / {2} 항목 표시" },
                     { "Displaying items", "항목 표시" },
-                    { "Page {0} of {1}", "{0} / {1} 페이지" }
+                    { "Page {0} of {1}", "{0} / {1} 페이지" },
+                    { "Filter", "필터" },
+                    { "Clear filter", "필터 지우기" },
+                    
+                    // DataGrid 필터 옵션들의 한글 번역
+                    { "Contains", "포함" },
+                    { "Starts With", "시작" },
+                    { "Ends With", "끝남" },
+                    { "Equals", "같음" },
+                    { "Not Equals", "같지 않음" },
+                    { "Less Than", "작음" },
+                    { "Less Than Or Equal", "작거나 같음" },
+                    { "Greater Than", "큼" },
+                    { "Greater Than Or Equal", "크거나 같음" },
+                    { "Is Null", "비어있음" },
+                    { "Is Not Null", "비어있지 않음" },
+                    { "Is Empty", "공백" },
+                    { "Is Not Empty", "공백 아님" },
+                    
+                    // 필터 메뉴 관련 번역
+                    { "Filter Menu", "필터 메뉴" },
+                    { "Apply Filter", "필터 적용" },
+                    { "Clear Filter", "필터 지우기" },
+                    { "Filter Value", "필터 값" },
+                    { "Filter Method", "필터 방법" },
+                    { "Select Filter Method", "필터 방법 선택" },
+                    { "Enter Filter Value", "필터 값 입력" },
+                    
+                    // 추가적인 DataGrid 관련 번역
+                    { "All", "전체" },
+                    { "Select All", "전체 선택" },
+                    { "None", "없음" },
+                    { "OK", "확인" },
+                    { "Cancel", "취소" },
+                    { "Apply", "적용" },
+                    { "Reset", "초기화" },
                 }
             };
         }
