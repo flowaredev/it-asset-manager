@@ -46,13 +46,6 @@
                                     <Badge Color="@GetRoleBadgeColor(context.Role)">@context.Role</Badge>
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.EmailConfirmed)" Caption="이메일 확인" Sortable="false">
-                                <DisplayTemplate>
-                                    <Badge Color="@(context.EmailConfirmed? Color.Success: Color.Warning)">
-                                        @(context.EmailConfirmed ? "확인됨" : "미확인")
-                                    </Badge>
-                                </DisplayTemplate>
-                            </DataGridColumn>
                             <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Sortable="false" Width="200px">
                                 <DisplayTemplate>
                                     <Buttons Size="Size.Small">
@@ -69,7 +62,17 @@
                                 </DisplayTemplate>
                             </DataGridColumn>
                         </DataGridColumns>
-                        
+
+                        <PageButtonTemplate>
+                            <Span TextColor="TextColor.Light">
+                                @context.PageNumber
+                            </Span>
+                        </PageButtonTemplate>
+                        <NextPageButtonTemplate><Icon Name="IconName.StepForward" TextColor="TextColor.Primary" /></NextPageButtonTemplate>
+                        <PreviousPageButtonTemplate><Icon Name="IconName.StepBackward" TextColor="TextColor.Primary" /></PreviousPageButtonTemplate>
+                        <LastPageButtonTemplate><Icon Name="IconName.Forward" TextColor="TextColor.Primary" /></LastPageButtonTemplate>
+                        <FirstPageButtonTemplate><Icon Name="IconName.Backward" TextColor="TextColor.Primary" /></FirstPageButtonTemplate>
+                        <ItemsPerPageTemplate></ItemsPerPageTemplate>
                         <!-- 페이지네이션 정보 표시 템플릿 커스터마이징 -->
                         <TotalItemsTemplate>
                             <Small TextColor="TextColor.Muted">
@@ -80,7 +83,7 @@
                                 @startItem - @endItem / @context.TotalItems 항목
                             </Small>
                         </TotalItemsTemplate>
-                        
+
                         <!-- 페이지 사이즈 선택 템플릿 -->
                         <PageSizesTemplate>
                             <Select TextColor="TextColor.Primary" @bind-SelectedValue="@context.CurrentPageSize">
