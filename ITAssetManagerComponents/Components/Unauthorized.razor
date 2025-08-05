@@ -1,12 +1,11 @@
-@page "/unauthorized"
 @using Blazorise
 @inject NavigationManager NavigationManager
 
-<PageTitle>접근 권한 없음</PageTitle>
+<HeaderTitle Title="접근 권한 없음" />
 
 <Container>
     <Row>
-        <Column ColumnSize="ColumnSize.Is8.OnTablet.Is6.OnDesktop">
+        <Column ColumnSize="ColumnSize.Is8.OnTablet.Is6.OnDesktop" Margin="Margin.IsAuto">
             <Card Margin="Margin.Is5.FromTop">
                 <CardHeader>
                     <CardTitle Size="5" TextAlignment="TextAlignment.Center">
@@ -22,12 +21,12 @@
                         </AlertDescription>
                     </Alert>
                     
-                    <div class="text-center">
+                    <Div TextAlignment="TextAlignment.Center">
                         <Button Color="Color.Primary" Clicked="@(() => NavigationManager.NavigateTo("/"))">
                             <Icon Name="IconName.Home" Margin="Margin.Is2.FromEnd" />
                             홈으로 돌아가기
                         </Button>
-                    </div>
+                    </Div>
                 </CardBody>
             </Card>
         </Column>

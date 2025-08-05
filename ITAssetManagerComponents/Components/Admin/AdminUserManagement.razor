@@ -148,7 +148,7 @@
         <ModalBody>
             @if (selectedUser != null)
             {
-                <Alert Color="Color.Danger">
+                <Alert Color="Color.Danger" Visible>
                     <AlertMessage>경고!</AlertMessage>
                     <AlertDescription>
                         사용자 <strong>@selectedUser.Email</strong>을(를) 영구적으로 삭제하시겠습니까?
@@ -183,6 +183,13 @@
         // 한국어 언어로 설정
         LocalizationService.ChangeLanguage("ko-KR", false);
 
+        await LoadUser();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadUser()
+    {
         usersSource = new List<UserViewModel>();
 
         var allUsers = UserManager.Users.ToList();
@@ -202,8 +209,6 @@
                 EmailConfirmed = user.EmailConfirmed
             });
         }
-
-        await base.OnInitializedAsync();
     }
 
     private async Task OnReadData(DataGridReadDataEventArgs<UserViewModel> e)
@@ -269,8 +274,11 @@
 
             Logger.LogInformation("User {Email} role changed to {Role}", user.Email, newRole);
 
-            await dataGridRef.Reload();
             HideEditRoleModal();
+            // Reload data grid
+            await LoadUser();
+            await dataGridRef.Reload();
+
         }
         catch (Exception ex)
         {
@@ -303,6 +311,7 @@
             if (result.Succeeded)
             {
                 Logger.LogInformation("User {Email} deleted", user.Email);
+                await LoadUser();
                 await dataGridRef.Reload();
             }
             else

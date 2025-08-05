@@ -6,7 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using ITAssetManagerLibrary.Data
-
+@using ITAssetManagerLibrary.Helpers
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -53,7 +53,7 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
-    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+    private string? Message => identityErrors is null ? null : $"오류: {ValidationMessageLocalizingHelper.GetLocalizedIdentityErrors(identityErrors.Select(error => error.Description))}";
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -73,7 +73,7 @@
         // Assign "None" role to newly registered users
         await UserManager.AddToRoleAsync(user, RoleConstants.None);
 
-        Logger.LogInformation("User created a new account with password.");
+        Logger.LogInformation("사용자가 비밀번호로 새 계정을 생성했습니다.");
 
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -103,8 +103,8 @@
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+            throw new InvalidOperationException($"'{nameof(ApplicationUser)}'의 인스턴스를 생성할 수 없습니다. " +
+                $"'{nameof(ApplicationUser)}'가 추상 클래스가 아니고 매개변수가 없는 생성자가 있는지 확인하세요.");
         }
     }
 
@@ -112,27 +112,27 @@
     {
         if (!UserManager.SupportsUserEmail)
         {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
+            throw new NotSupportedException("기본 UI는 이메일 지원이 있는 사용자 저장소가 필요합니다.");
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
     }
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "이메일은 필수입니다.")]
+        [EmailAddress(ErrorMessage = "유효한 이메일 주소를 입력해주세요.")]
+        [Display(Name = "이메일")]
         public string Email { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "비밀번호는 필수입니다.")]
+        [StringLength(100, ErrorMessage = "비밀번호는 최소 {2}자 이상 최대 {1}자 이하여야 합니다.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "비밀번호")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "비밀번호 확인")]
+        [Compare("Password", ErrorMessage = "비밀번호와 비밀번호 확인이 일치하지 않습니다.")]
         public string ConfirmPassword { get; set; } = "";
     }
 }
