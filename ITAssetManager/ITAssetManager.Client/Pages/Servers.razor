@@ -1,4 +1,4 @@
 ﻿@page "/servers"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 
 <ServerDataGrid @rendermode="InteractiveAuto" />

@@ -1,4 +1,4 @@
 ﻿@page "/networkequipments"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 <NetworkEquipmentsDataGrid @rendermode="InteractiveAuto" />
 

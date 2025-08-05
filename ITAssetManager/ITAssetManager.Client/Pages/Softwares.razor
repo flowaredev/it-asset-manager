@@ -1,3 +1,3 @@
 ﻿@page "/softwares"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 <SoftwaresDataGrid @rendermode="InteractiveAuto" />

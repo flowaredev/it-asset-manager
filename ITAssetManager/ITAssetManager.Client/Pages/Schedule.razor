@@ -1,5 +1,5 @@
 ﻿@page "/schedule"
 @using ITAssetManagerLibrary.Helpers
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 
 <ScheduleCalendar @rendermode="InteractiveAuto" />

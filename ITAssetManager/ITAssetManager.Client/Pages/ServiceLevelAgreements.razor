@@ -1,3 +1,3 @@
 ﻿@page "/servicelevelagreements"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 <ServiceLevelDataGrid @rendermode="InteractiveAuto" />

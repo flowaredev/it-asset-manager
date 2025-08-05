@@ -1,4 +1,4 @@
 ﻿@page "/storages"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 <StoragesDataGrid @rendermode="InteractiveAuto" />
 

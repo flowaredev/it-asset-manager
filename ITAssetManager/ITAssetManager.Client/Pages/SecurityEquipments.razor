@@ -1,3 +1,3 @@
 ﻿@page "/securityequipments"
-@attribute [Authorize]
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
 <SecurityEquipmentsDataGrid @rendermode="InteractiveAuto" />
