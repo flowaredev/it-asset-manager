@@ -29,4 +29,8 @@
     <ProjectReference Include="..\..\ITAssetManagerComponents\ITAssetManagerComponents.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>
