@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using Blazorise.DataGrid.Utils
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.Extensions.Logging
 @using Blazorise.Localization
 @inject UserManager<ApplicationUser> UserManager
@@ -17,7 +18,8 @@
                     <CardTitle>@HeaderConstant.UserManagementTitle</CardTitle>
                 </CardHeader>
                 <CardBody>
-                    <DataGrid TItem="UserViewModel"
+                    <DataGrid @ref=dataGridRef
+                              TItem="UserViewModel"
                               Data="@users"
                               ReadData="@OnReadData"
                               TotalItems="@totalUsers"
@@ -164,12 +166,14 @@
 
 @code {
     private List<UserViewModel> users = new();
+    private List<UserViewModel> usersSource = new();
     private int totalUsers = 0;
     private UserViewModel? selectedUser;
     private string newRole = "";
 
     private Modal editRoleModalRef = default!;
     private Modal deleteConfirmModalRef = default!;
+    private DataGrid<UserViewModel> dataGridRef = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -179,27 +183,16 @@
         // 한국어 언어로 설정
         LocalizationService.ChangeLanguage("ko-KR", false);
 
-        await base.OnInitializedAsync();
-    }
-
-    private async Task OnReadData(DataGridReadDataEventArgs<UserViewModel> e)
-    {
-        await LoadUsers();
-    }
-
-    private async Task LoadUsers()
-    {
-        users = new List<UserViewModel>();
+        usersSource = new List<UserViewModel>();
 
         var allUsers = UserManager.Users.ToList();
-        totalUsers = allUsers.Count;
 
         foreach (var user in allUsers)
         {
             var roles = await UserManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? RoleConstants.None;
 
-            users.Add(new UserViewModel
+            usersSource.Add(new UserViewModel
             {
                 Id = user.Id,
                 Email = user.Email ?? "",
@@ -208,6 +201,36 @@
                 Role = role,
                 EmailConfirmed = user.EmailConfirmed
             });
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnReadData(DataGridReadDataEventArgs<UserViewModel> e)
+    {
+        if (!e.CancellationToken.IsCancellationRequested)
+        {
+            var query = usersSource.AsQueryable().ApplyDataGridSort(e.Columns).ApplyDataGridSearch(e.Columns);
+
+            if (dataGridRef.CustomFilter is not null)
+                query = query.Where(item => item != null && dataGridRef.CustomFilter(item));
+
+            var response = new List<UserViewModel>();
+
+            if (e.ReadDataMode is DataGridReadDataMode.Virtualize)
+                response = query.ApplyDataGridPaging(e.VirtualizeOffset + 1, e.VirtualizeCount).ToList();
+            else if (e.ReadDataMode is DataGridReadDataMode.Paging)
+                response = query.ApplyDataGridPaging(e.Page, e.PageSize).ToList();
+            else
+                throw new Exception("Unhandled ReadDataMode");
+
+            await Task.Delay(Random.Shared.Next(100));
+
+            if (!e.CancellationToken.IsCancellationRequested)
+            {
+                totalUsers = query.Count();
+                users = response;
+            }
         }
     }
 
@@ -246,7 +269,7 @@
 
             Logger.LogInformation("User {Email} role changed to {Role}", user.Email, newRole);
 
-            await LoadUsers();
+            await dataGridRef.Reload();
             HideEditRoleModal();
         }
         catch (Exception ex)
@@ -280,7 +303,7 @@
             if (result.Succeeded)
             {
                 Logger.LogInformation("User {Email} deleted", user.Email);
-                await LoadUsers();
+                await dataGridRef.Reload();
             }
             else
             {
