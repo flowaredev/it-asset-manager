@@ -22,31 +22,34 @@
                               ReadData="@OnReadData"
                               TotalItems="@totalUsers"
                               ShowPager="true"
-                              PageSize="10"
                               Responsive="true"
+                              Sortable="true"
+                              SortMode="DataGridSortMode.Single"
+                              Filterable="true"
+                              FilterMode="DataGridFilterMode.Menu"
                               ShowPageSizes="true">
                         <DataGridColumns>
-                            <DataGridColumn Field="@nameof(UserViewModel.Email)" Caption="이메일" Sortable="false">
+                            <DataGridColumn Field="@nameof(UserViewModel.Email)" Caption="이메일">
                                 <DisplayTemplate>
                                     @context.Email
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.UserName)" Caption="사용자명" Sortable="false">
+                            <DataGridColumn Field="@nameof(UserViewModel.UserName)" Caption="사용자명">
                                 <DisplayTemplate>
                                     @context.UserName
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.PhoneNumber)" Caption="전화번호" Sortable="false">
+                            <DataGridColumn Field="@nameof(UserViewModel.PhoneNumber)" Caption="전화번호">
                                 <DisplayTemplate>
                                     @context.PhoneNumber
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.Role)" Caption="역할" Sortable="false">
+                            <DataGridColumn Field="@nameof(UserViewModel.Role)" Caption="역할">
                                 <DisplayTemplate>
                                     <Badge Color="@GetRoleBadgeColor(context.Role)">@context.Role</Badge>
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Sortable="false" Width="200px">
+                            <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Width="200px" Sortable="false" Filterable="false">
                                 <DisplayTemplate>
                                     <Buttons Size="Size.Small">
                                         <Button Color="Color.Primary" Size="Size.Small"
@@ -174,9 +177,9 @@
         DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
 
         // 한국어 언어로 설정
-        LocalizationService.ChangeLanguage("ko-KR", true);
+        LocalizationService.ChangeLanguage("ko-KR", false);
 
-        await LoadUsers();
+        await base.OnInitializedAsync();
     }
 
     private async Task OnReadData(DataGridReadDataEventArgs<UserViewModel> e)
@@ -206,8 +209,6 @@
                 EmailConfirmed = user.EmailConfirmed
             });
         }
-
-        StateHasChanged();
     }
 
     private void OpenEditRoleModal(UserViewModel user)
