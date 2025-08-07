@@ -1,15 +1,15 @@
+using Blazorise;
+using Blazorise.Bootstrap5;
+using Blazorise.Icons.FontAwesome;
 using ITAssetManager.Components;
 using ITAssetManager.Components.Account;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Blazorise;
-using Blazorise.Icons.FontAwesome;
-using Blazorise.Bootstrap5;
+using ITAssetManagerLibrary.Constants;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Helpers;
-using ITAssetManagerLibrary.Constants;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,11 +73,22 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(PolicyConstants.ADMINISTRATOR_POLICY, policy => policy.RequireRole(RoleConstants.Administrator))
     .AddPolicy(PolicyConstants.USER_POLICY, policy => policy.RequireRole(RoleConstants.Administrator, RoleConstants.User));
 
+// Configure forwarded headers for proxy scenarios
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 #if DEBUG
 builder.Services.AddSassCompiler();
 #endif
 
 var app = builder.Build();
+
+// Configure forwarded headers early in the pipeline
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

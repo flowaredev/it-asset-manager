@@ -40,10 +40,6 @@ namespace ITAssetManagerLibrary.Helpers
             { "Your password has been changed", "비밀번호가 변경되었습니다." },
             
             // Identity 에러 관련 메시지
-            { "Passwords must have at least one non alphanumeric character.", "비밀번호는 최소한 하나의 특수문자를 포함해야 합니다." },
-            { "Passwords must have at least one digit ('0'-'9').", "비밀번호는 최소한 하나의 숫자('0'-'9')를 포함해야 합니다." },
-            { "Passwords must have at least one uppercase ('A'-'Z').", "비밀번호는 최소한 하나의 대문자('A'-'Z')를 포함해야 합니다." },
-            { "Passwords must have at least one lowercase ('a'-'z').", "비밀번호는 최소한 하나의 소문자('a'-'z')를 포함해야 합니다." },
             { "User name '{0}' is already taken.", "사용자명 '{0}'은(는) 이미 사용 중입니다." },
             { "Email '{0}' is already taken.", "이메일 '{0}'은(는) 이미 사용 중입니다." },
             { "User name cannot be null or empty.", "사용자명은 비어있을 수 없습니다." },
