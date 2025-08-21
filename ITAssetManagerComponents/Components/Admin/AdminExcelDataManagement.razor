@@ -1,4 +1,4 @@
-@using ITAssetManagerComponents.Services
+@using ITAssetManagerLibrary.Services
 @using System.IO
 @using Microsoft.JSInterop
 @using Microsoft.Extensions.Logging
@@ -192,7 +192,6 @@
                 "SecurityVulnerability" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(selectedExportEntityType),
                 "RoutineCheck" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(selectedExportEntityType),
                 "Maintenance" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(selectedExportEntityType),
-                "ServiceLevelAgreement" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.ServiceLevelAgreement>(selectedExportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedExportEntityType}")
             };
 
@@ -240,8 +239,6 @@
                 "SecurityVulnerability" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(stream, selectedImportEntityType),
                 "RoutineCheck" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(stream, selectedImportEntityType),
                 "Maintenance" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(stream, selectedImportEntityType),
-                "ServiceLevelAgreement" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.ServiceLevelAgreement>(stream, selectedImportEntityType),
-                "ServerDevice" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.ServerDevice>(stream, selectedImportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedImportEntityType}")
             };
 
@@ -279,7 +276,6 @@
             "SecurityVulnerability" => HeaderConstant.VulnerabilityTitle,
             "RoutineCheck" => HeaderConstant.ScheduledMaintenanceTitle,
             "Maintenance" => HeaderConstant.MaintenanceTitle,
-            "ServiceLevelAgreement" => HeaderConstant.ServiceLevelAgreementTitle,
             _ => entityType
         };
     }

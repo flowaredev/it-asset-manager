@@ -6,7 +6,7 @@ using ITAssetManager.Components.Account;
 using ITAssetManagerLibrary.Constants;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Helpers;
-using ITAssetManagerComponents.Services;
+using ITAssetManagerLibrary.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;

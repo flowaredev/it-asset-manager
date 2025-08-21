@@ -3,7 +3,7 @@ using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ITAssetManagerComponents.Services
+namespace ITAssetManagerLibrary.Services
 {
     public interface IExcelDataService
     {
