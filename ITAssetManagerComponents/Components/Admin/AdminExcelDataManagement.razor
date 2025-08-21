@@ -37,19 +37,19 @@
                                             }
                                         </Select>
                                     </Field>
-                                    
-                                    <Button Color="Color.Primary" 
-                                            Clicked="@ExportToExcel" 
+
+                                    <Button Color="Color.Primary"
+                                            Clicked="@ExportToExcel"
                                             Disabled="@(string.IsNullOrEmpty(selectedExportEntityType) || isExporting)"
                                             Loading="@isExporting">
                                         <Icon Name="IconName.FileAlt" />
                                         엑셀로 내보내기
                                     </Button>
-                                    
+
                                     @if (!string.IsNullOrEmpty(exportMessage))
                                     {
-                                        <Alert Color="@(exportMessage.Contains("성공") ? Color.Success : Color.Danger)" 
-                                               Visible 
+                                        <Alert Color="@(exportMessage.Contains("성공") ? Color.Success : Color.Danger)"
+                                               Visible
                                                Margin="Margin.Is3.FromTop">
                                             <AlertDescription>@exportMessage</AlertDescription>
                                         </Alert>
@@ -78,26 +78,26 @@
                                             }
                                         </Select>
                                     </Field>
-                                    
+
                                     <Field>
                                         <FieldLabel>엑셀 파일 선택</FieldLabel>
-                                        <FileEdit @ref="fileEdit" 
-                                                  Filter=".xlsx,.xls" 
+                                        <FileEdit @ref="fileEdit"
+                                                  Filter=".xlsx,.xls"
                                                   Changed="@OnFileChanged" />
                                     </Field>
-                                    
-                                    <Button Color="Color.Success" 
-                                            Clicked="@ImportFromExcel" 
+
+                                    <Button Color="Color.Success"
+                                            Clicked="@ImportFromExcel"
                                             Disabled="@(string.IsNullOrEmpty(selectedImportEntityType) || selectedFile == null || isImporting)"
                                             Loading="@isImporting">
                                         <Icon Name="IconName.ArrowUp" />
                                         엑셀에서 가져오기
                                     </Button>
-                                    
+
                                     @if (!string.IsNullOrEmpty(importMessage))
                                     {
-                                        <Alert Color="@(importMessage.Contains("성공") ? Color.Success : Color.Danger)" 
-                                               Visible 
+                                        <Alert Color="@(importMessage.Contains("성공") ? Color.Success : Color.Danger)"
+                                               Visible
                                                Margin="Margin.Is3.FromTop">
                                             <AlertDescription>@importMessage</AlertDescription>
                                         </Alert>
@@ -125,7 +125,7 @@
                                                 <li>선택한 데이터 유형의 모든 레코드를 엑셀 파일로 다운로드합니다.</li>
                                                 <li>생성된 엑셀 파일은 .xlsx 형식입니다.</li>
                                             </ul>
-                                            <br/>
+                                            <br />
                                             <strong>데이터 가져오기:</strong>
                                             <ul>
                                                 <li>엑셀 파일(.xlsx, .xls)에서 데이터를 읽어 데이터베이스에 추가합니다.</li>
@@ -152,7 +152,7 @@
     private string importMessage = "";
     private bool isExporting = false;
     private bool isImporting = false;
-    
+
     private FileEdit fileEdit = default!;
     private IFileEntry? selectedFile;
 
@@ -180,25 +180,25 @@
         {
             string excelDataBase64 = selectedExportEntityType switch
             {
-                "Server" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Server>(selectedExportEntityType),
-                "Storage" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Storage>(selectedExportEntityType),
-                "BackupEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(selectedExportEntityType),
-                "NetworkEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(selectedExportEntityType),
-                "SecurityEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(selectedExportEntityType),
-                "Software" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Software>(selectedExportEntityType),
-                "SupportEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(selectedExportEntityType),
-                "MiscellaneousEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(selectedExportEntityType),
-                "Failure" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Failure>(selectedExportEntityType),
-                "SecurityVulnerability" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(selectedExportEntityType),
-                "RoutineCheck" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(selectedExportEntityType),
-                "Maintenance" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(selectedExportEntityType),
+                IExcelDataService.SERVER_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Server>(selectedExportEntityType),
+                IExcelDataService.STORAGE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Storage>(selectedExportEntityType),
+                IExcelDataService.BACKUP_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(selectedExportEntityType),
+                IExcelDataService.NETWORK_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(selectedExportEntityType),
+                IExcelDataService.SECURITY_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(selectedExportEntityType),
+                IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Software>(selectedExportEntityType),
+                IExcelDataService.SUPPORT_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(selectedExportEntityType),
+                IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(selectedExportEntityType),
+                IExcelDataService.FAILURE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Failure>(selectedExportEntityType),
+                IExcelDataService.SECURITY_VULNERABILITY_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(selectedExportEntityType),
+                IExcelDataService.ROUTINE_CHECK_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(selectedExportEntityType),
+                IExcelDataService.MAINTENANCE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(selectedExportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedExportEntityType}")
             };
 
             var fileName = $"{GetEntityDisplayName(selectedExportEntityType)}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-            
+
             await JSRuntime.InvokeVoidAsync("downloadFileFromByteArray", fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelDataBase64);
-            
+
             exportMessage = $"{GetEntityDisplayName(selectedExportEntityType)} 데이터를 성공적으로 내보냈습니다.";
             Logger.LogInformation("Excel export completed for {EntityType}", selectedExportEntityType);
         }
@@ -224,27 +224,27 @@
         try
         {
             using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB limit
-            
+
             int importedCount = selectedImportEntityType switch
             {
-                "Server" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Server>(stream, selectedImportEntityType),
-                "Storage" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Storage>(stream, selectedImportEntityType),
-                "BackupEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(stream, selectedImportEntityType),
-                "NetworkEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(stream, selectedImportEntityType),
-                "SecurityEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(stream, selectedImportEntityType),
-                "Software" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Software>(stream, selectedImportEntityType),
-                "SupportEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(stream, selectedImportEntityType),
-                "MiscellaneousEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(stream, selectedImportEntityType),
-                "Failure" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Failure>(stream, selectedImportEntityType),
-                "SecurityVulnerability" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(stream, selectedImportEntityType),
-                "RoutineCheck" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(stream, selectedImportEntityType),
-                "Maintenance" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(stream, selectedImportEntityType),
+                IExcelDataService.SERVER_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Server>(stream, selectedImportEntityType),
+                IExcelDataService.STORAGE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Storage>(stream, selectedImportEntityType),
+                IExcelDataService.BACKUP_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(stream, selectedImportEntityType),
+                IExcelDataService.NETWORK_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(stream, selectedImportEntityType),
+                IExcelDataService.SECURITY_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(stream, selectedImportEntityType),
+                IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Software>(stream, selectedImportEntityType),
+                IExcelDataService.SUPPORT_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(stream, selectedImportEntityType),
+                IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(stream, selectedImportEntityType),
+                IExcelDataService.FAILURE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Failure>(stream, selectedImportEntityType),
+                IExcelDataService.SECURITY_VULNERABILITY_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(stream, selectedImportEntityType),
+                IExcelDataService.ROUTINE_CHECK_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(stream, selectedImportEntityType),
+                IExcelDataService.MAINTENANCE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(stream, selectedImportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedImportEntityType}")
             };
 
             importMessage = $"{GetEntityDisplayName(selectedImportEntityType)} 데이터 {importedCount}개를 성공적으로 가져왔습니다.";
             Logger.LogInformation("Excel import completed for {EntityType}, imported {Count} records", selectedImportEntityType, importedCount);
-            
+
             // Reset file selection
             selectedFile = null;
             StateHasChanged();
@@ -264,18 +264,18 @@
     {
         return entityType switch
         {
-            "Server" => HeaderConstant.ServerTitle,
-            "Storage" => HeaderConstant.StorageTitle,
-            "BackupEquipment" => HeaderConstant.BackupEquipmentTitle,
-            "NetworkEquipment" => HeaderConstant.NetworkEquipmentTitle,
-            "SecurityEquipment" => HeaderConstant.SecurityEquipmentTitle,
-            "Software" => HeaderConstant.SoftwareTitle,
-            "SupportEquipment" => HeaderConstant.SupportEquipmentTitle,
-            "MiscellaneousEquipment" => HeaderConstant.EtcTitle,
-            "Failure" => HeaderConstant.FaultTitle,
-            "SecurityVulnerability" => HeaderConstant.VulnerabilityTitle,
-            "RoutineCheck" => HeaderConstant.ScheduledMaintenanceTitle,
-            "Maintenance" => HeaderConstant.MaintenanceTitle,
+            IExcelDataService.SERVER_KEY => HeaderConstant.ServerTitle,
+            IExcelDataService.STORAGE_KEY => HeaderConstant.StorageTitle,
+            IExcelDataService.BACKUP_EQUIPMENT_KEY => HeaderConstant.BackupEquipmentTitle,
+            IExcelDataService.NETWORK_EQUIPMENT_KEY => HeaderConstant.NetworkEquipmentTitle,
+            IExcelDataService.SECURITY_EQUIPMENT_KEY => HeaderConstant.SecurityEquipmentTitle,
+            IExcelDataService.SOFTWARE_KEY => HeaderConstant.SoftwareTitle,
+            IExcelDataService.SUPPORT_EQUIPMENT_KEY => HeaderConstant.SupportEquipmentTitle,
+            IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => HeaderConstant.EtcTitle,
+            IExcelDataService.FAILURE_KEY => HeaderConstant.FaultTitle,
+            IExcelDataService.SECURITY_VULNERABILITY_KEY => HeaderConstant.VulnerabilityTitle,
+            IExcelDataService.ROUTINE_CHECK_KEY => HeaderConstant.ScheduledMaintenanceTitle,
+            IExcelDataService.MAINTENANCE_KEY => HeaderConstant.MaintenanceTitle,
             _ => entityType
         };
     }

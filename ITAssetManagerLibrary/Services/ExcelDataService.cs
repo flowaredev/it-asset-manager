@@ -7,6 +7,20 @@ namespace ITAssetManagerLibrary.Services
 {
     public interface IExcelDataService
     {
+        const string SERVER_KEY = "Server";
+        const string SERVER_DEVICE_KEY = "ServerDevice";
+        const string STORAGE_KEY = "Storage";
+        const string BACKUP_EQUIPMENT_KEY = "BackupEquipment";
+        const string NETWORK_EQUIPMENT_KEY = "NetworkEquipment";
+        const string SECURITY_EQUIPMENT_KEY = "SecurityEquipment";
+        const string SOFTWARE_KEY = "Software";
+        const string SUPPORT_EQUIPMENT_KEY = "SupportEquipment";
+        const string MISCELLANEOUS_EQUIPMENT_KEY = "MiscellaneousEquipment";
+        const string FAILURE_KEY = "Failure";
+        const string SECURITY_VULNERABILITY_KEY = "SecurityVulnerability";
+        const string ROUTINE_CHECK_KEY = "RoutineCheck";
+        const string MAINTENANCE_KEY = "Maintenance";
+
         Task<string> ExportToExcelAsync<T>(string entityType) where T : class;
         Task<List<string>> GetAvailableEntityTypesAsync();
         Task<int> ImportFromExcelAsync<T>(Stream excelStream, string entityType) where T : class, new();
@@ -25,19 +39,18 @@ namespace ITAssetManagerLibrary.Services
         {
             return Task.FromResult(new List<string>
             {
-                "Server",
-                "Storage", 
-                "BackupEquipment",
-                "NetworkEquipment",
-                "SecurityEquipment",
-                "Software",
-                "SupportEquipment",
-                "MiscellaneousEquipment",
-                "Failure",
-                "SecurityVulnerability",
-                "RoutineCheck",
-                "Maintenance",
-                "ServiceLevelAgreement",
+                IExcelDataService.SERVER_KEY,
+                IExcelDataService.STORAGE_KEY,
+                IExcelDataService.BACKUP_EQUIPMENT_KEY,
+                IExcelDataService.NETWORK_EQUIPMENT_KEY,
+                IExcelDataService.SECURITY_EQUIPMENT_KEY,
+                IExcelDataService.SOFTWARE_KEY,
+                IExcelDataService.SUPPORT_EQUIPMENT_KEY,
+                IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY,
+                IExcelDataService.FAILURE_KEY,
+                IExcelDataService.SECURITY_VULNERABILITY_KEY,
+                IExcelDataService.ROUTINE_CHECK_KEY,
+                IExcelDataService.MAINTENANCE_KEY,
             });
         }
 
@@ -87,8 +100,8 @@ namespace ITAssetManagerLibrary.Services
                 // 멀티 시트 엑셀 파일 생성
                 var sheets = new Dictionary<string, object>
                 {
-                    ["Servers"] = serverData,
-                    ["ServerDevices"] = serverDeviceData
+                    [IExcelDataService.SERVER_KEY] = serverData,
+                    [IExcelDataService.SERVER_DEVICE_KEY] = serverDeviceData
                 };
 
                 await memoryStream.SaveAsAsync(sheets);
@@ -97,7 +110,7 @@ namespace ITAssetManagerLibrary.Services
             {
                 object data = entityType switch
                 {
-                    "Storage" => await context.Storages.Include(s => s.CommonAsset).Select(s => new
+                    IExcelDataService.STORAGE_KEY => await context.Storages.Include(s => s.CommonAsset).Select(s => new
                     {
                         s.Id,
                         s.CommonAsset.ManagementTag,
@@ -110,7 +123,7 @@ namespace ITAssetManagerLibrary.Services
                         s.CommonAsset.OnSiteManager,
                         s.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "BackupEquipment" => await context.BackupEquipments.Include(b => b.CommonAsset).Select(b => new
+                    IExcelDataService.BACKUP_EQUIPMENT_KEY => await context.BackupEquipments.Include(b => b.CommonAsset).Select(b => new
                     {
                         b.Id,
                         b.CommonAsset.ManagementTag,
@@ -123,7 +136,7 @@ namespace ITAssetManagerLibrary.Services
                         b.CommonAsset.OnSiteManager,
                         b.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "NetworkEquipment" => await context.NetworkEquipments.Include(n => n.CommonAsset).Select(n => new
+                    IExcelDataService.NETWORK_EQUIPMENT_KEY => await context.NetworkEquipments.Include(n => n.CommonAsset).Select(n => new
                     {
                         n.Id,
                         n.CommonAsset.ManagementTag,
@@ -136,7 +149,7 @@ namespace ITAssetManagerLibrary.Services
                         n.CommonAsset.OnSiteManager,
                         n.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "SecurityEquipment" => await context.SecurityEquipments.Include(s => s.CommonAsset).Select(s => new
+                    IExcelDataService.SECURITY_EQUIPMENT_KEY => await context.SecurityEquipments.Include(s => s.CommonAsset).Select(s => new
                     {
                         s.Id,
                         s.CommonAsset.ManagementTag,
@@ -149,7 +162,7 @@ namespace ITAssetManagerLibrary.Services
                         s.CommonAsset.OnSiteManager,
                         s.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "Software" => await context.Softwares.Include(s => s.CommonAsset).Select(s => new
+                    IExcelDataService.SOFTWARE_KEY => await context.Softwares.Include(s => s.CommonAsset).Select(s => new
                     {
                         s.Id,
                         s.CommonAsset.ManagementTag,
@@ -162,7 +175,7 @@ namespace ITAssetManagerLibrary.Services
                         s.CommonAsset.OnSiteManager,
                         s.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "SupportEquipment" => await context.SupportEquipments.Include(s => s.CommonAsset).Select(s => new
+                    IExcelDataService.SUPPORT_EQUIPMENT_KEY => await context.SupportEquipments.Include(s => s.CommonAsset).Select(s => new
                     {
                         s.Id,
                         s.CommonAsset.ManagementTag,
@@ -175,7 +188,7 @@ namespace ITAssetManagerLibrary.Services
                         s.CommonAsset.OnSiteManager,
                         s.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "MiscellaneousEquipment" => await context.MiscellaneousEquipments.Include(m => m.CommonAsset).Select(m => new
+                    IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await context.MiscellaneousEquipments.Include(m => m.CommonAsset).Select(m => new
                     {
                         m.Id,
                         m.CommonAsset.ManagementTag,
@@ -188,7 +201,7 @@ namespace ITAssetManagerLibrary.Services
                         m.CommonAsset.OnSiteManager,
                         m.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    "Failure" => await context.Failures.Include(f => f.CommonAsset).Select(f => new
+                    IExcelDataService.FAILURE_KEY => await context.Failures.Include(f => f.CommonAsset).Select(f => new
                     {
                         f.Id,
                         f.FailureDateTime,
@@ -202,7 +215,7 @@ namespace ITAssetManagerLibrary.Services
                         AssetName = f.CommonAsset.Name,
                         AssetRole = f.CommonAsset.Role
                     }).ToListAsync(),
-                    "SecurityVulnerability" => await context.SecurityVulnerabilities.Include(s => s.CommonAsset).Select(s => new
+                    IExcelDataService.SECURITY_VULNERABILITY_KEY => await context.SecurityVulnerabilities.Include(s => s.CommonAsset).Select(s => new
                     {
                         s.Id,
                         s.DiscoveryDateTime,
@@ -216,7 +229,7 @@ namespace ITAssetManagerLibrary.Services
                         AssetName = s.CommonAsset.Name,
                         AssetRole = s.CommonAsset.Role
                     }).ToListAsync(),
-                    "RoutineCheck" => await context.RoutineChecks.Include(r => r.CommonAsset).Select(r => new
+                    IExcelDataService.ROUTINE_CHECK_KEY => await context.RoutineChecks.Include(r => r.CommonAsset).Select(r => new
                     {
                         r.Id,
                         r.Detail,
@@ -226,8 +239,7 @@ namespace ITAssetManagerLibrary.Services
                         AssetName = r.CommonAsset.Name,
                         AssetRole = r.CommonAsset.Role
                     }).ToListAsync(),
-                    "Maintenance" => await context.Maintenances.ToListAsync(),
-                    "ServiceLevelAgreement" => await context.ServiceLevelAgreements.ToListAsync(),
+                    IExcelDataService.MAINTENANCE_KEY => await context.Maintenances.ToListAsync(),
                     _ => throw new ArgumentException($"Unknown entity type: {entityType}")
                 };
 
@@ -241,50 +253,47 @@ namespace ITAssetManagerLibrary.Services
         public async Task<int> ImportFromExcelAsync<T>(Stream excelStream, string entityType) where T : class, new()
         {
             using var context = _dbContextFactory.CreateDbContext();
-            
+
             var rows = excelStream.Query<T>().ToList();
-            
+
             switch (entityType)
             {
-                case "Server":
+                case IExcelDataService.SERVER_KEY:
                     context.Servers.AddRange(rows as IEnumerable<Server> ?? new List<Server>());
                     break;
-                case "Storage":
+                case IExcelDataService.STORAGE_KEY:
                     context.Storages.AddRange(rows as IEnumerable<Storage> ?? new List<Storage>());
                     break;
-                case "BackupEquipment":
+                case IExcelDataService.BACKUP_EQUIPMENT_KEY:
                     context.BackupEquipments.AddRange(rows as IEnumerable<BackupEquipment> ?? new List<BackupEquipment>());
                     break;
-                case "NetworkEquipment":
+                case IExcelDataService.NETWORK_EQUIPMENT_KEY:
                     context.NetworkEquipments.AddRange(rows as IEnumerable<NetworkEquipment> ?? new List<NetworkEquipment>());
                     break;
-                case "SecurityEquipment":
+                case IExcelDataService.SECURITY_EQUIPMENT_KEY:
                     context.SecurityEquipments.AddRange(rows as IEnumerable<SecurityEquipment> ?? new List<SecurityEquipment>());
                     break;
-                case "Software":
+                case IExcelDataService.SOFTWARE_KEY:
                     context.Softwares.AddRange(rows as IEnumerable<Software> ?? new List<Software>());
                     break;
-                case "SupportEquipment":
+                case IExcelDataService.SUPPORT_EQUIPMENT_KEY:
                     context.SupportEquipments.AddRange(rows as IEnumerable<SupportEquipment> ?? new List<SupportEquipment>());
                     break;
-                case "MiscellaneousEquipment":
+                case IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY:
                     context.MiscellaneousEquipments.AddRange(rows as IEnumerable<MiscellaneousEquipment> ?? new List<MiscellaneousEquipment>());
                     break;
-                case "Failure":
+                case IExcelDataService.FAILURE_KEY:
                     context.Failures.AddRange(rows as IEnumerable<Failure> ?? new List<Failure>());
                     break;
-                case "SecurityVulnerability":
+                case IExcelDataService.SECURITY_VULNERABILITY_KEY:
                     context.SecurityVulnerabilities.AddRange(rows as IEnumerable<SecurityVulnerability> ?? new List<SecurityVulnerability>());
                     break;
-                case "RoutineCheck":
+                case IExcelDataService.ROUTINE_CHECK_KEY:
                     context.RoutineChecks.AddRange(rows as IEnumerable<RoutineCheck> ?? new List<RoutineCheck>());
                     break;
-                case "Maintenance":
+                case IExcelDataService.MAINTENANCE_KEY:
                     context.Maintenances.AddRange(rows as IEnumerable<Maintenance> ?? new List<Maintenance>());
                     break;
-                case "ServiceLevelAgreement":
-                    context.ServiceLevelAgreements.AddRange(rows as IEnumerable<ServiceLevelAgreement> ?? new List<ServiceLevelAgreement>());
-                    break;               
                 default:
                     throw new ArgumentException($"Unknown entity type: {entityType}");
             }
