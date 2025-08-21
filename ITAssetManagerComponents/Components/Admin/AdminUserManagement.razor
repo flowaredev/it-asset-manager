@@ -50,12 +50,16 @@
                                     <Badge Color="@GetRoleBadgeColor(context.Role)">@context.Role</Badge>
                                 </DisplayTemplate>
                             </DataGridColumn>
-                            <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Width="200px" Sortable="false" Filterable="false">
+                            <DataGridColumn Field="@nameof(UserViewModel.Id)" Caption="작업" Sortable="false" Filterable="false">
                                 <DisplayTemplate>
                                     <Buttons Size="Size.Small">
                                         <Button Color="Color.Primary" Size="Size.Small"
                                                 Clicked="@(() => OpenEditRoleModal(context))">
                                             <Icon Name="IconName.Edit" /> 역할 변경
+                                        </Button>
+                                        <Button Color="Color.Warning" Size="Size.Small"
+                                                Clicked="@(() => OpenChangePasswordModal(context))">
+                                            <Icon Name="IconName.Key" /> 비밀번호 변경
                                         </Button>
                                         <Button Color="Color.Danger" Size="Size.Small"
                                                 Clicked="@(() => DeleteUser(context))"
@@ -137,6 +141,49 @@
     </ModalContent>
 </Modal>
 
+<!-- Change Password Modal -->
+<Modal @ref="changePasswordModalRef">
+    <ModalContent Centered="true">
+        <ModalHeader>
+            <ModalTitle>비밀번호 변경</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            @if (selectedUser != null)
+            {
+                @if (!string.IsNullOrEmpty(passwordChangeMessage))
+                {
+                    <Alert Color="@(passwordChangeMessage.Contains("성공") ? Color.Success : Color.Danger)" Visible>
+                        <AlertDescription>@passwordChangeMessage</AlertDescription>
+                    </Alert>
+                }
+                
+                <Field>
+                    <FieldLabel>사용자: @selectedUser.Email</FieldLabel>
+                </Field>
+                
+                <Field>
+                    <FieldLabel>새 비밀번호</FieldLabel>
+                    <TextEdit @bind-Text="newPassword" 
+                              Role="TextRole.Password" 
+                              Placeholder="새 비밀번호를 입력하세요" />
+                </Field>
+                
+                <Field>
+                    <FieldLabel>비밀번호 확인</FieldLabel>
+                    <TextEdit @bind-Text="confirmPassword" 
+                              Role="TextRole.Password" 
+                              Placeholder="비밀번호를 다시 입력하세요" />
+                </Field>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideChangePasswordModal">취소</Button>
+            <Button Color="Color.Warning" Clicked="@ChangeUserPassword">비밀번호 변경</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
 <!-- Delete Confirmation Modal -->
 <Modal @ref="deleteConfirmModalRef">
     <ModalContent Centered="true">
@@ -169,8 +216,12 @@
     private int totalUsers = 0;
     private UserViewModel? selectedUser;
     private string newRole = "";
+    private string? passwordChangeMessage;
+    private string newPassword = "";
+    private string confirmPassword = "";
 
     private Modal editRoleModalRef = default!;
+    private Modal changePasswordModalRef = default!;
     private Modal deleteConfirmModalRef = default!;
     private DataGrid<UserViewModel> dataGridRef = default!;
 
@@ -247,6 +298,82 @@
         editRoleModalRef.Hide();
         selectedUser = null;
         newRole = "";
+    }
+
+    private void OpenChangePasswordModal(UserViewModel user)
+    {
+        selectedUser = user;
+        newPassword = "";
+        confirmPassword = "";
+        passwordChangeMessage = null;
+        changePasswordModalRef.Show();
+    }
+
+    private void HideChangePasswordModal()
+    {
+        changePasswordModalRef.Hide();
+        selectedUser = null;
+        newPassword = "";
+        confirmPassword = "";
+        passwordChangeMessage = null;
+    }
+
+    private async Task ChangeUserPassword()
+    {
+        if (selectedUser == null) return;
+
+        // Manual validation check
+        if (string.IsNullOrWhiteSpace(newPassword))
+        {
+            passwordChangeMessage = "새 비밀번호는 필수입니다.";
+            return;
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            passwordChangeMessage = "비밀번호와 비밀번호 확인이 일치하지 않습니다.";
+            return;
+        }
+
+        if (newPassword.Length < 6)
+        {
+            passwordChangeMessage = "비밀번호는 최소 6자 이상이어야 합니다.";
+            return;
+        }
+
+        try
+        {
+            var user = await UserManager.FindByIdAsync(selectedUser.Id);
+            if (user == null)
+            {
+                passwordChangeMessage = "사용자를 찾을 수 없습니다.";
+                return;
+            }
+
+            // Remove current password and set new one
+            var token = await UserManager.GeneratePasswordResetTokenAsync(user);
+            var result = await UserManager.ResetPasswordAsync(user, token, newPassword);
+
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("Admin changed password for user {Email}", user.Email);
+                passwordChangeMessage = "비밀번호가 성공적으로 변경되었습니다.";
+                
+                // Auto-hide modal after 2 seconds
+                await Task.Delay(2000);
+                HideChangePasswordModal();
+            }
+            else
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                passwordChangeMessage = $"오류: {errors}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error changing user password");
+            passwordChangeMessage = "비밀번호 변경 중 오류가 발생했습니다.";
+        }
     }
 
     private async Task UpdateUserRole()
