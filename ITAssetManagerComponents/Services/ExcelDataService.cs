@@ -3,12 +3,16 @@ using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ITAssetManagerLibrary.Services
+namespace ITAssetManagerComponents.Services
 {
     public interface IExcelDataService
     {
         const string SERVER_KEY = "Server";
         const string SERVER_DEVICE_KEY = "ServerDevice";
+        const string SERVER_ROUTINE_CHECKS_KEY = "ServerRoutineChecks";
+        const string SERVER_SECURITY_VULNERABILITIES_KEY = "ServerSecurityVulnerabilities";
+        const string SERVER_MAINTENANCES_KEY = "ServerMaintenances";
+        const string SERVER_FAILURES_KEY = "ServerFailures";
         const string STORAGE_KEY = "Storage";
         const string BACKUP_EQUIPMENT_KEY = "BackupEquipment";
         const string NETWORK_EQUIPMENT_KEY = "NetworkEquipment";
@@ -20,6 +24,7 @@ namespace ITAssetManagerLibrary.Services
         const string SECURITY_VULNERABILITY_KEY = "SecurityVulnerability";
         const string ROUTINE_CHECK_KEY = "RoutineCheck";
         const string MAINTENANCE_KEY = "Maintenance";
+        const string SERVICE_LEVEL_AGREEMENT_KEY = "ServiceLevelAgreement";
 
         Task<string> ExportToExcelAsync<T>(string entityType) where T : class;
         Task<List<string>> GetAvailableEntityTypesAsync();
@@ -51,6 +56,7 @@ namespace ITAssetManagerLibrary.Services
                 IExcelDataService.SECURITY_VULNERABILITY_KEY,
                 IExcelDataService.ROUTINE_CHECK_KEY,
                 IExcelDataService.MAINTENANCE_KEY,
+                IExcelDataService.SERVICE_LEVEL_AGREEMENT_KEY
             });
         }
 
@@ -59,7 +65,7 @@ namespace ITAssetManagerLibrary.Services
             using var context = _dbContextFactory.CreateDbContext();
             var memoryStream = new MemoryStream();
 
-            if (entityType == "Server")
+            if (entityType == IExcelDataService.SERVER_KEY)
             {
                 // Server 데이터와 CommonAsset을 Join하여 플래튼된 데이터 생성
                 var serverData = await context.Servers
@@ -97,11 +103,95 @@ namespace ITAssetManagerLibrary.Services
                     })
                     .ToListAsync();
 
+                // Server와 관련된 RoutineCheck 데이터
+                var serverRoutineChecksData = await context.RoutineChecks
+                    .Include(rc => rc.CommonAsset)
+                    .ThenInclude(ca => ca.Server)
+                    .Where(rc => rc.CommonAsset.Server != null)
+                    .Select(rc => new
+                    {
+                        ServerId = rc.CommonAsset.Server!.Id, // Server Id 참조
+                        rc.Id,
+                        rc.Detail,
+                        rc.StartDateTime,
+                        rc.EndDateTime,
+                        AssetManagementTag = rc.CommonAsset.ManagementTag,
+                        AssetName = rc.CommonAsset.Name,
+                        AssetRole = rc.CommonAsset.Role
+                    })
+                    .ToListAsync();
+
+                // Server와 관련된 SecurityVulnerability 데이터
+                var serverSecurityVulnerabilitiesData = await context.SecurityVulnerabilities
+                    .Include(sv => sv.CommonAsset)
+                    .ThenInclude(ca => ca.Server)
+                    .Where(sv => sv.CommonAsset.Server != null)
+                    .Select(sv => new
+                    {
+                        ServerId = sv.CommonAsset.Server!.Id, // Server Id 참조
+                        sv.Id,
+                        sv.DiscoveryDateTime,
+                        sv.VulnerabilityDetail,
+                        sv.VisitDateTime,
+                        sv.ResolveDateTime,
+                        sv.TaskDetail,
+                        sv.IsResolved,
+                        sv.Level,
+                        AssetManagementTag = sv.CommonAsset.ManagementTag,
+                        AssetName = sv.CommonAsset.Name,
+                        AssetRole = sv.CommonAsset.Role
+                    })
+                    .ToListAsync();
+
+                // Server와 관련된 Maintenance 데이터
+                var serverMaintenancesData = await context.Maintenances
+                    .Include(m => m.CommonAsset)
+                    .ThenInclude(ca => ca.Server)
+                    .Where(m => m.CommonAsset.Server != null)
+                    .Select(m => new
+                    {
+                        ServerId = m.CommonAsset.Server!.Id, // Server Id 참조
+                        m.Id,
+                        m.Description,
+                        m.VisitDateTime,
+                        m.ResolveDateTime,
+                        AssetManagementTag = m.CommonAsset.ManagementTag,
+                        AssetName = m.CommonAsset.Name,
+                        AssetRole = m.CommonAsset.Role
+                    })
+                    .ToListAsync();
+
+                // Server와 관련된 Failure 데이터
+                var serverFailuresData = await context.Failures
+                    .Include(f => f.CommonAsset)
+                    .ThenInclude(ca => ca.Server)
+                    .Where(f => f.CommonAsset.Server != null)
+                    .Select(f => new
+                    {
+                        ServerId = f.CommonAsset.Server!.Id, // Server Id 참조
+                        f.Id,
+                        f.FailureDateTime,
+                        f.Description,
+                        f.VisitDateTime,
+                        f.ResolveDateTime,
+                        f.DisabilityHours,
+                        f.ResolveDescription,
+                        f.IsResolved,
+                        AssetManagementTag = f.CommonAsset.ManagementTag,
+                        AssetName = f.CommonAsset.Name,
+                        AssetRole = f.CommonAsset.Role
+                    })
+                    .ToListAsync();
+
                 // 멀티 시트 엑셀 파일 생성
                 var sheets = new Dictionary<string, object>
                 {
                     [IExcelDataService.SERVER_KEY] = serverData,
-                    [IExcelDataService.SERVER_DEVICE_KEY] = serverDeviceData
+                    [IExcelDataService.SERVER_DEVICE_KEY] = serverDeviceData,
+                    [IExcelDataService.SERVER_ROUTINE_CHECKS_KEY] = serverRoutineChecksData,
+                    [IExcelDataService.SERVER_SECURITY_VULNERABILITIES_KEY] = serverSecurityVulnerabilitiesData,
+                    [IExcelDataService.SERVER_MAINTENANCES_KEY] = serverMaintenancesData,
+                    [IExcelDataService.SERVER_FAILURES_KEY] = serverFailuresData
                 };
 
                 await memoryStream.SaveAsAsync(sheets);
@@ -239,7 +329,17 @@ namespace ITAssetManagerLibrary.Services
                         AssetName = r.CommonAsset.Name,
                         AssetRole = r.CommonAsset.Role
                     }).ToListAsync(),
-                    IExcelDataService.MAINTENANCE_KEY => await context.Maintenances.ToListAsync(),
+                    IExcelDataService.MAINTENANCE_KEY => await context.Maintenances.Include(m => m.CommonAsset).Select(m => new
+                    {
+                        m.Id,
+                        m.Description,
+                        m.VisitDateTime,
+                        m.ResolveDateTime,
+                        AssetManagementTag = m.CommonAsset.ManagementTag,
+                        AssetName = m.CommonAsset.Name,
+                        AssetRole = m.CommonAsset.Role
+                    }).ToListAsync(),
+                    IExcelDataService.SERVICE_LEVEL_AGREEMENT_KEY => await context.ServiceLevelAgreements.ToListAsync(),
                     _ => throw new ArgumentException($"Unknown entity type: {entityType}")
                 };
 
