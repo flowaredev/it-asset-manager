@@ -108,7 +108,7 @@
                     <BarItem>
                         <BarLink To="/servicelevelagreements">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
-                            SLA
+                            @HeaderConstant.ServiceLevelAgreementTitle
                         </BarLink>
                     </BarItem>
                     <!-- Administrator menu -->
@@ -124,6 +124,10 @@
                                         <BarDropdownItem To="/admin/usermanagement">
                                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Users" />
                                             사용자 관리
+                                        </BarDropdownItem>
+                                        <BarDropdownItem To="/admin/excelmanagement">
+                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FileExcel" />
+                                            @HeaderConstant.ExcelDataManagementTitle
                                         </BarDropdownItem>
                                     </BarDropdownMenu>
                                 </BarDropdown>

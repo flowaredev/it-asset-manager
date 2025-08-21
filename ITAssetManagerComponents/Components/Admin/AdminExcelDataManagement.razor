@@ -1,0 +1,286 @@
+@using ITAssetManagerComponents.Services
+@using System.IO
+@using Microsoft.JSInterop
+@using Microsoft.Extensions.Logging
+@inject IExcelDataService ExcelDataService
+@inject IJSRuntime JSRuntime
+@inject ILogger<AdminExcelDataManagement> Logger
+
+<HeaderTitle Title="@HeaderConstant.ExcelDataManagementTitle" />
+
+<Container Fluid>
+    <Row>
+        <Column>
+            <Card>
+                <CardHeader>
+                    <CardTitle>@HeaderConstant.ExcelDataManagementTitle</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <Row>
+                        <!-- Export Section -->
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle TextColor="TextColor.Primary">
+                                        <Icon Name="IconName.Download" />
+                                        데이터 내보내기 (Export)
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody>
+                                    <Field>
+                                        <FieldLabel>내보낼 데이터 유형 선택</FieldLabel>
+                                        <Select TValue="string" @bind-SelectedValue="selectedExportEntityType">
+                                            <SelectItem TValue="string" Value="@("")">-- 데이터 유형을 선택하세요 --</SelectItem>
+                                            @foreach (var entityType in availableEntityTypes)
+                                            {
+                                                <SelectItem TValue="string" Value="@entityType">@GetEntityDisplayName(entityType)</SelectItem>
+                                            }
+                                        </Select>
+                                    </Field>
+                                    
+                                    <Button Color="Color.Primary" 
+                                            Clicked="@ExportToExcel" 
+                                            Disabled="@(string.IsNullOrEmpty(selectedExportEntityType) || isExporting)"
+                                            Loading="@isExporting">
+                                        <Icon Name="IconName.FileAlt" />
+                                        엑셀로 내보내기
+                                    </Button>
+                                    
+                                    @if (!string.IsNullOrEmpty(exportMessage))
+                                    {
+                                        <Alert Color="@(exportMessage.Contains("성공") ? Color.Success : Color.Danger)" 
+                                               Visible 
+                                               Margin="Margin.Is3.FromTop">
+                                            <AlertDescription>@exportMessage</AlertDescription>
+                                        </Alert>
+                                    }
+                                </CardBody>
+                            </Card>
+                        </Column>
+
+                        <!-- Import Section -->
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle TextColor="TextColor.Success">
+                                        <Icon Name="IconName.ArrowUp" />
+                                        데이터 가져오기 (Import)
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody>
+                                    <Field>
+                                        <FieldLabel>가져올 데이터 유형 선택</FieldLabel>
+                                        <Select TValue="string" @bind-SelectedValue="selectedImportEntityType">
+                                            <SelectItem TValue="string" Value="@("")">-- 데이터 유형을 선택하세요 --</SelectItem>
+                                            @foreach (var entityType in availableEntityTypes)
+                                            {
+                                                <SelectItem TValue="string" Value="@entityType">@GetEntityDisplayName(entityType)</SelectItem>
+                                            }
+                                        </Select>
+                                    </Field>
+                                    
+                                    <Field>
+                                        <FieldLabel>엑셀 파일 선택</FieldLabel>
+                                        <FileEdit @ref="fileEdit" 
+                                                  Filter=".xlsx,.xls" 
+                                                  Changed="@OnFileChanged" />
+                                    </Field>
+                                    
+                                    <Button Color="Color.Success" 
+                                            Clicked="@ImportFromExcel" 
+                                            Disabled="@(string.IsNullOrEmpty(selectedImportEntityType) || selectedFile == null || isImporting)"
+                                            Loading="@isImporting">
+                                        <Icon Name="IconName.ArrowUp" />
+                                        엑셀에서 가져오기
+                                    </Button>
+                                    
+                                    @if (!string.IsNullOrEmpty(importMessage))
+                                    {
+                                        <Alert Color="@(importMessage.Contains("성공") ? Color.Success : Color.Danger)" 
+                                               Visible 
+                                               Margin="Margin.Is3.FromTop">
+                                            <AlertDescription>@importMessage</AlertDescription>
+                                        </Alert>
+                                    }
+                                </CardBody>
+                            </Card>
+                        </Column>
+                    </Row>
+
+                    <!-- Information Section -->
+                    <Row Margin="Margin.Is4.FromTop">
+                        <Column>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle TextColor="TextColor.Info">
+                                        <Icon Name="IconName.InfoCircle" />
+                                        사용 안내
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody>
+                                    <Alert Color="Color.Info" Visible>
+                                        <AlertDescription>
+                                            <strong>데이터 내보내기:</strong>
+                                            <ul>
+                                                <li>선택한 데이터 유형의 모든 레코드를 엑셀 파일로 다운로드합니다.</li>
+                                                <li>생성된 엑셀 파일은 .xlsx 형식입니다.</li>
+                                            </ul>
+                                            <br/>
+                                            <strong>데이터 가져오기:</strong>
+                                            <ul>
+                                                <li>엑셀 파일(.xlsx, .xls)에서 데이터를 읽어 데이터베이스에 추가합니다.</li>
+                                                <li>첫 번째 행은 헤더로 사용됩니다.</li>
+                                                <li>컬럼명은 모델의 속성명과 정확히 일치해야 합니다.</li>
+                                            </ul>
+                                        </AlertDescription>
+                                    </Alert>
+                                </CardBody>
+                            </Card>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private List<string> availableEntityTypes = new();
+    private string selectedExportEntityType = "";
+    private string selectedImportEntityType = "";
+    private string exportMessage = "";
+    private string importMessage = "";
+    private bool isExporting = false;
+    private bool isImporting = false;
+    
+    private FileEdit fileEdit = default!;
+    private IFileEntry? selectedFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableEntityTypes = await ExcelDataService.GetAvailableEntityTypesAsync();
+    }
+
+    private Task OnFileChanged(FileChangedEventArgs e)
+    {
+        selectedFile = e.Files.FirstOrDefault();
+        importMessage = "";
+        return Task.CompletedTask;
+    }
+
+    private async Task ExportToExcel()
+    {
+        if (string.IsNullOrEmpty(selectedExportEntityType))
+            return;
+
+        isExporting = true;
+        exportMessage = "";
+
+        try
+        {
+            string excelDataBase64 = selectedExportEntityType switch
+            {
+                "Server" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Server>(selectedExportEntityType),
+                "Storage" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Storage>(selectedExportEntityType),
+                "BackupEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(selectedExportEntityType),
+                "NetworkEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(selectedExportEntityType),
+                "SecurityEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(selectedExportEntityType),
+                "Software" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Software>(selectedExportEntityType),
+                "SupportEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(selectedExportEntityType),
+                "MiscellaneousEquipment" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(selectedExportEntityType),
+                "Failure" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Failure>(selectedExportEntityType),
+                "SecurityVulnerability" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(selectedExportEntityType),
+                "RoutineCheck" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(selectedExportEntityType),
+                "Maintenance" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(selectedExportEntityType),
+                "ServiceLevelAgreement" => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.ServiceLevelAgreement>(selectedExportEntityType),
+                _ => throw new ArgumentException($"Unknown entity type: {selectedExportEntityType}")
+            };
+
+            var fileName = $"{GetEntityDisplayName(selectedExportEntityType)}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            
+            await JSRuntime.InvokeVoidAsync("downloadFileFromByteArray", fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelDataBase64);
+            
+            exportMessage = $"{GetEntityDisplayName(selectedExportEntityType)} 데이터를 성공적으로 내보냈습니다.";
+            Logger.LogInformation("Excel export completed for {EntityType}", selectedExportEntityType);
+        }
+        catch (Exception ex)
+        {
+            exportMessage = $"내보내기 중 오류가 발생했습니다: {ex.Message}";
+            Logger.LogError(ex, "Error exporting {EntityType} to Excel", selectedExportEntityType);
+        }
+        finally
+        {
+            isExporting = false;
+        }
+    }
+
+    private async Task ImportFromExcel()
+    {
+        if (string.IsNullOrEmpty(selectedImportEntityType) || selectedFile == null)
+            return;
+
+        isImporting = true;
+        importMessage = "";
+
+        try
+        {
+            using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB limit
+            
+            int importedCount = selectedImportEntityType switch
+            {
+                "Server" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Server>(stream, selectedImportEntityType),
+                "Storage" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Storage>(stream, selectedImportEntityType),
+                "BackupEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(stream, selectedImportEntityType),
+                "NetworkEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(stream, selectedImportEntityType),
+                "SecurityEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(stream, selectedImportEntityType),
+                "Software" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Software>(stream, selectedImportEntityType),
+                "SupportEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(stream, selectedImportEntityType),
+                "MiscellaneousEquipment" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(stream, selectedImportEntityType),
+                "Failure" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Failure>(stream, selectedImportEntityType),
+                "SecurityVulnerability" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(stream, selectedImportEntityType),
+                "RoutineCheck" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(stream, selectedImportEntityType),
+                "Maintenance" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(stream, selectedImportEntityType),
+                "ServiceLevelAgreement" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.ServiceLevelAgreement>(stream, selectedImportEntityType),
+                "ServerDevice" => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.ServerDevice>(stream, selectedImportEntityType),
+                _ => throw new ArgumentException($"Unknown entity type: {selectedImportEntityType}")
+            };
+
+            importMessage = $"{GetEntityDisplayName(selectedImportEntityType)} 데이터 {importedCount}개를 성공적으로 가져왔습니다.";
+            Logger.LogInformation("Excel import completed for {EntityType}, imported {Count} records", selectedImportEntityType, importedCount);
+            
+            // Reset file selection
+            selectedFile = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            importMessage = $"가져오기 중 오류가 발생했습니다: {ex.Message}";
+            Logger.LogError(ex, "Error importing {EntityType} from Excel", selectedImportEntityType);
+        }
+        finally
+        {
+            isImporting = false;
+        }
+    }
+
+    private string GetEntityDisplayName(string entityType)
+    {
+        return entityType switch
+        {
+            "Server" => HeaderConstant.ServerTitle,
+            "Storage" => HeaderConstant.StorageTitle,
+            "BackupEquipment" => HeaderConstant.BackupEquipmentTitle,
+            "NetworkEquipment" => HeaderConstant.NetworkEquipmentTitle,
+            "SecurityEquipment" => HeaderConstant.SecurityEquipmentTitle,
+            "Software" => HeaderConstant.SoftwareTitle,
+            "SupportEquipment" => HeaderConstant.SupportEquipmentTitle,
+            "MiscellaneousEquipment" => HeaderConstant.EtcTitle,
+            "Failure" => HeaderConstant.FaultTitle,
+            "SecurityVulnerability" => HeaderConstant.VulnerabilityTitle,
+            "RoutineCheck" => HeaderConstant.ScheduledMaintenanceTitle,
+            "Maintenance" => HeaderConstant.MaintenanceTitle,
+            "ServiceLevelAgreement" => HeaderConstant.ServiceLevelAgreementTitle,
+            _ => entityType
+        };
+    }
+}

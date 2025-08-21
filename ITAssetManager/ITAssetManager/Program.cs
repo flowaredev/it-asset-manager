@@ -6,6 +6,7 @@ using ITAssetManager.Components.Account;
 using ITAssetManagerLibrary.Constants;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Helpers;
+using ITAssetManagerComponents.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -59,6 +60,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+// Add Excel Data Service
+builder.Services.AddScoped<IExcelDataService, ExcelDataService>();
 
 builder.Services
     .AddBlazorise(options =>

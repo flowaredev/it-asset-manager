@@ -44,7 +44,7 @@ namespace ITAssetManagerLibrary.Models
         public MiscellaneousEquipment? MiscellaneousEquipment { get; set; }
         public ICollection<RoutineCheck> RoutineChecks { get; } = [];
         public ICollection<SecurityVulnerability> SecurityVulnerabilities { get; } = [];
-
+        public ICollection<Maintenance> Maintenances { get; } = [];
         public ICollection<Failure> Failures { get; } = [];
 
     }

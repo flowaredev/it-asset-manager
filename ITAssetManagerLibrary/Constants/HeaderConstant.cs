@@ -23,5 +23,9 @@ namespace ITAssetManagerLibrary.Constants
         public const string EtcTitle = "기타";
         public const string SecheduleCalendarTitle = "일정관리";
         public const string UserManagementTitle = "사용자관리";
+        
+        // Excel Data Management 관련 상수들
+        public const string ExcelDataManagementTitle = "엑셀 데이터 관리";
+        public const string ServiceLevelAgreementTitle = "서비스수준";
     }
 }
