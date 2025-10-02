@@ -24,7 +24,6 @@ namespace ITAssetManagerComponents.Services
         const string SECURITY_VULNERABILITY_KEY = "SecurityVulnerability";
         const string ROUTINE_CHECK_KEY = "RoutineCheck";
         const string MAINTENANCE_KEY = "Maintenance";
-        const string SERVICE_LEVEL_AGREEMENT_KEY = "ServiceLevelAgreement";
 
         Task<string> ExportToExcelAsync<T>(string entityType) where T : class;
         Task<List<string>> GetAvailableEntityTypesAsync();
@@ -56,7 +55,6 @@ namespace ITAssetManagerComponents.Services
                 IExcelDataService.SECURITY_VULNERABILITY_KEY,
                 IExcelDataService.ROUTINE_CHECK_KEY,
                 IExcelDataService.MAINTENANCE_KEY,
-                IExcelDataService.SERVICE_LEVEL_AGREEMENT_KEY
             });
         }
 
@@ -339,7 +337,6 @@ namespace ITAssetManagerComponents.Services
                         AssetName = m.CommonAsset.Name,
                         AssetRole = m.CommonAsset.Role
                     }).ToListAsync(),
-                    IExcelDataService.SERVICE_LEVEL_AGREEMENT_KEY => await context.ServiceLevelAgreements.ToListAsync(),
                     _ => throw new ArgumentException($"Unknown entity type: {entityType}")
                 };
 
