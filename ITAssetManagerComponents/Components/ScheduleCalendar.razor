@@ -5,6 +5,7 @@
 @using Blazorise.Localization
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IMessageService MessageService
 
 <HeaderTitle Title="@HeaderConstant.SecheduleCalendarTitle" />
 
@@ -18,7 +19,6 @@
 		   SlotSelectionMode="SchedulerSlotSelectionMode.Mouse"
 		   ItemInserted="@OnAppointmentInserted"
 		   ItemUpdated="@OnAppointmentUpdated"
-		   ItemRemoved="@OnAppointmentRemoved"
 		   SlotsSelected="@OnSlotsSelected"
 		   EditItemClicked="@OnAppointmentClicked"
 		   DeleteItemClicked="@OnAppointmentDeleted">
@@ -100,6 +100,10 @@
 			}
 		</ModalBody>
 		<ModalFooter>
+			@if (!isNewAppointment)
+			{
+				<Button Color="Color.Danger" Clicked="@DeleteAppointment">삭제</Button>
+			}
 			<Button Color="Color.Secondary" Clicked="@HideModal">취소</Button>
 			<Button Color="Color.Primary" Clicked="@SaveAppointment">저장</Button>
 		</ModalFooter>
@@ -230,7 +234,14 @@
 	{
 		if (string.IsNullOrEmpty(currentUserId))
 			return;
-		await RemoveAppointmentAsync(clicked.Item);
+		if (await MessageService.Confirm("이 일정을 삭제하시겠습니까?", "일정 삭제 확인", (option) =>
+		{
+			option.ConfirmButtonText = "삭제";
+			option.CancelButtonText = "취소";
+		}))
+		{
+			await RemoveAppointmentAsync(clicked.Item);
+		}
 	}
 
 	private async Task OnSlotsSelected(SchedulerSlotsSelectedEventArgs slotsSelected)
@@ -274,6 +285,21 @@
 		await HideModal();
 	}
 
+	private async Task DeleteAppointment()
+	{
+		if (selectedAppointment == null) return;
+
+		if (await MessageService.Confirm("이 일정을 삭제하시겠습니까?", "일정 삭제 확인", (option) =>
+		{
+			option.ConfirmButtonText = "삭제";
+			option.CancelButtonText = "취소";
+		}))
+		{
+			await RemoveAppointmentAsync(selectedAppointment);
+			await HideModal();
+		}
+	}
+
 	private async Task OnAppointmentInserted(SchedulerInsertedItem<UserAppointmentModel> item)
 	{
 		if (string.IsNullOrEmpty(currentUserId)) return;
@@ -284,13 +310,7 @@
 	{
 		if (string.IsNullOrEmpty(currentUserId)) return;
 		await UpdateAppointmentAsync(item.NewItem);
-	}
-
-	private async Task OnAppointmentRemoved(SchedulerUpdatedItem<UserAppointmentModel> item)
-	{
-		if (string.IsNullOrEmpty(currentUserId)) return;
-		await RemoveAppointmentAsync(item.OldItem);
-	}
+	}	
 
 	private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
 	{
