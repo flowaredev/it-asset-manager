@@ -1,6 +1,7 @@
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
+using Blazorise.RichTextEdit;
 using ITAssetManager.Components;
 using ITAssetManager.Components.Account;
 using ITAssetManagerComponents.Services;
@@ -70,6 +71,11 @@ builder.Services
         options.ValidationMessageLocalizer = ValidationMessageLocalizingHelper.GetValidationMessage;
     })
     .AddBootstrap5Providers()
+    .AddBlazoriseRichTextEdit(options =>
+    {
+        options.UseTables = true;
+        options.UseResize = true;
+    })
     .AddFontAwesomeIcons();
 
 // Add authorization policies

@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @using Blazorise.Scheduler
@@ -9,264 +9,397 @@
 <HeaderTitle Title="@HeaderConstant.SecheduleCalendarTitle" />
 
 <Scheduler TItem="UserAppointmentModel" @bind-Date="@selectedDate"
-           Data="@appointments"
-           @bind-SelectedView="@selectedView"
-           Editable
-           Draggable
-           Localizers="@schedulerLocalizers"
-           SlotSelectionMode="SchedulerSlotSelectionMode.Mouse"
-           ItemInserted="@OnAppointmentInserted"
-           ItemUpdated="@OnAppointmentUpdated"
-           ItemRemoved="@OnAppointmentRemoved">
-    <SchedulerToolbar />
-    <SchedulerViews>
-        <SchedulerDayView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
-        <SchedulerWeekView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
-        <SchedulerWorkWeekView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
-        <SchedulerMonthView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
-    </SchedulerViews>
+		   Data="@appointments"
+		   @bind-SelectedView="@selectedView"
+		   Editable
+		   Draggable
+		   UseInternalEditing="false"
+		   Localizers="@schedulerLocalizers"
+		   SlotSelectionMode="SchedulerSlotSelectionMode.Mouse"
+		   ItemInserted="@OnAppointmentInserted"
+		   ItemUpdated="@OnAppointmentUpdated"
+		   ItemRemoved="@OnAppointmentRemoved"
+		   SlotsSelected="@OnSlotsSelected"
+		   EditItemClicked="@OnAppointmentClicked"
+		   DeleteItemClicked="@OnAppointmentDeleted">
+	<SchedulerToolbar />
+	<SchedulerViews>
+		<SchedulerDayView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
+		<SchedulerWeekView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
+		<SchedulerWorkWeekView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
+		<SchedulerMonthView StartTime="@startTime" EndTime="@endTime" WorkDayStart="@workDayStart" WorkDayEnd="@workDayEnd" />
+	</SchedulerViews>
 </Scheduler>
 
+@* Rich Text Editor Modal for Detailed Description *@
+<Modal @ref="modalRef">
+	<ModalContent Centered Size="ModalSize.ExtraLarge">
+		<ModalHeader>
+			<ModalTitle>일정 상세 편집</ModalTitle>
+			<CloseButton />
+		</ModalHeader>
+		<ModalBody>
+			@if (selectedAppointment != null)
+			{
+				<Field>
+					<FieldLabel>제목</FieldLabel>
+					<TextEdit @bind-Text="@selectedAppointment.Title" Placeholder="일정 제목" />
+				</Field>
+				<Field Margin="Margin.Is3.FromTop">
+					<FieldLabel>시작 날짜/시간</FieldLabel>
+					<DateEdit TValue="DateTime" @bind-Date="@selectedAppointment.Start" InputMode="DateInputMode.DateTime" />
+				</Field>
+				<Field Margin="Margin.Is3.FromTop">
+					<FieldLabel>종료 날짜/시간</FieldLabel>
+					<DateEdit TValue="DateTime" @bind-Date="@selectedAppointment.End" InputMode="DateInputMode.DateTime" />
+				</Field>
+				<Field Margin="Margin.Is3.FromTop">
+					<Check TValue="bool" @bind-Checked="@selectedAppointment.AllDay">종일</Check>
+				</Field>
+				<Field Margin="Margin.Is3.FromTop">
+					<FieldLabel>상세 설명</FieldLabel>
+					<RichTextEdit @ref="richTextEditRef"
+								  UseResize
+								  Theme="RichTextEditTheme.Snow"
+								  ToolbarPosition="Placement.Top"
+								  @bind-Value="@editedDescription"
+								  PlaceHolder="일정 상세 설명을 입력하세요...">
+						<Toolbar>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+								<RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+								<RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+								<RichTextEditToolbarButton Action="RichTextEditAction.Strike" />
+							</RichTextEditToolbarGroup>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+									<RichTextEditToolbarSelectItem Value="small">작게</RichTextEditToolbarSelectItem>
+									<RichTextEditToolbarSelectItem Selected>보통</RichTextEditToolbarSelectItem>
+									<RichTextEditToolbarSelectItem Value="large">크게</RichTextEditToolbarSelectItem>
+									<RichTextEditToolbarSelectItem Value="huge">매우 크게</RichTextEditToolbarSelectItem>
+								</RichTextEditToolbarSelect>
+							</RichTextEditToolbarGroup>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+								<RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+							</RichTextEditToolbarGroup>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarSelect Action="RichTextEditAction.Color" />
+								<RichTextEditToolbarSelect Action="RichTextEditAction.Background" />
+							</RichTextEditToolbarGroup>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarButton Action="RichTextEditAction.Link" />
+								<RichTextEditToolbarButton Action="RichTextEditAction.Image" />
+							</RichTextEditToolbarGroup>
+							<RichTextEditToolbarGroup>
+								<RichTextEditToolbarButton Action="RichTextEditAction.Clean" />
+							</RichTextEditToolbarGroup>
+						</Toolbar>
+					</RichTextEdit>
+				</Field>
+			}
+		</ModalBody>
+		<ModalFooter>
+			<Button Color="Color.Secondary" Clicked="@HideModal">취소</Button>
+			<Button Color="Color.Primary" Clicked="@SaveAppointment">저장</Button>
+		</ModalFooter>
+	</ModalContent>
+</Modal>
+
 @code {
-    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
-    private SchedulerView selectedView = SchedulerView.Week;
-    private TimeOnly startTime = new TimeOnly(6, 0);
-    private TimeOnly endTime = new TimeOnly(22, 0);
-    private TimeOnly workDayStart = new TimeOnly(8, 0);
-    private TimeOnly workDayEnd = new TimeOnly(18, 0);
+	private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+	private SchedulerView selectedView = SchedulerView.Week;
+	private TimeOnly startTime = new TimeOnly(6, 0);
+	private TimeOnly endTime = new TimeOnly(22, 0);
+	private TimeOnly workDayStart = new TimeOnly(8, 0);
+	private TimeOnly workDayEnd = new TimeOnly(18, 0);
 
-    private List<UserAppointmentModel> appointments = new();
-    private string? currentUserId;
+	private List<UserAppointmentModel> appointments = new();
+	private string? currentUserId;
+	private RichTextEdit? richTextEditRef;
+	private Modal? modalRef;
+	private UserAppointmentModel? selectedAppointment;
+	private string editedDescription = string.Empty;
+	private bool isNewAppointment = false;
 
-    // Korean localization for Scheduler
-    private SchedulerLocalizers schedulerLocalizers = new SchedulerLocalizers
-    {
-        NewLocalizer = (localizer, arguments) => "새로 만들기",
-        EditLocalizer = (localizer, arguments) => "수정",
-        TitleLocalizer = (localizer, arguments) => "제목",
-        StartLocalizer = (localizer, arguments) => "시작",
-        EndLocalizer = (localizer, arguments) => "종료",
-        AllDayLocalizer = (localizer, arguments) => "종일",
-        DescriptionLocalizer = (localizer, arguments) => "설명",
-        DeleteLocalizer = (localizer, arguments) => "삭제",
-        CancelLocalizer = (localizer, arguments) => "취소",
-        SaveLocalizer = (localizer, arguments) => "저장",
-        ItemDeleteConfirmationLocalizer = (localizer, arguments) => "이 일정을 삭제하시겠습니까?",
-        OccurrenceDeleteConfirmationLocalizer = (localizer, arguments) => "이 일정만 삭제하시겠습니까?",
-        SeriesDeleteConfirmationTextLocalizer = (localizer, arguments) => "전체 시리즈를 삭제하시겠습니까?",
-        DeleteSeriesLocalizer = (localizer, arguments) => "시리즈 삭제",
-        DeleteOccurrenceLocalizer = (localizer, arguments) => "이 일정만 삭제",
-        EditSeriesLocalizer = (localizer, arguments) => "시리즈 수정",
-        EditOccurrenceLocalizer = (localizer, arguments) => "이 일정만 수정",
-        AppointmentLocalizer = (localizer, arguments) => "일정",
-        TodayLocalizer = (localizer, arguments) => "오늘",
-        PreviousLocalizer = (localizer, arguments) => "이전",
-        NextLocalizer = (localizer, arguments) => "다음",
-        DayLocalizer = (localizer, arguments) => "일",
-        WeekLocalizer = (localizer, arguments) => "주",
-        WorkWeekLocalizer = (localizer, arguments) => "근무주",
-        MonthLocalizer = (localizer, arguments) => "월",
-        YearLocalizer = (localizer, arguments) => "년",
-        OnLocalizer = (localizer, arguments) => "시",
-        WeekOfMonthLocalizer = (localizer, arguments) => "월의 주",
-        DayOfWeekLocalizer = (localizer, arguments) => "요일",
-        MonthOfYearLocalizer = (localizer, arguments) => "년의 월",
-        CountLocalizer = (localizer, arguments) => "횟수",
-        NeverLocalizer = (localizer, arguments) => "없음",
-        RepeatEveryLocalizer = (localizer, arguments) => "반복 간격",
-        WhatDoYouWantToDoLocalizer = (localizer, arguments) => "어떻게 하시겠습니까?",
-        RecurringSeriesWhatDoYouWantToDoLocalizer = (localizer, arguments) => "이 항목은 반복 시리즈입니다. 어떻게 하시겠습니까?",
-        StartDateHigherValidationLocalizer = (localizer, arguments) => "시작 날짜가 종료 날짜보다 늦을 수 없습니다.",
-        StartDateHigherOrEqualValidationLocalizer = (localizer, arguments) => "시작 날짜가 종료 날짜보다 늦거나 같을 수 없습니다.",
-        EndDateLowerValidationLocalizer = (localizer, arguments) => "종료 날짜가 시작 날짜보다 빠를 수 없습니다.",
-        EndDateLowerOrEqualValidationLocalizer = (localizer, arguments) => "종료 날짜가 시작 날짜보다 빠르거나 같을 수 없습니다.",
-        EndTimeLowerValidationLocalizer = (localizer, arguments) => "종료 시간이 시작 시간보다 빠를 수 없습니다.",
-        TitleRequiredValidationLocalizer = (localizer, arguments) => "제목은 필수입니다."
-    };
+	// Korean localization for Scheduler
+	private SchedulerLocalizers schedulerLocalizers = new SchedulerLocalizers
+	{
+		NewLocalizer = (localizer, arguments) => "새로 만들기",
+		EditLocalizer = (localizer, arguments) => "수정",
+		TitleLocalizer = (localizer, arguments) => "제목",
+		StartLocalizer = (localizer, arguments) => "시작",
+		EndLocalizer = (localizer, arguments) => "종료",
+		AllDayLocalizer = (localizer, arguments) => "종일",
+		DescriptionLocalizer = (localizer, arguments) => "설명",
+		DeleteLocalizer = (localizer, arguments) => "삭제",
+		CancelLocalizer = (localizer, arguments) => "취소",
+		SaveLocalizer = (localizer, arguments) => "저장",
+		ItemDeleteConfirmationLocalizer = (localizer, arguments) => "이 일정을 삭제하시겠습니까?",
+		OccurrenceDeleteConfirmationLocalizer = (localizer, arguments) => "이 일정만 삭제하시겠습니까?",
+		SeriesDeleteConfirmationTextLocalizer = (localizer, arguments) => "전체 시리즈를 삭제하시겠습니까?",
+		DeleteSeriesLocalizer = (localizer, arguments) => "시리즈 삭제",
+		DeleteOccurrenceLocalizer = (localizer, arguments) => "이 일정만 삭제",
+		EditSeriesLocalizer = (localizer, arguments) => "시리즈 수정",
+		EditOccurrenceLocalizer = (localizer, arguments) => "이 일정만 수정",
+		AppointmentLocalizer = (localizer, arguments) => "일정",
+		TodayLocalizer = (localizer, arguments) => "오늘",
+		PreviousLocalizer = (localizer, arguments) => "이전",
+		NextLocalizer = (localizer, arguments) => "다음",
+		DayLocalizer = (localizer, arguments) => "일",
+		WeekLocalizer = (localizer, arguments) => "주",
+		WorkWeekLocalizer = (localizer, arguments) => "근무주",
+		MonthLocalizer = (localizer, arguments) => "월",
+		YearLocalizer = (localizer, arguments) => "년",
+		OnLocalizer = (localizer, arguments) => "시",
+		WeekOfMonthLocalizer = (localizer, arguments) => "월의 주",
+		DayOfWeekLocalizer = (localizer, arguments) => "요일",
+		MonthOfYearLocalizer = (localizer, arguments) => "년의 월",
+		CountLocalizer = (localizer, arguments) => "횟수",
+		NeverLocalizer = (localizer, arguments) => "없음",
+		RepeatEveryLocalizer = (localizer, arguments) => "반복 간격",
+		WhatDoYouWantToDoLocalizer = (localizer, arguments) => "어떻게 하시겠습니까?",
+		RecurringSeriesWhatDoYouWantToDoLocalizer = (localizer, arguments) => "이 항목은 반복 시리즈입니다. 어떻게 하시겠습니까?",
+		StartDateHigherValidationLocalizer = (localizer, arguments) => "시작 날짜가 종료 날짜보다 늦을 수 없습니다.",
+		StartDateHigherOrEqualValidationLocalizer = (localizer, arguments) => "시작 날짜가 종료 날짜보다 늦거나 같을 수 없습니다.",
+		EndDateLowerValidationLocalizer = (localizer, arguments) => "종료 날짜가 시작 날짜보다 빠를 수 없습니다.",
+		EndDateLowerOrEqualValidationLocalizer = (localizer, arguments) => "종료 날짜가 시작 날짜보다 빠르거나 같을 수 없습니다.",
+		EndTimeLowerValidationLocalizer = (localizer, arguments) => "종료 시간이 시작 시간보다 빠를 수 없습니다.",
+		TitleRequiredValidationLocalizer = (localizer, arguments) => "제목은 필수입니다."
+	};
 
-    public class UserAppointmentModel
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
-        public bool AllDay { get; set; }
-        public string? RecurrenceRule { get; set; }
-    }
+	public class UserAppointmentModel
+	{
+		public string Id { get; set; } = string.Empty;
+		public string Title { get; set; } = string.Empty;
+		public string Description { get; set; } = string.Empty;
+		public DateTime Start { get; set; }
+		public DateTime End { get; set; }
+		public bool AllDay { get; set; }
+		public string? RecurrenceRule { get; set; }
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        currentUserId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		currentUserId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (!string.IsNullOrEmpty(currentUserId))
-        {
-            await LoadUserAppointments();
-        }
-    }
+		if (!string.IsNullOrEmpty(currentUserId))
+		{
+			await LoadUserAppointments();
+		}
+	}
 
-    private async Task LoadUserAppointments()
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+	private async Task LoadUserAppointments()
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
 
-        try
-        {
-            using var context = DbFactory.CreateDbContext();
-            var userAppointments = await context.UserAppointments
-                .Where(a => a.UserId == currentUserId)
-                .ToListAsync();
+		try
+		{
+			using var context = DbFactory.CreateDbContext();
+			var userAppointments = await context.UserAppointments
+				   .Where(a => a.UserId == currentUserId)
+			   .ToListAsync();
 
-            appointments = userAppointments.Select(ua => new UserAppointmentModel
-            {
-                Id = ua.Id.ToString(),
-                Title = ua.Title,
-                Description = ua.Description,
-                Start = ua.Start,
-                End = ua.End,
-                AllDay = ua.AllDay,
-                RecurrenceRule = ua.RecurrenceRule
-            }).ToList();
+			appointments = userAppointments.Select(ua => new UserAppointmentModel
+			{
+				Id = ua.Id.ToString(),
+				Title = ua.Title,
+				Description = ua.Description,
+				Start = ua.Start,
+				End = ua.End,
+				AllDay = ua.AllDay,
+				RecurrenceRule = ua.RecurrenceRule
+			}).ToList();
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Error loading appointments: {ex.Message}");
+		}
+	}
 
-        }
-        catch (Exception ex)
-        {
-            // Handle database errors gracefully
-            Debug.WriteLine($"Error loading appointments: {ex.Message}");
-        }
-    }
+	private async Task OnAppointmentClicked(SchedulerItemClickedEventArgs<UserAppointmentModel> clicked)
+	{
+		selectedAppointment = clicked.Item;
+		editedDescription = selectedAppointment.Description ?? string.Empty;
+		isNewAppointment = false;
+		await ShowModal();
+	}
 
-    // Event handlers for Blazorise Scheduler events
-    private async Task OnAppointmentInserted(SchedulerInsertedItem<UserAppointmentModel> item)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+	private async Task OnAppointmentDeleted(SchedulerItemClickedEventArgs<UserAppointmentModel> clicked)
+	{
+		if (string.IsNullOrEmpty(currentUserId))
+			return;
+		await RemoveAppointmentAsync(clicked.Item);
+	}
 
-        await InsertAppointmentAsync(item.Item);
-    }
+	private async Task OnSlotsSelected(SchedulerSlotsSelectedEventArgs slotsSelected)
+	{
+		selectedAppointment = new UserAppointmentModel
+		{
+			Start = slotsSelected.Start,
+			End = slotsSelected.End,
+			Title = "새 일정"
+		};
+		editedDescription = string.Empty;
+		isNewAppointment = true;
+		await ShowModal();
+	}
 
-    private async Task OnAppointmentUpdated(SchedulerUpdatedItem<UserAppointmentModel> item)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+	private Task ShowModal()
+	{
+		return modalRef?.Show() ?? Task.CompletedTask;
+	}
 
-        await UpdateAppointmentAsync(item.NewItem);
-    }
+	private Task HideModal()
+	{
+		return modalRef?.Hide() ?? Task.CompletedTask;
+	}
 
-    private async Task OnAppointmentRemoved(SchedulerUpdatedItem<UserAppointmentModel> item)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+	private async Task SaveAppointment()
+	{
+		if (selectedAppointment == null) return;
 
-        await RemoveAppointmentAsync(item.OldItem);
-    }
+		selectedAppointment.Description = editedDescription;
 
-    // Helper method to save an appointment to the database
-    private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+		if (isNewAppointment)
+		{
+			await InsertAppointmentAsync(selectedAppointment);
+		}
+		else
+		{
+			await UpdateAppointmentAsync(selectedAppointment);
+		}
 
-        try
-        {
-            using var context = DbFactory.CreateDbContext();
+		await HideModal();
+	}
 
-            var userAppointment = new UserAppointment
-            {
-                Title = appointment.Title ?? "새 일정",
-                Description = appointment.Description ?? string.Empty,
-                Start = appointment.Start,
-                End = appointment.End,
-                AllDay = appointment.AllDay,
-                RecurrenceRule = appointment.RecurrenceRule,
-                UserId = currentUserId
-            };
+	private async Task OnAppointmentInserted(SchedulerInsertedItem<UserAppointmentModel> item)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
+		await InsertAppointmentAsync(item.Item);
+	}
 
-            context.UserAppointments.Add(userAppointment);
-            await context.SaveChangesAsync();
+	private async Task OnAppointmentUpdated(SchedulerUpdatedItem<UserAppointmentModel> item)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
+		await UpdateAppointmentAsync(item.NewItem);
+	}
 
-            Debug.WriteLine($"일정이 저장되었습니다: {appointment.Title}");
-            await LoadUserAppointments(); // Ensure it waits for the loading to complete
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"일정 저장 중 오류 발생: {ex.Message}");
-        }
-    }
+	private async Task OnAppointmentRemoved(SchedulerUpdatedItem<UserAppointmentModel> item)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
+		await RemoveAppointmentAsync(item.OldItem);
+	}
 
-    // Helper method to update an appointment in the database
-    private async Task UpdateAppointmentAsync(UserAppointmentModel appointment)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+	private async Task InsertAppointmentAsync(UserAppointmentModel appointment)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
 
-        try
-        {
-            using var context = DbFactory.CreateDbContext();
-            
-            if (int.TryParse(appointment.Id, out int appointmentId))
-            {
-                var userAppointment = await context.UserAppointments
-                    .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+		try
+		{
+			using var context = DbFactory.CreateDbContext();
 
-                if (userAppointment != null)
-                {
-                    userAppointment.Title = appointment.Title ?? "일정";
-                    userAppointment.Description = appointment.Description ?? string.Empty;
-                    userAppointment.Start = appointment.Start;
-                    userAppointment.End = appointment.End;
-                    userAppointment.AllDay = appointment.AllDay;
-                    userAppointment.RecurrenceRule = appointment.RecurrenceRule;
+			var userAppointment = new UserAppointment
+			{
+				Title = appointment.Title ?? "새 일정",
+				Description = appointment.Description ?? string.Empty,
+				Start = appointment.Start,
+				End = appointment.End,
+				AllDay = appointment.AllDay,
+				RecurrenceRule = appointment.RecurrenceRule,
+				UserId = currentUserId
+			};
 
-                    await context.SaveChangesAsync();
-                    
-                    Debug.WriteLine($"일정이 수정되었습니다: {appointment.Title} (ID: {appointment.Id})");
-                }
-                else
-                {
-                    Debug.WriteLine($"수정할 일정을 찾을 수 없습니다: ID {appointment.Id}");
-                }
-            }
-            else
-            {
-                Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"일정 수정 중 오류 발생: {ex.Message}");
-        }
-    }
+			context.UserAppointments.Add(userAppointment);
+			await context.SaveChangesAsync();
 
-    // Helper method to remove an appointment from the database
-    private async Task RemoveAppointmentAsync(UserAppointmentModel appointment)
-    {
-        if (string.IsNullOrEmpty(currentUserId)) return;
+			Debug.WriteLine($"일정이 저장되었습니다: {appointment.Title}");
+			await LoadUserAppointments();
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"일정 저장 중 오류 발생: {ex.Message}");
+		}
+	}
 
-        try
-        {
-            using var context = DbFactory.CreateDbContext();
-            
-            if (int.TryParse(appointment.Id, out int appointmentId))
-            {
-                var userAppointment = await context.UserAppointments
-                    .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+	private async Task UpdateAppointmentAsync(UserAppointmentModel appointment)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
 
-                if (userAppointment != null)
-                {
-                    context.UserAppointments.Remove(userAppointment);
-                    await context.SaveChangesAsync();
-                    
-                    Debug.WriteLine($"일정이 삭제되었습니다: {appointment.Title} (ID: {appointment.Id})");
-                }
-                else
-                {
-                    Debug.WriteLine($"삭제할 일정을 찾을 수 없습니다: ID {appointment.Id}");
-                }
-            }
-            else
-            {
-                Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"일정 삭제 중 오류 발생: {ex.Message}");
-        }
-    }
+		try
+		{
+			using var context = DbFactory.CreateDbContext();
+
+			if (int.TryParse(appointment.Id, out int appointmentId))
+			{
+				var userAppointment = await context.UserAppointments
+					.FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+
+				if (userAppointment != null)
+				{
+					userAppointment.Title = appointment.Title ?? "일정";
+					userAppointment.Description = appointment.Description ?? string.Empty;
+					userAppointment.Start = appointment.Start;
+					userAppointment.End = appointment.End;
+					userAppointment.AllDay = appointment.AllDay;
+					userAppointment.RecurrenceRule = appointment.RecurrenceRule;
+
+					await context.SaveChangesAsync();
+
+					Debug.WriteLine($"일정이 수정되었습니다: {appointment.Title} (ID: {appointment.Id})");
+					await LoadUserAppointments();
+				}
+				else
+				{
+					Debug.WriteLine($"수정할 일정을 찾을 수 없습니다: ID {appointment.Id}");
+				}
+			}
+			else
+			{
+				Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"일정 수정 중 오류 발생: {ex.Message}");
+		}
+	}
+
+	private async Task RemoveAppointmentAsync(UserAppointmentModel appointment)
+	{
+		if (string.IsNullOrEmpty(currentUserId)) return;
+
+		try
+		{
+			using var context = DbFactory.CreateDbContext();
+
+			if (int.TryParse(appointment.Id, out int appointmentId))
+			{
+				var userAppointment = await context.UserAppointments
+			 .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+
+				if (userAppointment != null)
+				{
+					context.UserAppointments.Remove(userAppointment);
+					await context.SaveChangesAsync();
+
+					Debug.WriteLine($"일정이 삭제되었습니다: {appointment.Title} (ID: {appointment.Id})");
+					await LoadUserAppointments();
+				}
+				else
+				{
+					Debug.WriteLine($"삭제할 일정을 찾을 수 없습니다: ID {appointment.Id}");
+				}
+			}
+			else
+			{
+				Debug.WriteLine($"잘못된 일정 ID 형식: {appointment.Id}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"일정 삭제 중 오류 발생: {ex.Message}");
+		}
+	}
 }
