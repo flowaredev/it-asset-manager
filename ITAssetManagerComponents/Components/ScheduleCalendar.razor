@@ -62,7 +62,7 @@
 								  UseResize
 								  Theme="RichTextEditTheme.Snow"
 								  ToolbarPosition="Placement.Top"
-								  @bind-Value="@editedDescription"
+								  ContentChanged="@OnContentChanged"
 								  PlaceHolder="일정 상세 설명을 입력하세요...">
 						<Toolbar>
 							<RichTextEditToolbarGroup>
@@ -202,8 +202,8 @@
 		{
 			using var context = DbFactory.CreateDbContext();
 			var userAppointments = await context.UserAppointments
-				   .Where(a => a.UserId == currentUserId)
-			   .ToListAsync();
+							.Where(a => a.UserId == currentUserId)
+						.ToListAsync();
 
 			appointments = userAppointments.Select(ua => new UserAppointmentModel
 			{
@@ -397,7 +397,7 @@
 			if (int.TryParse(appointment.Id, out int appointmentId))
 			{
 				var userAppointment = await context.UserAppointments
-			 .FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
+				.FirstOrDefaultAsync(a => a.Id == appointmentId && a.UserId == currentUserId);
 
 				if (userAppointment != null)
 				{
@@ -421,5 +421,10 @@
 		{
 			Debug.WriteLine($"일정 삭제 중 오류 발생: {ex.Message}");
 		}
+	}
+
+	private async Task OnContentChanged()
+	{
+		editedDescription = await richTextEditRef!.GetHtmlAsync();
 	}
 }
