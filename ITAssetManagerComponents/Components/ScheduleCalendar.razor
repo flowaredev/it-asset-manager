@@ -257,9 +257,10 @@
 		await ShowModal();
 	}
 
-	private Task ShowModal()
+	private async Task ShowModal()
 	{
-		return modalRef?.Show() ?? Task.CompletedTask;
+		await modalRef!.Show();
+		await richTextEditRef!.SetTextAsync(editedDescription);
 	}
 
 	private Task HideModal()
@@ -425,6 +426,6 @@
 
 	private async Task OnContentChanged()
 	{
-		editedDescription = await richTextEditRef!.GetHtmlAsync();
+		editedDescription = await richTextEditRef!.GetTextAsync();
 	}
 }
