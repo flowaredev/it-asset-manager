@@ -25,6 +25,16 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="홍길동" />
+                <label for="name">이름</label>
+                <ValidationMessage For="() => Input.Name" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Department" class="form-control" autocomplete="organization" aria-required="true" placeholder="개발팀" />
+                <label for="department">부서</label>
+                <ValidationMessage For="() => Input.Department" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label for="email">이메일</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
@@ -58,6 +68,10 @@
     public async Task RegisterUser(EditContext editContext)
     {
         var user = CreateUser();
+
+        // Set Name and Department
+        user.Name = Input.Name;
+        user.Department = Input.Department;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
@@ -119,6 +133,14 @@
 
     private sealed class InputModel
     {
+        [Required(ErrorMessage = "이름은 필수입니다.")]
+        [Display(Name = "이름")]
+        public string Name { get; set; } = "";
+
+        [Required(ErrorMessage = "부서는 필수입니다.")]
+        [Display(Name = "부서")]
+        public string Department { get; set; } = "";
+
         [Required(ErrorMessage = "이메일은 필수입니다.")]
         [EmailAddress(ErrorMessage = "유효한 이메일 주소를 입력해주세요.")]
         [Display(Name = "이메일")]

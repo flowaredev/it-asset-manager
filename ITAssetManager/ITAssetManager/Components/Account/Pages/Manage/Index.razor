@@ -24,6 +24,16 @@
                 <label for="username" class="form-label">이메일 계정</label>
             </div>
             <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Name" class="form-control" placeholder="이름을 입력하세요." />
+                <label for="name" class="form-label">이름</label>
+                <ValidationMessage For="() => Input.Name" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Department" class="form-control" placeholder="부서를 입력하세요." />
+                <label for="department" class="form-label">부서</label>
+                <ValidationMessage For="() => Input.Department" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
                 <label for="phone-number" class="form-label">전화번호</label>
                 <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
@@ -37,6 +47,8 @@
     private ApplicationUser user = default!;
     private string? username;
     private string? phoneNumber;
+    private string? name;
+    private string? department;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -49,18 +61,46 @@
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        name = user.Name;
+        department = user.Department;
 
         Input.PhoneNumber ??= phoneNumber;
+        Input.Name ??= name;
+        Input.Department ??= department;
     }
 
     private async Task OnValidSubmitAsync()
     {
+        bool hasChanges = false;
+
+        if (Input.Name != name)
+        {
+            user.Name = Input.Name;
+            hasChanges = true;
+        }
+
+        if (Input.Department != department)
+        {
+            user.Department = Input.Department;
+            hasChanges = true;
+        }
+
         if (Input.PhoneNumber != phoneNumber)
         {
             var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!setPhoneResult.Succeeded)
             {
                 RedirectManager.RedirectToCurrentPageWithStatus("Error: 전화번호를 설정하지 못했습니다.", HttpContext);
+            }
+            hasChanges = true;
+        }
+
+        if (hasChanges)
+        {
+            var updateResult = await UserManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus("Error: 프로필을 업데이트하지 못했습니다.", HttpContext);
             }
         }
 
@@ -70,8 +110,14 @@
 
     private sealed class InputModel
     {
+        [Display(Name = "이름")]
+        public string? Name { get; set; }
+
+        [Display(Name = "부서")]
+        public string? Department { get; set; }
+
         [Phone]
-        [Display(Name = "Phone number")]
+        [Display(Name = "전화번호")]
         public string? PhoneNumber { get; set; }
     }
 }

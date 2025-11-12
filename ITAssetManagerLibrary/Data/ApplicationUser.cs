@@ -6,6 +6,8 @@ namespace ITAssetManagerLibrary.Data
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
+        public string? Name { get; set; }
+        public string? Department { get; set; }
         public ICollection<UserAppointment> UserAppointments { get; set; } = new List<UserAppointment>();
     }
 }
