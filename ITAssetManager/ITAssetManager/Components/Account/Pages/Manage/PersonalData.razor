@@ -1,6 +1,10 @@
 ﻿@page "/Account/Manage/PersonalData"
 
+@using Microsoft.AspNetCore.Identity
+@using ITAssetManagerLibrary.Constants
+
 @inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>개인정보</PageTitle>
 
@@ -14,20 +18,37 @@
             <strong>이 데이터를 삭제하면 계정이 영구적으로 제거되며 복구할 수 없습니다.</strong>
         </p>
 
+        @if (isAdministrator)
+        {
+            <div class="alert alert-warning" role="alert">
+                <strong>주의:</strong> 관리자 계정은 삭제할 수 없습니다.
+            </div>
+        }
+
         <form action="Account/Manage/DownloadPersonalData" method="post">
             <AntiforgeryToken />
             <button class="btn btn-primary" type="submit">다운로드</button>
-            <a href="Account/Manage/DeletePersonalData" class="btn btn-danger">삭제</a>
+            @if (isAdministrator)
+            {
+                <button type="button" class="btn btn-danger" disabled>삭제</button>
+            }
+            else
+            {
+                <a href="Account/Manage/DeletePersonalData" class="btn btn-danger">삭제</a>
+            }
         </form>
     </div>
 </div>
 
 @code {
+    private bool isAdministrator = false;
+
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        _ = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        isAdministrator = await UserManager.IsInRoleAsync(user, RoleConstants.Administrator);
     }
 }

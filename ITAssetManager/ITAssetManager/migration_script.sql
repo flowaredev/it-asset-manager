@@ -1,4 +1,4 @@
-﻿CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
 );
@@ -264,5 +264,22 @@ CREATE INDEX "IX_UserAppointments_UserId" ON "UserAppointments" ("UserId");
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20250716070954_AddUserAppointment', '9.0.7');
 
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250801022238_AddSeedingData', '9.0.7');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250803043759_AddSeedRole', '9.0.7');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250821061850_AddMaintenanceNavigation', '9.0.7');
+
+ALTER TABLE "AspNetUsers" ADD "Department" TEXT NULL;
+
+ALTER TABLE "AspNetUsers" ADD "Name" TEXT NULL;
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20251112035223_AddNameAndDepartmentToApplicationUser', '9.0.7');
+
 COMMIT;
+
 
