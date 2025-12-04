@@ -1,7 +1,7 @@
-@page "/admin/excelmanagement"
+﻿@page "/admin/excelmanagement"
 @using ITAssetManagerComponents.Components.Admin
 @attribute [Authorize(Policy = PolicyConstants.ADMINISTRATOR_POLICY)]
 
 <PageTitle>엑셀 데이터 관리</PageTitle>
 
-<AdminExcelDataManagement @rendermode="InteractiveAuto" />
+<AdminExcelDataManagement @rendermode="InteractiveServer" />

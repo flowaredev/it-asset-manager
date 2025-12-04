@@ -1,6 +1,6 @@
-@page "/Admin/UserManagement"
+﻿@page "/Admin/UserManagement"
 
 @attribute [Authorize(Policy = PolicyConstants.ADMINISTRATOR_POLICY)]
 
-<ITAssetManagerComponents.Components.Admin.AdminUserManagement @rendermode="InteractiveAuto" />
+<ITAssetManagerComponents.Components.Admin.AdminUserManagement @rendermode="InteractiveServer" />
 

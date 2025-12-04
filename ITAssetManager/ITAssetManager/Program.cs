@@ -1,4 +1,4 @@
-using Blazorise;
+﻿using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.RichTextEdit;
@@ -36,14 +36,22 @@ builder.Services.AddAuthentication(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 var assemplbyName = typeof(Program).Assembly.GetName().Name;
-#if DEBUG
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString, b => b.MigrationsAssembly(assemplbyName)).EnableSensitiveDataLogging());
-#else
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString, b => b.MigrationsAssembly(assemplbyName)));
-#endif
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// MySQL configuration
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+        options.UseMySQL(connectionString,
+            b => b.MigrationsAssembly(assemplbyName)).EnableSensitiveDataLogging());
+
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
+else
+{
+    builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+        options.UseMySQL(connectionString,
+            b => b.MigrationsAssembly(assemplbyName)));
+}
 
 // Configure Identity with roles support
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
@@ -95,7 +103,15 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddSassCompiler();
 #endif
 
+builder.Services.AddSignalR(o =>
+{
+    o.MaximumReceiveMessageSize = 1024 * 1024; // 1 MB
+});
+
 var app = builder.Build();
+
+// Call the method to create the database on startup
+EnsureDatabaseCreated(app.Services);
 
 // Configure forwarded headers early in the pipeline
 app.UseForwardedHeaders();
@@ -129,3 +145,20 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+
+void EnsureDatabaseCreated(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureCreated();
+        // Optional: Add data seeding logic here if needed
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while creating the database.");
+    }
+}

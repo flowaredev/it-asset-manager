@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
@@ -11,98 +12,107 @@ namespace ITAssetManager.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySQL:Charset", "utf8mb4");
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Department = table.Column<string>(type: "longtext", nullable: true),
+                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "longtext", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "longtext", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "CommonAssets",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ManagementTag = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    ApplyDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ResponsibleCompany = table.Column<string>(type: "TEXT", nullable: false),
-                    ResponsiblePerson = table.Column<string>(type: "TEXT", nullable: false),
-                    ResponsiblePersonPhone = table.Column<string>(type: "TEXT", nullable: false),
-                    OnSiteManager = table.Column<string>(type: "TEXT", nullable: false),
-                    OnSiteManagerPhone = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ManagementTag = table.Column<string>(type: "longtext", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Role = table.Column<string>(type: "longtext", nullable: false),
+                    ApplyDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ResponsibleCompany = table.Column<string>(type: "longtext", nullable: false),
+                    ResponsiblePerson = table.Column<string>(type: "longtext", nullable: false),
+                    ResponsiblePersonPhone = table.Column<string>(type: "longtext", nullable: false),
+                    OnSiteManager = table.Column<string>(type: "longtext", nullable: false),
+                    OnSiteManagerPhone = table.Column<string>(type: "longtext", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CommonAssets", x => x.Id);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "ServiceLevelAgreements",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    EndDateOfMonth = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    DisabilityHoursAverage = table.Column<double>(type: "REAL", nullable: false),
-                    DisabilityHoursLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    UptimeRate = table.Column<double>(type: "REAL", nullable: false),
-                    UptimeLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    RoutineCheckRate = table.Column<double>(type: "REAL", nullable: false),
-                    RoutineCheckLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    TechnicalSupportCompletionRate = table.Column<double>(type: "REAL", nullable: false),
-                    TechnicalSupportLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    SecurityIssues = table.Column<int>(type: "INTEGER", nullable: false),
-                    SecurityIssuesLevel = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    EndDateOfMonth = table.Column<DateOnly>(type: "date", nullable: false),
+                    DisabilityHoursAverage = table.Column<double>(type: "double", nullable: false),
+                    DisabilityHoursLevel = table.Column<int>(type: "int", nullable: false),
+                    UptimeRate = table.Column<double>(type: "double", nullable: false),
+                    UptimeLevel = table.Column<int>(type: "int", nullable: false),
+                    RoutineCheckRate = table.Column<double>(type: "double", nullable: false),
+                    RoutineCheckLevel = table.Column<int>(type: "int", nullable: false),
+                    TechnicalSupportCompletionRate = table.Column<double>(type: "double", nullable: false),
+                    TechnicalSupportLevel = table.Column<int>(type: "int", nullable: false),
+                    SecurityIssues = table.Column<int>(type: "int", nullable: false),
+                    SecurityIssuesLevel = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceLevelAgreements", x => x.Id);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    ClaimType = table.Column<string>(type: "longtext", nullable: true),
+                    ClaimValue = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,17 +123,18 @@ namespace ITAssetManager.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    ClaimType = table.Column<string>(type: "longtext", nullable: true),
+                    ClaimValue = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -134,16 +145,17 @@ namespace ITAssetManager.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "varchar(255)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "longtext", nullable: true),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -154,14 +166,15 @@ namespace ITAssetManager.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -178,16 +191,17 @@ namespace ITAssetManager.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Value = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -198,15 +212,42 @@ namespace ITAssetManager.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "UserAppointments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Title = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    Start = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    End = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    AllDay = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    RecurrenceRule = table.Column<string>(type: "longtext", nullable: true),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAppointments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserAppointments_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "BackupEquipments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,22 +258,23 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Failures",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    FailureDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    VisitDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ResolveDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DisabilityHours = table.Column<int>(type: "INTEGER", nullable: false),
-                    ResolveDescription = table.Column<string>(type: "TEXT", nullable: false),
-                    IsResolved = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    FailureDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    VisitDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ResolveDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    DisabilityHours = table.Column<int>(type: "int", nullable: false),
+                    ResolveDescription = table.Column<string>(type: "longtext", nullable: false),
+                    IsResolved = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -243,18 +285,19 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Maintenances",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    VisitDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ResolveDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    VisitDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ResolveDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -265,15 +308,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "MiscellaneousEquipments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -284,15 +328,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "NetworkEquipments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -303,18 +348,19 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "RoutineChecks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Detail = table.Column<string>(type: "TEXT", nullable: false),
-                    StartDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EndDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Detail = table.Column<string>(type: "longtext", nullable: false),
+                    StartDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -325,15 +371,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "SecurityEquipments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -344,22 +391,23 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "SecurityVulnerabilities",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    DiscoveryDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    VulnerabilityDetail = table.Column<string>(type: "TEXT", nullable: false),
-                    VisitDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ResolveDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    TaskDetail = table.Column<string>(type: "TEXT", nullable: false),
-                    IsResolved = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Level = table.Column<int>(type: "INTEGER", nullable: false),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    DiscoveryDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    VulnerabilityDetail = table.Column<string>(type: "longtext", nullable: false),
+                    VisitDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ResolveDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    TaskDetail = table.Column<string>(type: "longtext", nullable: false),
+                    IsResolved = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -370,15 +418,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Servers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -389,15 +438,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Softwares",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -408,15 +458,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Storages",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -427,15 +478,16 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "SupportEquipments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonAssetId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CommonAssetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -446,22 +498,23 @@ namespace ITAssetManager.Migrations
                         principalTable: "CommonAssets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "ServerDevices",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Manufacturer = table.Column<string>(type: "TEXT", nullable: false),
-                    Model = table.Column<string>(type: "TEXT", nullable: false),
-                    SerialNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    Cpu = table.Column<double>(type: "REAL", nullable: false),
-                    Ram = table.Column<double>(type: "REAL", nullable: false),
-                    Disk = table.Column<double>(type: "REAL", nullable: false),
-                    Rack = table.Column<string>(type: "TEXT", nullable: false),
-                    ServerId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Manufacturer = table.Column<string>(type: "longtext", nullable: false),
+                    Model = table.Column<string>(type: "longtext", nullable: false),
+                    SerialNumber = table.Column<string>(type: "longtext", nullable: false),
+                    Cpu = table.Column<double>(type: "double", nullable: false),
+                    Ram = table.Column<double>(type: "double", nullable: false),
+                    Disk = table.Column<double>(type: "double", nullable: false),
+                    Rack = table.Column<string>(type: "longtext", nullable: false),
+                    ServerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -472,7 +525,8 @@ namespace ITAssetManager.Migrations
                         principalTable: "Servers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -583,6 +637,11 @@ namespace ITAssetManager.Migrations
                 table: "SupportEquipments",
                 column: "CommonAssetId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAppointments_UserId",
+                table: "UserAppointments",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -643,13 +702,16 @@ namespace ITAssetManager.Migrations
                 name: "SupportEquipments");
 
             migrationBuilder.DropTable(
+                name: "UserAppointments");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Servers");
 
             migrationBuilder.DropTable(
-                name: "Servers");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "CommonAssets");
