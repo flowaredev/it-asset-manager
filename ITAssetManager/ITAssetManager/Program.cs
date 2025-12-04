@@ -41,15 +41,17 @@ var assemplbyName = typeof(Program).Assembly.GetName().Name;
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-        options.UseMySQL(connectionString,
-            b => b.MigrationsAssembly(assemplbyName)).EnableSensitiveDataLogging());
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+            b => b.MigrationsAssembly(assemplbyName))
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors());
 
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 else
 {
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-        options.UseMySQL(connectionString,
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             b => b.MigrationsAssembly(assemplbyName)));
 }
 
