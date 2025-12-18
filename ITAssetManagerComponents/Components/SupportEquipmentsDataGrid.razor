@@ -1,9 +1,69 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 <HeaderTitle Title="@HeaderConstant.SupportEquipmentTitle" />
 
-<CommonAssetDataGrid OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
+<CommonAssetDataGrid OnUpdateItems=@UpdateAssets
+                     OnSaveItem=@SaveAsset
+                     OnDeleteItem=@DeleteAsset
+                     OnShowDetail="@ShowDetailView" />
+
+@if (_modalVisible)
+{
+    <Modal @bind-Visible="@_modalVisible">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.Fullscreen">
+            <ModalHeader>
+                <ModalTitle>부대장비 사양</ModalTitle>
+                <CloseButton Margin="Margin.Is2.FromEnd" />
+            </ModalHeader>
+            <ModalBody>
+                <BaseDataGrid TItem="SupportDevice"
+                              OnUpdateItems=@UpdateSupportDevices
+                              OnSaveItem="@SaveSupportDevice"
+                              OnDeleteItem="@DeleteSupportDevice">
+                    <DataGridColumn Field="@nameof(SupportDevice.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Manufacturer</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.Model)" Caption="모델명" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Model</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.SerialNumber)" Caption="시리얼번호" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.SerialNumber</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.DeviceSpec)" Caption="장비 SPEC" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.DeviceSpec</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.IpAddress)" Caption="IP" Editable="true" Width="160px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.IpAddress</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.Location)" Caption="위치" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Location</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(SupportDevice.Notes)" Caption="비고" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Notes</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                </BaseDataGrid>
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
 
 @code {
+    private bool _modalVisible;
+    private CommonAsset _selectedAsset = new();
+
     private async Task<List<CommonAsset>> UpdateAssets()
     {
         using var context = DbFactory.CreateDbContext();
@@ -40,6 +100,54 @@
     {
         using var context = DbFactory.CreateDbContext();
         context.CommonAssets.Remove(asset);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task ShowDetailView(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<SupportDevice>> UpdateSupportDevices()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.SupportEquipments
+            .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.SupportDevices)
+            .SelectMany(s => s.SupportDevices)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveSupportDevice(SupportDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (device.Id == 0)
+        {
+            Debug.Assert(_selectedAsset.Id != 0);
+
+            var equipment = await context.SupportEquipments
+                .SingleAsync(s => s.CommonAssetId == _selectedAsset.Id);
+
+            device.SupportEquipmentId = equipment.Id;
+            context.SupportDevices.Add(device);
+        }
+        else
+        {
+            context.SupportDevices.Update(device);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteSupportDevice(SupportDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.SupportDevices.Remove(device);
         await context.SaveChangesAsync();
     }
 }
