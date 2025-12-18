@@ -8,5 +8,7 @@ namespace ITAssetManagerLibrary.Models
 
         public int CommonAssetId { get; set; }
         public CommonAsset CommonAsset { get; set; } = null!;
+
+        public ICollection<NetworkDevice> NetworkDevices { get; } = [];
     }
 }
