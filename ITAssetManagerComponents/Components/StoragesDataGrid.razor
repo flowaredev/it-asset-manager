@@ -1,9 +1,79 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 <HeaderTitle Title="@HeaderConstant.StorageTitle" />
 
-<CommonAssetDataGrid OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
+<CommonAssetDataGrid OnUpdateItems=@UpdateAssets
+                     OnSaveItem=@SaveAsset
+                     OnDeleteItem=@DeleteAsset
+                     OnShowDetail="@ShowDetailView" />
+
+@if (_modalVisible)
+{
+    <Modal @bind-Visible="@_modalVisible">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+            <ModalHeader>
+                <ModalTitle>스토리지 사양</ModalTitle>
+                <CloseButton Margin="Margin.Is2.FromEnd" />
+            </ModalHeader>
+            <ModalBody>
+                <BaseDataGrid TItem="StorageDevice"
+                              OnUpdateItems=@UpdateStorageDevices
+                              OnSaveItem="@SaveStorageDevice"
+                              OnDeleteItem="@DeleteStorageDevice">
+                    <DataGridColumn Field="@nameof(StorageDevice.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Manufacturer</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.Model)" Caption="모델명" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Model</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.SerialNumber)" Caption="시리얼번호" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.SerialNumber</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.PhysicalDiskInfo)" Caption="물리디스크 정보" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.PhysicalDiskInfo</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.DiskBackupInfo)" Caption="디스크쿨 정보" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.DiskBackupInfo</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.IpAddress)" Caption="IP" Editable="true" Width="160px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.IpAddress</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.Rack)" Caption="랙 위치" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Rack</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(StorageDevice.UnitSize)" Caption="U" Editable="true" Width="80px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.UnitSize</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridColumn Field="@nameof(StorageDevice.Notes)" Caption="비고" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Notes</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                </BaseDataGrid>
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
 
 @code {
+    private bool _modalVisible;
+    private CommonAsset _selectedAsset = new();
+
     private async Task<List<CommonAsset>> UpdateAssets()
     {
         using var context = DbFactory.CreateDbContext();
@@ -40,6 +110,54 @@
     {
         using var context = DbFactory.CreateDbContext();
         context.CommonAssets.Remove(asset);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task ShowDetailView(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<StorageDevice>> UpdateStorageDevices()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.Storages
+            .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.StorageDevices)
+            .SelectMany(s => s.StorageDevices)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveStorageDevice(StorageDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (device.Id == 0)
+        {
+            Debug.Assert(_selectedAsset.Id != 0);
+
+            var storage = await context.Storages
+                .SingleAsync(s => s.CommonAssetId == _selectedAsset.Id);
+
+            device.StorageId = storage.Id;
+            context.StorageDevices.Add(device);
+        }
+        else
+        {
+            context.StorageDevices.Update(device);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteStorageDevice(StorageDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.StorageDevices.Remove(device);
         await context.SaveChangesAsync();
     }
 }
