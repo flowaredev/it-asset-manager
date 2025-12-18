@@ -14,7 +14,6 @@ namespace ITAssetManagerComponents.Services
         const string SERVER_MAINTENANCES_KEY = "ServerMaintenances";
         const string SERVER_FAILURES_KEY = "ServerFailures";
         const string STORAGE_KEY = "Storage";
-        const string BACKUP_EQUIPMENT_KEY = "BackupEquipment";
         const string NETWORK_EQUIPMENT_KEY = "NetworkEquipment";
         const string SECURITY_EQUIPMENT_KEY = "SecurityEquipment";
         const string SOFTWARE_KEY = "Software";
@@ -45,7 +44,6 @@ namespace ITAssetManagerComponents.Services
             {
                 IExcelDataService.SERVER_KEY,
                 IExcelDataService.STORAGE_KEY,
-                IExcelDataService.BACKUP_EQUIPMENT_KEY,
                 IExcelDataService.NETWORK_EQUIPMENT_KEY,
                 IExcelDataService.SECURITY_EQUIPMENT_KEY,
                 IExcelDataService.SOFTWARE_KEY,
@@ -210,19 +208,6 @@ namespace ITAssetManagerComponents.Services
                         s.CommonAsset.OnSiteManager,
                         s.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    IExcelDataService.BACKUP_EQUIPMENT_KEY => await context.BackupEquipments.Include(b => b.CommonAsset).Select(b => new
-                    {
-                        b.Id,
-                        b.CommonAsset.ManagementTag,
-                        b.CommonAsset.Name,
-                        b.CommonAsset.Role,
-                        b.CommonAsset.ApplyDateTime,
-                        b.CommonAsset.ResponsibleCompany,
-                        b.CommonAsset.ResponsiblePerson,
-                        b.CommonAsset.ResponsiblePersonPhone,
-                        b.CommonAsset.OnSiteManager,
-                        b.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
                     IExcelDataService.NETWORK_EQUIPMENT_KEY => await context.NetworkEquipments.Include(n => n.CommonAsset).Select(n => new
                     {
                         n.Id,
@@ -359,9 +344,6 @@ namespace ITAssetManagerComponents.Services
                     break;
                 case IExcelDataService.STORAGE_KEY:
                     context.Storages.AddRange(rows as IEnumerable<Storage> ?? new List<Storage>());
-                    break;
-                case IExcelDataService.BACKUP_EQUIPMENT_KEY:
-                    context.BackupEquipments.AddRange(rows as IEnumerable<BackupEquipment> ?? new List<BackupEquipment>());
                     break;
                 case IExcelDataService.NETWORK_EQUIPMENT_KEY:
                     context.NetworkEquipments.AddRange(rows as IEnumerable<NetworkEquipment> ?? new List<NetworkEquipment>());

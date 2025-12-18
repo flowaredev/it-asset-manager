@@ -37,7 +37,6 @@ namespace ITAssetManagerLibrary.Models
         public Server? Server { get; set; }
         public Software? Software { get; set; }
         public Storage? Storage { get; set; }
-        public BackupEquipment? BackupEquipment { get; set; }
         public NetworkEquipment? NetworkEquipment { get; set; }
         public SecurityEquipment? SecurityEquipment { get; set; }
         public SupportEquipment? SupportEquipment { get; set; }

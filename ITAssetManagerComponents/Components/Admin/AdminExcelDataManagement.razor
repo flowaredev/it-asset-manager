@@ -1,4 +1,4 @@
-@using ITAssetManagerComponents.Services
+﻿@using ITAssetManagerComponents.Services
 @using System.IO
 @using Microsoft.JSInterop
 @using Microsoft.Extensions.Logging
@@ -183,7 +183,6 @@
             {
                 IExcelDataService.SERVER_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Server>(selectedExportEntityType),
                 IExcelDataService.STORAGE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Storage>(selectedExportEntityType),
-                IExcelDataService.BACKUP_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(selectedExportEntityType),
                 IExcelDataService.NETWORK_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(selectedExportEntityType),
                 IExcelDataService.SECURITY_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(selectedExportEntityType),
                 IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Software>(selectedExportEntityType),
@@ -230,7 +229,6 @@
             {
                 IExcelDataService.SERVER_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Server>(stream, selectedImportEntityType),
                 IExcelDataService.STORAGE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Storage>(stream, selectedImportEntityType),
-                IExcelDataService.BACKUP_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.BackupEquipment>(stream, selectedImportEntityType),
                 IExcelDataService.NETWORK_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.NetworkEquipment>(stream, selectedImportEntityType),
                 IExcelDataService.SECURITY_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityEquipment>(stream, selectedImportEntityType),
                 IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Software>(stream, selectedImportEntityType),
@@ -267,7 +265,6 @@
         {
             IExcelDataService.SERVER_KEY => HeaderConstant.ServerTitle,
             IExcelDataService.STORAGE_KEY => HeaderConstant.StorageTitle,
-            IExcelDataService.BACKUP_EQUIPMENT_KEY => HeaderConstant.BackupEquipmentTitle,
             IExcelDataService.NETWORK_EQUIPMENT_KEY => HeaderConstant.NetworkEquipmentTitle,
             IExcelDataService.SECURITY_EQUIPMENT_KEY => HeaderConstant.SecurityEquipmentTitle,
             IExcelDataService.SOFTWARE_KEY => HeaderConstant.SoftwareTitle,
