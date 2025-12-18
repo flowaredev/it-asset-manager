@@ -381,32 +381,67 @@ namespace ITAssetManager.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("Cpu")
+                    b.Property<double?>("CpuClockGhz")
                         .HasColumnType("double");
 
-                    b.Property<double>("Disk")
+                    b.Property<int?>("CpuCores")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Disk")
                         .HasColumnType("double");
+
+                    b.Property<string>("ExternalDisk")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("HbaCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InternalDisk")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Manufacturer")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Model")
-                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("MountedPhysicalServer")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NetworkType")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("NicCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OsBit")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OsType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OsVersion")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Rack")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<double>("Ram")
+                    b.Property<double?>("Ram")
                         .HasColumnType("double");
 
                     b.Property<string>("SerialNumber")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("ServerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UnitSize")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

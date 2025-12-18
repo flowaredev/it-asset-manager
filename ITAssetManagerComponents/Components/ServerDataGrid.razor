@@ -9,7 +9,7 @@
 @if (_modalVisible)
 {
     <Modal @bind-Visible="@_modalVisible">
-        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.Fullscreen">
             <ModalHeader>
                 <ModalTitle>장비사양</ModalTitle>
                 <CloseButton Margin="Margin.Is2.FromEnd" />
@@ -34,9 +34,39 @@
                             <Div TextOverflow="TextOverflow.Truncate">@context.SerialNumber</Div>
                         </DisplayTemplate>
                     </DataGridColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Cpu)" Caption="CPU(Ghz)" Editable="true" Width="150px">
+                    <DataGridColumn Field="@nameof(ServerDevice.NetworkType)" Caption="물리/논리" Editable="true" Width="150px">
                         <DisplayTemplate>
-                            <Div TextOverflow="TextOverflow.Truncate">@context.Cpu</Div>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.NetworkType</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.MountedPhysicalServer)" Caption="탑재물리서버" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.MountedPhysicalServer</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.OsType)" Caption="OS종류" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.OsType</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.OsVersion)" Caption="OS버전" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.OsVersion</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.OsBit)" Caption="OS bit" Editable="true" Width="100px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.OsBit</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.CpuClockGhz)" Caption="CPU클럭(GHz)" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.CpuClockGhz</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.CpuCores)" Caption="CPU코어" Editable="true" Width="120px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.CpuCores</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
                     <DataGridNumericColumn Field="@nameof(ServerDevice.Ram)" Caption="메모리(GB)" Editable="true" Width="150px">
@@ -49,9 +79,44 @@
                             <Div TextOverflow="TextOverflow.Truncate">@context.Disk</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.InternalDisk)" Caption="내장디스크" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.InternalDisk</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.ExternalDisk)" Caption="외장디스크" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.ExternalDisk</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.NicCount)" Caption="NIC개수" Editable="true" Width="120px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.NicCount</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.HbaCount)" Caption="HBA개수" Editable="true" Width="120px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.HbaCount</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.IpAddress)" Caption="IP" Editable="true" Width="160px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.IpAddress</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
                     <DataGridColumn Field="@nameof(ServerDevice.Rack)" Caption="랙 위치" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Rack</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(ServerDevice.UnitSize)" Caption="U" Editable="true" Width="80px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.UnitSize</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridColumn Field="@nameof(ServerDevice.Notes)" Caption="비고" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Notes</Div>
                         </DisplayTemplate>
                     </DataGridColumn>
                 </BaseDataGrid>

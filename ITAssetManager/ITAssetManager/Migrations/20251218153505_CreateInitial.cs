@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ITAssetManager.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -556,16 +556,38 @@ namespace ITAssetManager.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Manufacturer = table.Column<string>(type: "longtext", nullable: false)
+                    Manufacturer = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Model = table.Column<string>(type: "longtext", nullable: false)
+                    Model = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    SerialNumber = table.Column<string>(type: "longtext", nullable: false)
+                    SerialNumber = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Cpu = table.Column<double>(type: "double", nullable: false),
-                    Ram = table.Column<double>(type: "double", nullable: false),
-                    Disk = table.Column<double>(type: "double", nullable: false),
-                    Rack = table.Column<string>(type: "longtext", nullable: false)
+                    Ram = table.Column<double>(type: "double", nullable: true),
+                    Disk = table.Column<double>(type: "double", nullable: true),
+                    Rack = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NetworkType = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MountedPhysicalServer = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OsType = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OsVersion = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OsBit = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CpuClockGhz = table.Column<double>(type: "double", nullable: true),
+                    CpuCores = table.Column<int>(type: "int", nullable: true),
+                    InternalDisk = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ExternalDisk = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NicCount = table.Column<int>(type: "int", nullable: true),
+                    HbaCount = table.Column<int>(type: "int", nullable: true),
+                    IpAddress = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UnitSize = table.Column<int>(type: "int", nullable: true),
+                    Notes = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ServerId = table.Column<int>(type: "int", nullable: false)
                 },

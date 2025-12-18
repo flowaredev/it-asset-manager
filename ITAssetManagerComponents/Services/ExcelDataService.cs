@@ -1,4 +1,4 @@
-using MiniExcelLibs;
+﻿using MiniExcelLibs;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Models;
 using Microsoft.EntityFrameworkCore;
@@ -94,7 +94,6 @@ namespace ITAssetManagerComponents.Services
                         sd.Manufacturer,
                         sd.Model,
                         sd.SerialNumber,
-                        sd.Cpu,
                         sd.Ram,
                         sd.Disk,
                         sd.Rack

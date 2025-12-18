@@ -43,10 +43,4 @@
     <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ITAssetManager.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
