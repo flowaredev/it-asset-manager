@@ -1,9 +1,84 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 <HeaderTitle Title="@HeaderConstant.NetworkEquipmentTitle" />
 
-<CommonAssetDataGrid OnUpdateItems=@UpdateAssets OnSaveItem=@SaveAsset OnDeleteItem=@DeleteAsset />
+<CommonAssetDataGrid OnUpdateItems=@UpdateAssets
+                     OnSaveItem=@SaveAsset
+                     OnDeleteItem=@DeleteAsset
+                     OnShowDetail="@ShowDetailView" />
+
+@if (_modalVisible)
+{
+    <Modal @bind-Visible="@_modalVisible">
+        <ModalContent Centered="true" Scrollable="true" Size="ModalSize.Fullscreen">
+            <ModalHeader>
+                <ModalTitle>네트워크 장비 사양</ModalTitle>
+                <CloseButton Margin="Margin.Is2.FromEnd" />
+            </ModalHeader>
+            <ModalBody>
+                <BaseDataGrid TItem="NetworkDevice"
+                              OnUpdateItems=@UpdateNetworkDevices
+                              OnSaveItem="@SaveNetworkDevice"
+                              OnDeleteItem="@DeleteNetworkDevice">
+                    <DataGridColumn Field="@nameof(NetworkDevice.Manufacturer)" Caption="제조사" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Manufacturer</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.Model)" Caption="모델명" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Model</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.SerialNumber)" Caption="시리얼번호" Editable="true" Width="200px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.SerialNumber</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.OsVersion)" Caption="OS버전" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.OsVersion</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.MainMemory)" Caption="메인메모리" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.MainMemory</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.FlashMemory)" Caption="플래시메모리" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.FlashMemory</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.IpAddress)" Caption="IP" Editable="true" Width="160px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.IpAddress</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.Rack)" Caption="랙 위치" Editable="true" Width="150px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Rack</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    <DataGridNumericColumn Field="@nameof(NetworkDevice.UnitSize)" Caption="U" Editable="true" Width="80px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.UnitSize</Div>
+                        </DisplayTemplate>
+                    </DataGridNumericColumn>
+                    <DataGridColumn Field="@nameof(NetworkDevice.Notes)" Caption="비고" Editable="true" Width="250px">
+                        <DisplayTemplate>
+                            <Div TextOverflow="TextOverflow.Truncate">@context.Notes</Div>
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                </BaseDataGrid>
+            </ModalBody>
+        </ModalContent>
+    </Modal>
+}
 
 @code {
+    private bool _modalVisible;
+    private CommonAsset _selectedAsset = new();
+
     private async Task<List<CommonAsset>> UpdateAssets()
     {
         using var context = DbFactory.CreateDbContext();
@@ -40,6 +115,54 @@
     {
         using var context = DbFactory.CreateDbContext();
         context.CommonAssets.Remove(asset);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task ShowDetailView(CommonAsset asset)
+    {
+        _selectedAsset = asset;
+        _modalVisible = true;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task<List<NetworkDevice>> UpdateNetworkDevices()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var items = await context.NetworkEquipments
+            .Where(s => s.CommonAssetId == _selectedAsset.Id)
+            .Include(s => s.NetworkDevices)
+            .SelectMany(s => s.NetworkDevices)
+            .ToListAsync();
+        return items;
+    }
+
+    private async Task SaveNetworkDevice(NetworkDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        if (device.Id == 0)
+        {
+            Debug.Assert(_selectedAsset.Id != 0);
+
+            var equipment = await context.NetworkEquipments
+                .SingleAsync(s => s.CommonAssetId == _selectedAsset.Id);
+
+            device.NetworkEquipmentId = equipment.Id;
+            context.NetworkDevices.Add(device);
+        }
+        else
+        {
+            context.NetworkDevices.Update(device);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task DeleteNetworkDevice(NetworkDevice device)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.NetworkDevices.Remove(device);
         await context.SaveChangesAsync();
     }
 }
