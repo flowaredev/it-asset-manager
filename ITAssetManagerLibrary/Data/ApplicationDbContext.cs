@@ -13,6 +13,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<Server> Servers { get; set; }
         public DbSet<Software> Softwares { get; set; }
         public DbSet<Storage> Storages { get; set; }
+        public DbSet<StorageDevice> StorageDevices { get; set; }
         public DbSet<BackupEquipment> BackupEquipments { get; set; }
         public DbSet<NetworkEquipment> NetworkEquipments { get; set; }
         public DbSet<SecurityEquipment> SecurityEquipments { get; set; }
