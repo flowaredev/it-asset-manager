@@ -1,4 +1,4 @@
-﻿using MiniExcelLibs;
+using MiniExcelLibs;
 using ITAssetManagerLibrary.Data;
 using ITAssetManagerLibrary.Models;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +7,7 @@ namespace ITAssetManagerComponents.Services
 {
     public interface IExcelDataService
     {
+        const string COMMON_ASSET_KEY = "CommonAsset";
         const string SERVER_KEY = "Server";
         const string SERVER_DEVICE_KEY = "ServerDevice";
         const string SERVER_ROUTINE_CHECKS_KEY = "ServerRoutineChecks";
@@ -19,10 +20,6 @@ namespace ITAssetManagerComponents.Services
         const string SOFTWARE_KEY = "Software";
         const string SUPPORT_EQUIPMENT_KEY = "SupportEquipment";
         const string MISCELLANEOUS_EQUIPMENT_KEY = "MiscellaneousEquipment";
-        const string FAILURE_KEY = "Failure";
-        const string SECURITY_VULNERABILITY_KEY = "SecurityVulnerability";
-        const string ROUTINE_CHECK_KEY = "RoutineCheck";
-        const string MAINTENANCE_KEY = "Maintenance";
 
         Task<string> ExportToExcelAsync<T>(string entityType) where T : class;
         Task<List<string>> GetAvailableEntityTypesAsync();
@@ -48,11 +45,7 @@ namespace ITAssetManagerComponents.Services
                 IExcelDataService.SECURITY_EQUIPMENT_KEY,
                 IExcelDataService.SOFTWARE_KEY,
                 IExcelDataService.SUPPORT_EQUIPMENT_KEY,
-                IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY,
-                IExcelDataService.FAILURE_KEY,
-                IExcelDataService.SECURITY_VULNERABILITY_KEY,
-                IExcelDataService.ROUTINE_CHECK_KEY,
-                IExcelDataService.MAINTENANCE_KEY,
+                IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY
             });
         }
 
@@ -63,38 +56,61 @@ namespace ITAssetManagerComponents.Services
 
             if (entityType == IExcelDataService.SERVER_KEY)
             {
-                // Server 데이터와 CommonAsset을 Join하여 플래튼된 데이터 생성
+
+                var commonAssetData = await context.CommonAssets
+                    .Include(ca => ca.Server)
+                    .Where(ca => ca.Server != null)
+                    .Select(ca => new 
+                    {
+                        ca.Id,
+                        ca.ManagementTag,
+                        ca.Name,
+                        ca.Role,
+                        ca.ApplyDateTime,
+                        ca.ResponsibleCompany,
+                        ca.ResponsiblePerson,
+                        ca.ResponsiblePersonPhone,
+                        ca.OnSiteManager,
+                        ca.OnSiteManagerPhone
+                    })
+                    .ToListAsync();
+
                 var serverData = await context.Servers
-                    .Include(s => s.CommonAsset)
-                    .Include(s => s.ServerDevices)
                     .Select(s => new
                     {
                         s.Id,
-                        s.CommonAsset.ManagementTag,
-                        s.CommonAsset.Name,
-                        s.CommonAsset.Role,
-                        s.CommonAsset.ApplyDateTime,
-                        s.CommonAsset.ResponsibleCompany,
-                        s.CommonAsset.ResponsiblePerson,
-                        s.CommonAsset.ResponsiblePersonPhone,
-                        s.CommonAsset.OnSiteManager,
-                        s.CommonAsset.OnSiteManagerPhone
+                        s.CommonAssetId
                     })
                     .ToListAsync();
 
                 // ServerDevice 데이터 생성 (Server Id 참조 포함)
                 var serverDeviceData = await context.ServerDevices
                     .Include(sd => sd.Server)
+                    .Where(sd => sd.Server != null)
                     .Select(sd => new
                     {
-                        ServerId = sd.ServerId, // 첫 번째 시트의 Id 참조
                         sd.Id,
                         sd.Manufacturer,
                         sd.Model,
                         sd.SerialNumber,
                         sd.Ram,
                         sd.Disk,
-                        sd.Rack
+                        sd.Rack,
+                        sd.NetworkType,
+                        sd.MountedPhysicalServer,
+                        sd.OsType,
+                        sd.OsVersion,
+                        sd.OsBit,
+                        sd.CpuClockGhz,
+                        sd.CpuCores,
+                        sd.InternalDisk,
+                        sd.ExternalDisk,
+                        sd.NicCount,
+                        sd.HbaCount,
+                        sd.IpAddress,
+                        sd.UnitSize,
+                        sd.Notes,
+                        sd.ServerId
                     })
                     .ToListAsync();
 
@@ -105,14 +121,11 @@ namespace ITAssetManagerComponents.Services
                     .Where(rc => rc.CommonAsset.Server != null)
                     .Select(rc => new
                     {
-                        ServerId = rc.CommonAsset.Server!.Id, // Server Id 참조
                         rc.Id,
                         rc.Detail,
                         rc.StartDateTime,
                         rc.EndDateTime,
-                        AssetManagementTag = rc.CommonAsset.ManagementTag,
-                        AssetName = rc.CommonAsset.Name,
-                        AssetRole = rc.CommonAsset.Role
+                        rc.CommonAssetId
                     })
                     .ToListAsync();
 
@@ -123,7 +136,6 @@ namespace ITAssetManagerComponents.Services
                     .Where(sv => sv.CommonAsset.Server != null)
                     .Select(sv => new
                     {
-                        ServerId = sv.CommonAsset.Server!.Id, // Server Id 참조
                         sv.Id,
                         sv.DiscoveryDateTime,
                         sv.VulnerabilityDetail,
@@ -132,9 +144,7 @@ namespace ITAssetManagerComponents.Services
                         sv.TaskDetail,
                         sv.IsResolved,
                         sv.Level,
-                        AssetManagementTag = sv.CommonAsset.ManagementTag,
-                        AssetName = sv.CommonAsset.Name,
-                        AssetRole = sv.CommonAsset.Role
+                        sv.CommonAssetId
                     })
                     .ToListAsync();
 
@@ -145,14 +155,11 @@ namespace ITAssetManagerComponents.Services
                     .Where(m => m.CommonAsset.Server != null)
                     .Select(m => new
                     {
-                        ServerId = m.CommonAsset.Server!.Id, // Server Id 참조
                         m.Id,
                         m.Description,
                         m.VisitDateTime,
                         m.ResolveDateTime,
-                        AssetManagementTag = m.CommonAsset.ManagementTag,
-                        AssetName = m.CommonAsset.Name,
-                        AssetRole = m.CommonAsset.Role
+                        m.CommonAssetId
                     })
                     .ToListAsync();
 
@@ -163,7 +170,6 @@ namespace ITAssetManagerComponents.Services
                     .Where(f => f.CommonAsset.Server != null)
                     .Select(f => new
                     {
-                        ServerId = f.CommonAsset.Server!.Id, // Server Id 참조
                         f.Id,
                         f.FailureDateTime,
                         f.Description,
@@ -172,15 +178,14 @@ namespace ITAssetManagerComponents.Services
                         f.DisabilityHours,
                         f.ResolveDescription,
                         f.IsResolved,
-                        AssetManagementTag = f.CommonAsset.ManagementTag,
-                        AssetName = f.CommonAsset.Name,
-                        AssetRole = f.CommonAsset.Role
+                        f.CommonAssetId
                     })
                     .ToListAsync();
 
                 // 멀티 시트 엑셀 파일 생성
                 var sheets = new Dictionary<string, object>
                 {
+                    [IExcelDataService.COMMON_ASSET_KEY] = commonAssetData,
                     [IExcelDataService.SERVER_KEY] = serverData,
                     [IExcelDataService.SERVER_DEVICE_KEY] = serverDeviceData,
                     [IExcelDataService.SERVER_ROUTINE_CHECKS_KEY] = serverRoutineChecksData,
@@ -273,54 +278,7 @@ namespace ITAssetManagerComponents.Services
                         m.CommonAsset.OnSiteManager,
                         m.CommonAsset.OnSiteManagerPhone
                     }).ToListAsync(),
-                    IExcelDataService.FAILURE_KEY => await context.Failures.Include(f => f.CommonAsset).Select(f => new
-                    {
-                        f.Id,
-                        f.FailureDateTime,
-                        f.Description,
-                        f.VisitDateTime,
-                        f.ResolveDateTime,
-                        f.DisabilityHours,
-                        f.ResolveDescription,
-                        f.IsResolved,
-                        AssetManagementTag = f.CommonAsset.ManagementTag,
-                        AssetName = f.CommonAsset.Name,
-                        AssetRole = f.CommonAsset.Role
-                    }).ToListAsync(),
-                    IExcelDataService.SECURITY_VULNERABILITY_KEY => await context.SecurityVulnerabilities.Include(s => s.CommonAsset).Select(s => new
-                    {
-                        s.Id,
-                        s.DiscoveryDateTime,
-                        s.VulnerabilityDetail,
-                        s.VisitDateTime,
-                        s.ResolveDateTime,
-                        s.TaskDetail,
-                        s.IsResolved,
-                        s.Level,
-                        AssetManagementTag = s.CommonAsset.ManagementTag,
-                        AssetName = s.CommonAsset.Name,
-                        AssetRole = s.CommonAsset.Role
-                    }).ToListAsync(),
-                    IExcelDataService.ROUTINE_CHECK_KEY => await context.RoutineChecks.Include(r => r.CommonAsset).Select(r => new
-                    {
-                        r.Id,
-                        r.Detail,
-                        r.StartDateTime,
-                        r.EndDateTime,
-                        AssetManagementTag = r.CommonAsset.ManagementTag,
-                        AssetName = r.CommonAsset.Name,
-                        AssetRole = r.CommonAsset.Role
-                    }).ToListAsync(),
-                    IExcelDataService.MAINTENANCE_KEY => await context.Maintenances.Include(m => m.CommonAsset).Select(m => new
-                    {
-                        m.Id,
-                        m.Description,
-                        m.VisitDateTime,
-                        m.ResolveDateTime,
-                        AssetManagementTag = m.CommonAsset.ManagementTag,
-                        AssetName = m.CommonAsset.Name,
-                        AssetRole = m.CommonAsset.Role
-                    }).ToListAsync(),
+                    
                     _ => throw new ArgumentException($"Unknown entity type: {entityType}")
                 };
 
@@ -335,45 +293,133 @@ namespace ITAssetManagerComponents.Services
         {
             using var context = _dbContextFactory.CreateDbContext();
 
-            var rows = excelStream.Query<T>().ToList();
+            // MiniExcel requires a seekable stream; Blazor's RemoteFileEntryStream is not seekable.
+            using var memoryStream = new MemoryStream();
+            await excelStream.CopyToAsync(memoryStream);
 
-            switch (entityType)
+            if (entityType == IExcelDataService.SERVER_KEY)
             {
-                case IExcelDataService.SERVER_KEY:
-                    context.Servers.AddRange(rows as IEnumerable<Server> ?? new List<Server>());
-                    break;
-                case IExcelDataService.STORAGE_KEY:
-                    context.Storages.AddRange(rows as IEnumerable<Storage> ?? new List<Storage>());
-                    break;
-                case IExcelDataService.NETWORK_EQUIPMENT_KEY:
-                    context.NetworkEquipments.AddRange(rows as IEnumerable<NetworkEquipment> ?? new List<NetworkEquipment>());
-                    break;
-                case IExcelDataService.SECURITY_EQUIPMENT_KEY:
-                    context.SecurityEquipments.AddRange(rows as IEnumerable<SecurityEquipment> ?? new List<SecurityEquipment>());
-                    break;
-                case IExcelDataService.SOFTWARE_KEY:
-                    context.Softwares.AddRange(rows as IEnumerable<Software> ?? new List<Software>());
-                    break;
-                case IExcelDataService.SUPPORT_EQUIPMENT_KEY:
-                    context.SupportEquipments.AddRange(rows as IEnumerable<SupportEquipment> ?? new List<SupportEquipment>());
-                    break;
-                case IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY:
-                    context.MiscellaneousEquipments.AddRange(rows as IEnumerable<MiscellaneousEquipment> ?? new List<MiscellaneousEquipment>());
-                    break;
-                case IExcelDataService.FAILURE_KEY:
-                    context.Failures.AddRange(rows as IEnumerable<Failure> ?? new List<Failure>());
-                    break;
-                case IExcelDataService.SECURITY_VULNERABILITY_KEY:
-                    context.SecurityVulnerabilities.AddRange(rows as IEnumerable<SecurityVulnerability> ?? new List<SecurityVulnerability>());
-                    break;
-                case IExcelDataService.ROUTINE_CHECK_KEY:
-                    context.RoutineChecks.AddRange(rows as IEnumerable<RoutineCheck> ?? new List<RoutineCheck>());
-                    break;
-                case IExcelDataService.MAINTENANCE_KEY:
-                    context.Maintenances.AddRange(rows as IEnumerable<Maintenance> ?? new List<Maintenance>());
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown entity type: {entityType}");
+                // 멀티 시트 엑셀에서 각 시트를 시트명으로 읽어 저장
+                List<TSheet> ReadSheet<TSheet>(string sheetName) where TSheet : class, new()
+                {
+                    memoryStream.Position = 0;
+                    return memoryStream.Query<TSheet>(sheetName: sheetName).ToList();
+                }
+
+                var commonAssets = ReadSheet<CommonAsset>(IExcelDataService.COMMON_ASSET_KEY);
+                var servers = ReadSheet<Server>(IExcelDataService.SERVER_KEY);
+                var serverDevices = ReadSheet<ServerDevice>(IExcelDataService.SERVER_DEVICE_KEY);
+                var routineChecks = ReadSheet<RoutineCheck>(IExcelDataService.SERVER_ROUTINE_CHECKS_KEY);
+                var securityVulns = ReadSheet<SecurityVulnerability>(IExcelDataService.SERVER_SECURITY_VULNERABILITIES_KEY);
+                var maintenances = ReadSheet<Maintenance>(IExcelDataService.SERVER_MAINTENANCES_KEY);
+                var failures = ReadSheet<Failure>(IExcelDataService.SERVER_FAILURES_KEY);
+
+                // 기존 데이터 삭제 (FK 제약 순서: 자식 → 부모)
+                var existingCommonAssetIds = await context.Servers
+                    .Select(s => s.CommonAssetId)
+                    .ToListAsync();
+
+                await context.Failures
+                    .Where(f => existingCommonAssetIds.Contains(f.CommonAssetId))
+                    .ExecuteDeleteAsync();
+                await context.Maintenances
+                    .Where(m => existingCommonAssetIds.Contains(m.CommonAssetId))
+                    .ExecuteDeleteAsync();
+                await context.SecurityVulnerabilities
+                    .Where(sv => existingCommonAssetIds.Contains(sv.CommonAssetId))
+                    .ExecuteDeleteAsync();
+                await context.RoutineChecks
+                    .Where(rc => existingCommonAssetIds.Contains(rc.CommonAssetId))
+                    .ExecuteDeleteAsync();
+                await context.ServerDevices.ExecuteDeleteAsync();
+                await context.Servers.ExecuteDeleteAsync();
+                await context.CommonAssets
+                    .Where(ca => existingCommonAssetIds.Contains(ca.Id))
+                    .ExecuteDeleteAsync();
+
+                // PK 충돌 방지: 구 ID로 매핑 테이블 생성 후 모든 Id를 0으로 초기화
+                var caMap = commonAssets.ToDictionary(ca => { var id = ca.Id; ca.Id = 0; return id; }, ca => ca);
+                var serverMap = servers.ToDictionary(s =>
+                {
+                    var id = s.Id;
+                    s.Id = 0;
+                    if (caMap.TryGetValue(s.CommonAssetId, out var ca)) s.CommonAsset = ca;
+                    s.CommonAssetId = 0;
+                    return id;
+                }, s => s);
+
+                foreach (var sd in serverDevices)
+                {
+                    var oldServerId = sd.ServerId;
+                    sd.Id = 0;
+                    sd.ServerId = 0;
+                    if (serverMap.TryGetValue(oldServerId, out var server)) sd.Server = server;
+                }
+                foreach (var rc in routineChecks)
+                {
+                    var oldCaId = rc.CommonAssetId;
+                    rc.Id = 0;
+                    rc.CommonAssetId = 0;
+                    if (caMap.TryGetValue(oldCaId, out var ca)) rc.CommonAsset = ca;
+                }
+                foreach (var sv in securityVulns)
+                {
+                    var oldCaId = sv.CommonAssetId;
+                    sv.Id = 0;
+                    sv.CommonAssetId = 0;
+                    if (caMap.TryGetValue(oldCaId, out var ca)) sv.CommonAsset = ca;
+                }
+                foreach (var m in maintenances)
+                {
+                    var oldCaId = m.CommonAssetId;
+                    m.Id = 0;
+                    m.CommonAssetId = 0;
+                    if (caMap.TryGetValue(oldCaId, out var ca)) m.CommonAsset = ca;
+                }
+                foreach (var f in failures)
+                {
+                    var oldCaId = f.CommonAssetId;
+                    f.Id = 0;
+                    f.CommonAssetId = 0;
+                    if (caMap.TryGetValue(oldCaId, out var ca)) f.CommonAsset = ca;
+                }
+
+                context.CommonAssets.AddRange(commonAssets);
+                context.Servers.AddRange(servers);
+                context.ServerDevices.AddRange(serverDevices);
+                context.RoutineChecks.AddRange(routineChecks);
+                context.SecurityVulnerabilities.AddRange(securityVulns);
+                context.Maintenances.AddRange(maintenances);
+                context.Failures.AddRange(failures);
+            }
+            else
+            {
+                var rows = memoryStream.Query<T>().ToList();
+
+                switch (entityType)
+                {
+                    case IExcelDataService.STORAGE_KEY:
+                        context.Storages.AddRange(rows as IEnumerable<Storage> ?? new List<Storage>());
+                        break;
+                    case IExcelDataService.NETWORK_EQUIPMENT_KEY:
+                        context.NetworkEquipments.AddRange(rows as IEnumerable<NetworkEquipment> ?? new List<NetworkEquipment>());
+                        break;
+                    case IExcelDataService.SECURITY_EQUIPMENT_KEY:
+                        context.SecurityEquipments.AddRange(rows as IEnumerable<SecurityEquipment> ?? new List<SecurityEquipment>());
+                        break;
+                    case IExcelDataService.SOFTWARE_KEY:
+                        context.Softwares.AddRange(rows as IEnumerable<Software> ?? new List<Software>());
+                        break;
+                    case IExcelDataService.SUPPORT_EQUIPMENT_KEY:
+                        context.SupportEquipments.AddRange(rows as IEnumerable<SupportEquipment> ?? new List<SupportEquipment>());
+                        break;
+                    case IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY:
+                        context.MiscellaneousEquipments.AddRange(rows as IEnumerable<MiscellaneousEquipment> ?? new List<MiscellaneousEquipment>());
+                        break;
+                    
+                    default:
+                        throw new ArgumentException($"Unknown entity type: {entityType}");
+                }
             }
 
             return await context.SaveChangesAsync();

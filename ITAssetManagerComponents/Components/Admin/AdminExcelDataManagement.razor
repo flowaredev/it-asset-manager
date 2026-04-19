@@ -1,4 +1,4 @@
-﻿@using ITAssetManagerComponents.Services
+@using ITAssetManagerComponents.Services
 @using System.IO
 @using Microsoft.JSInterop
 @using Microsoft.Extensions.Logging
@@ -188,10 +188,6 @@
                 IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Software>(selectedExportEntityType),
                 IExcelDataService.SUPPORT_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(selectedExportEntityType),
                 IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(selectedExportEntityType),
-                IExcelDataService.FAILURE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Failure>(selectedExportEntityType),
-                IExcelDataService.SECURITY_VULNERABILITY_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(selectedExportEntityType),
-                IExcelDataService.ROUTINE_CHECK_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(selectedExportEntityType),
-                IExcelDataService.MAINTENANCE_KEY => await ExcelDataService.ExportToExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(selectedExportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedExportEntityType}")
             };
 
@@ -234,10 +230,6 @@
                 IExcelDataService.SOFTWARE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Software>(stream, selectedImportEntityType),
                 IExcelDataService.SUPPORT_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SupportEquipment>(stream, selectedImportEntityType),
                 IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.MiscellaneousEquipment>(stream, selectedImportEntityType),
-                IExcelDataService.FAILURE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Failure>(stream, selectedImportEntityType),
-                IExcelDataService.SECURITY_VULNERABILITY_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.SecurityVulnerability>(stream, selectedImportEntityType),
-                IExcelDataService.ROUTINE_CHECK_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.RoutineCheck>(stream, selectedImportEntityType),
-                IExcelDataService.MAINTENANCE_KEY => await ExcelDataService.ImportFromExcelAsync<ITAssetManagerLibrary.Models.Maintenance>(stream, selectedImportEntityType),
                 _ => throw new ArgumentException($"Unknown entity type: {selectedImportEntityType}")
             };
 
@@ -270,10 +262,6 @@
             IExcelDataService.SOFTWARE_KEY => HeaderConstant.SoftwareTitle,
             IExcelDataService.SUPPORT_EQUIPMENT_KEY => HeaderConstant.SupportEquipmentTitle,
             IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => HeaderConstant.EtcTitle,
-            IExcelDataService.FAILURE_KEY => HeaderConstant.FaultTitle,
-            IExcelDataService.SECURITY_VULNERABILITY_KEY => HeaderConstant.VulnerabilityTitle,
-            IExcelDataService.ROUTINE_CHECK_KEY => HeaderConstant.ScheduledMaintenanceTitle,
-            IExcelDataService.MAINTENANCE_KEY => HeaderConstant.MaintenanceTitle,
             _ => entityType
         };
     }
