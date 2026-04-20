@@ -1,4 +1,4 @@
-﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 <HeaderTitle Title="@HeaderConstant.ServerTitle" />
 
 <CommonAssetDataGrid OnUpdateItems=@UpdateAssets
@@ -74,11 +74,11 @@
                             <Div TextOverflow="TextOverflow.Truncate">@context.Ram</Div>
                         </DisplayTemplate>
                     </DataGridNumericColumn>
-                    <DataGridNumericColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크(TB)" Editable="true" Width="150px">
+                    <DataGridColumn Field="@nameof(ServerDevice.Disk)" Caption="디스크" Editable="true" Width="150px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.Disk</Div>
                         </DisplayTemplate>
-                    </DataGridNumericColumn>
+                    </DataGridColumn>
                     <DataGridColumn Field="@nameof(ServerDevice.InternalDisk)" Caption="내장디스크" Editable="true" Width="200px">
                         <DisplayTemplate>
                             <Div TextOverflow="TextOverflow.Truncate">@context.InternalDisk</Div>

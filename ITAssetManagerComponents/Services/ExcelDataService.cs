@@ -497,6 +497,13 @@ namespace ITAssetManagerComponents.Services
                         var servers = ReadSheet<Server>(IExcelDataService.SERVER_KEY);
                         var serverDevices = ReadSheet<ServerDevice>(IExcelDataService.SERVER_DEVICE_KEY);
 
+                        // MiniExcel이 빈 숫자 셀을 NaN으로 읽는 경우 null로 변환 (MySQL은 NaN 미지원)
+                        foreach (var sd in serverDevices)
+                        {
+                            if (sd.Ram is double ram && double.IsNaN(ram)) sd.Ram = null;
+                            if (sd.CpuClockGhz is double ghz && double.IsNaN(ghz)) sd.CpuClockGhz = null;
+                        }
+
                         var serverMap = servers.ToDictionary(s =>
                         {
                             var id = s.Id;

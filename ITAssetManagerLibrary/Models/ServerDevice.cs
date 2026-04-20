@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ITAssetManagerLibrary.Models
 {
@@ -14,7 +14,7 @@ namespace ITAssetManagerLibrary.Models
 
         public double? Ram { get; set; }
 
-        public double? Disk { get; set; }
+        public string? Disk { get; set; }
 
         public string? Rack { get; set; }
 
