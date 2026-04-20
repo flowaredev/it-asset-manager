@@ -15,10 +15,15 @@ namespace ITAssetManagerComponents.Services
         const string SERVER_MAINTENANCES_KEY = "ServerMaintenances";
         const string SERVER_FAILURES_KEY = "ServerFailures";
         const string STORAGE_KEY = "Storage";
+        const string STORAGE_DEVICE_KEY = "StorageDevice";
         const string NETWORK_EQUIPMENT_KEY = "NetworkEquipment";
+        const string NETWORK_DEVICE_KEY = "NetworkDevice";
         const string SECURITY_EQUIPMENT_KEY = "SecurityEquipment";
+        const string SECURITY_DEVICE_KEY = "SecurityDevice";
         const string SOFTWARE_KEY = "Software";
+        const string SOFTWARE_DEVICE_KEY = "SoftwareDevice";
         const string SUPPORT_EQUIPMENT_KEY = "SupportEquipment";
+        const string SUPPORT_DEVICE_KEY = "SupportDevice";
         const string MISCELLANEOUS_EQUIPMENT_KEY = "MiscellaneousEquipment";
 
         Task<string> ExportToExcelAsync<T>(string entityType) where T : class;
@@ -54,13 +59,19 @@ namespace ITAssetManagerComponents.Services
             using var context = _dbContextFactory.CreateDbContext();
             var memoryStream = new MemoryStream();
 
-            if (entityType == IExcelDataService.SERVER_KEY)
-            {
+            var sheets = new Dictionary<string, object>();
 
-                var commonAssetData = await context.CommonAssets
-                    .Include(ca => ca.Server)
-                    .Where(ca => ca.Server != null)
-                    .Select(ca => new 
+            // CommonAsset 및 관련 활동 데이터를 공통으로 조회하는 헬퍼
+            async Task AddCommonAssetSheetsAsync(
+                IQueryable<CommonAsset> commonAssetQuery,
+                List<int> commonAssetIds,
+                string routineChecksKey,
+                string securityVulnerabilitiesKey,
+                string maintenancesKey,
+                string failuresKey)
+            {
+                sheets[IExcelDataService.COMMON_ASSET_KEY] = await commonAssetQuery
+                    .Select(ca => new
                     {
                         ca.Id,
                         ca.ManagementTag,
@@ -75,50 +86,8 @@ namespace ITAssetManagerComponents.Services
                     })
                     .ToListAsync();
 
-                var serverData = await context.Servers
-                    .Select(s => new
-                    {
-                        s.Id,
-                        s.CommonAssetId
-                    })
-                    .ToListAsync();
-
-                // ServerDevice 데이터 생성 (Server Id 참조 포함)
-                var serverDeviceData = await context.ServerDevices
-                    .Include(sd => sd.Server)
-                    .Where(sd => sd.Server != null)
-                    .Select(sd => new
-                    {
-                        sd.Id,
-                        sd.Manufacturer,
-                        sd.Model,
-                        sd.SerialNumber,
-                        sd.Ram,
-                        sd.Disk,
-                        sd.Rack,
-                        sd.NetworkType,
-                        sd.MountedPhysicalServer,
-                        sd.OsType,
-                        sd.OsVersion,
-                        sd.OsBit,
-                        sd.CpuClockGhz,
-                        sd.CpuCores,
-                        sd.InternalDisk,
-                        sd.ExternalDisk,
-                        sd.NicCount,
-                        sd.HbaCount,
-                        sd.IpAddress,
-                        sd.UnitSize,
-                        sd.Notes,
-                        sd.ServerId
-                    })
-                    .ToListAsync();
-
-                // Server와 관련된 RoutineCheck 데이터
-                var serverRoutineChecksData = await context.RoutineChecks
-                    .Include(rc => rc.CommonAsset)
-                    .ThenInclude(ca => ca.Server)
-                    .Where(rc => rc.CommonAsset.Server != null)
+                sheets[routineChecksKey] = await context.RoutineChecks
+                    .Where(rc => commonAssetIds.Contains(rc.CommonAssetId))
                     .Select(rc => new
                     {
                         rc.Id,
@@ -129,11 +98,8 @@ namespace ITAssetManagerComponents.Services
                     })
                     .ToListAsync();
 
-                // Server와 관련된 SecurityVulnerability 데이터
-                var serverSecurityVulnerabilitiesData = await context.SecurityVulnerabilities
-                    .Include(sv => sv.CommonAsset)
-                    .ThenInclude(ca => ca.Server)
-                    .Where(sv => sv.CommonAsset.Server != null)
+                sheets[securityVulnerabilitiesKey] = await context.SecurityVulnerabilities
+                    .Where(sv => commonAssetIds.Contains(sv.CommonAssetId))
                     .Select(sv => new
                     {
                         sv.Id,
@@ -148,11 +114,8 @@ namespace ITAssetManagerComponents.Services
                     })
                     .ToListAsync();
 
-                // Server와 관련된 Maintenance 데이터
-                var serverMaintenancesData = await context.Maintenances
-                    .Include(m => m.CommonAsset)
-                    .ThenInclude(ca => ca.Server)
-                    .Where(m => m.CommonAsset.Server != null)
+                sheets[maintenancesKey] = await context.Maintenances
+                    .Where(m => commonAssetIds.Contains(m.CommonAssetId))
                     .Select(m => new
                     {
                         m.Id,
@@ -163,11 +126,8 @@ namespace ITAssetManagerComponents.Services
                     })
                     .ToListAsync();
 
-                // Server와 관련된 Failure 데이터
-                var serverFailuresData = await context.Failures
-                    .Include(f => f.CommonAsset)
-                    .ThenInclude(ca => ca.Server)
-                    .Where(f => f.CommonAsset.Server != null)
+                sheets[failuresKey] = await context.Failures
+                    .Where(f => commonAssetIds.Contains(f.CommonAssetId))
                     .Select(f => new
                     {
                         f.Id,
@@ -181,109 +141,246 @@ namespace ITAssetManagerComponents.Services
                         f.CommonAssetId
                     })
                     .ToListAsync();
-
-                // 멀티 시트 엑셀 파일 생성
-                var sheets = new Dictionary<string, object>
-                {
-                    [IExcelDataService.COMMON_ASSET_KEY] = commonAssetData,
-                    [IExcelDataService.SERVER_KEY] = serverData,
-                    [IExcelDataService.SERVER_DEVICE_KEY] = serverDeviceData,
-                    [IExcelDataService.SERVER_ROUTINE_CHECKS_KEY] = serverRoutineChecksData,
-                    [IExcelDataService.SERVER_SECURITY_VULNERABILITIES_KEY] = serverSecurityVulnerabilitiesData,
-                    [IExcelDataService.SERVER_MAINTENANCES_KEY] = serverMaintenancesData,
-                    [IExcelDataService.SERVER_FAILURES_KEY] = serverFailuresData
-                };
-
-                await memoryStream.SaveAsAsync(sheets);
             }
-            else
+
+            switch (entityType)
             {
-                object data = entityType switch
+                case IExcelDataService.SERVER_KEY:
                 {
-                    IExcelDataService.STORAGE_KEY => await context.Storages.Include(s => s.CommonAsset).Select(s => new
-                    {
-                        s.Id,
-                        s.CommonAsset.ManagementTag,
-                        s.CommonAsset.Name,
-                        s.CommonAsset.Role,
-                        s.CommonAsset.ApplyDateTime,
-                        s.CommonAsset.ResponsibleCompany,
-                        s.CommonAsset.ResponsiblePerson,
-                        s.CommonAsset.ResponsiblePersonPhone,
-                        s.CommonAsset.OnSiteManager,
-                        s.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    IExcelDataService.NETWORK_EQUIPMENT_KEY => await context.NetworkEquipments.Include(n => n.CommonAsset).Select(n => new
-                    {
-                        n.Id,
-                        n.CommonAsset.ManagementTag,
-                        n.CommonAsset.Name,
-                        n.CommonAsset.Role,
-                        n.CommonAsset.ApplyDateTime,
-                        n.CommonAsset.ResponsibleCompany,
-                        n.CommonAsset.ResponsiblePerson,
-                        n.CommonAsset.ResponsiblePersonPhone,
-                        n.CommonAsset.OnSiteManager,
-                        n.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    IExcelDataService.SECURITY_EQUIPMENT_KEY => await context.SecurityEquipments.Include(s => s.CommonAsset).Select(s => new
-                    {
-                        s.Id,
-                        s.CommonAsset.ManagementTag,
-                        s.CommonAsset.Name,
-                        s.CommonAsset.Role,
-                        s.CommonAsset.ApplyDateTime,
-                        s.CommonAsset.ResponsibleCompany,
-                        s.CommonAsset.ResponsiblePerson,
-                        s.CommonAsset.ResponsiblePersonPhone,
-                        s.CommonAsset.OnSiteManager,
-                        s.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    IExcelDataService.SOFTWARE_KEY => await context.Softwares.Include(s => s.CommonAsset).Select(s => new
-                    {
-                        s.Id,
-                        s.CommonAsset.ManagementTag,
-                        s.CommonAsset.Name,
-                        s.CommonAsset.Role,
-                        s.CommonAsset.ApplyDateTime,
-                        s.CommonAsset.ResponsibleCompany,
-                        s.CommonAsset.ResponsiblePerson,
-                        s.CommonAsset.ResponsiblePersonPhone,
-                        s.CommonAsset.OnSiteManager,
-                        s.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    IExcelDataService.SUPPORT_EQUIPMENT_KEY => await context.SupportEquipments.Include(s => s.CommonAsset).Select(s => new
-                    {
-                        s.Id,
-                        s.CommonAsset.ManagementTag,
-                        s.CommonAsset.Name,
-                        s.CommonAsset.Role,
-                        s.CommonAsset.ApplyDateTime,
-                        s.CommonAsset.ResponsibleCompany,
-                        s.CommonAsset.ResponsiblePerson,
-                        s.CommonAsset.ResponsiblePersonPhone,
-                        s.CommonAsset.OnSiteManager,
-                        s.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY => await context.MiscellaneousEquipments.Include(m => m.CommonAsset).Select(m => new
-                    {
-                        m.Id,
-                        m.CommonAsset.ManagementTag,
-                        m.CommonAsset.Name,
-                        m.CommonAsset.Role,
-                        m.CommonAsset.ApplyDateTime,
-                        m.CommonAsset.ResponsibleCompany,
-                        m.CommonAsset.ResponsiblePerson,
-                        m.CommonAsset.ResponsiblePersonPhone,
-                        m.CommonAsset.OnSiteManager,
-                        m.CommonAsset.OnSiteManagerPhone
-                    }).ToListAsync(),
-                    
-                    _ => throw new ArgumentException($"Unknown entity type: {entityType}")
-                };
+                    var commonAssetIds = await context.Servers.Select(s => s.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
 
-                await memoryStream.SaveAsAsync(data);
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        IExcelDataService.SERVER_ROUTINE_CHECKS_KEY,
+                        IExcelDataService.SERVER_SECURITY_VULNERABILITIES_KEY,
+                        IExcelDataService.SERVER_MAINTENANCES_KEY,
+                        IExcelDataService.SERVER_FAILURES_KEY);
+
+                    sheets[IExcelDataService.SERVER_KEY] = await context.Servers
+                        .Select(s => new { s.Id, s.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.SERVER_DEVICE_KEY] = await context.ServerDevices
+                        .Where(sd => sd.Server != null)
+                        .Select(sd => new
+                        {
+                            sd.Id,
+                            sd.Manufacturer,
+                            sd.Model,
+                            sd.SerialNumber,
+                            sd.Ram,
+                            sd.Disk,
+                            sd.Rack,
+                            sd.NetworkType,
+                            sd.MountedPhysicalServer,
+                            sd.OsType,
+                            sd.OsVersion,
+                            sd.OsBit,
+                            sd.CpuClockGhz,
+                            sd.CpuCores,
+                            sd.InternalDisk,
+                            sd.ExternalDisk,
+                            sd.NicCount,
+                            sd.HbaCount,
+                            sd.IpAddress,
+                            sd.UnitSize,
+                            sd.Notes,
+                            sd.ServerId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.STORAGE_KEY:
+                {
+                    var commonAssetIds = await context.Storages.Select(s => s.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.STORAGE_KEY] = await context.Storages
+                        .Select(s => new { s.Id, s.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.STORAGE_DEVICE_KEY] = await context.StorageDevices
+                        .Where(sd => sd.Storage != null)
+                        .Select(sd => new
+                        {
+                            sd.Id,
+                            sd.Manufacturer,
+                            sd.Model,
+                            sd.SerialNumber,
+                            sd.PhysicalDiskInfo,
+                            sd.DiskBackupInfo,
+                            sd.IpAddress,
+                            sd.Rack,
+                            sd.UnitSize,
+                            sd.Notes,
+                            sd.StorageId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.NETWORK_EQUIPMENT_KEY:
+                {
+                    var commonAssetIds = await context.NetworkEquipments.Select(n => n.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.NETWORK_EQUIPMENT_KEY] = await context.NetworkEquipments
+                        .Select(n => new { n.Id, n.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.NETWORK_DEVICE_KEY] = await context.NetworkDevices
+                        .Where(nd => nd.NetworkEquipment != null)
+                        .Select(nd => new
+                        {
+                            nd.Id,
+                            nd.Manufacturer,
+                            nd.Model,
+                            nd.SerialNumber,
+                            nd.OsVersion,
+                            nd.MainMemory,
+                            nd.FlashMemory,
+                            nd.IpAddress,
+                            nd.Rack,
+                            nd.UnitSize,
+                            nd.Notes,
+                            nd.NetworkEquipmentId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.SECURITY_EQUIPMENT_KEY:
+                {
+                    var commonAssetIds = await context.SecurityEquipments.Select(s => s.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.SECURITY_EQUIPMENT_KEY] = await context.SecurityEquipments
+                        .Select(s => new { s.Id, s.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.SECURITY_DEVICE_KEY] = await context.SecurityDevices
+                        .Where(sd => sd.SecurityEquipment != null)
+                        .Select(sd => new
+                        {
+                            sd.Id,
+                            sd.Manufacturer,
+                            sd.Model,
+                            sd.SerialNumber,
+                            sd.DeviceSpec,
+                            sd.IpAddress,
+                            sd.Rack,
+                            sd.UnitSize,
+                            sd.Notes,
+                            sd.SecurityEquipmentId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.SOFTWARE_KEY:
+                {
+                    var commonAssetIds = await context.Softwares.Select(s => s.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.SOFTWARE_KEY] = await context.Softwares
+                        .Select(s => new { s.Id, s.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.SOFTWARE_DEVICE_KEY] = await context.SoftwareDevices
+                        .Where(sd => sd.Software != null)
+                        .Select(sd => new
+                        {
+                            sd.Id,
+                            sd.Manufacturer,
+                            sd.ProgramName,
+                            sd.SerialNumber,
+                            sd.Notes,
+                            sd.SoftwareId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.SUPPORT_EQUIPMENT_KEY:
+                {
+                    var commonAssetIds = await context.SupportEquipments.Select(s => s.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.SUPPORT_EQUIPMENT_KEY] = await context.SupportEquipments
+                        .Select(s => new { s.Id, s.CommonAssetId })
+                        .ToListAsync();
+
+                    sheets[IExcelDataService.SUPPORT_DEVICE_KEY] = await context.SupportDevices
+                        .Where(sd => sd.SupportEquipment != null)
+                        .Select(sd => new
+                        {
+                            sd.Id,
+                            sd.Manufacturer,
+                            sd.Model,
+                            sd.SerialNumber,
+                            sd.DeviceSpec,
+                            sd.IpAddress,
+                            sd.Location,
+                            sd.Notes,
+                            sd.SupportEquipmentId
+                        })
+                        .ToListAsync();
+                    break;
+                }
+                case IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY:
+                {
+                    var commonAssetIds = await context.MiscellaneousEquipments.Select(m => m.CommonAssetId).ToListAsync();
+                    var commonAssetQuery = context.CommonAssets.Where(ca => commonAssetIds.Contains(ca.Id));
+
+                    await AddCommonAssetSheetsAsync(
+                        commonAssetQuery, commonAssetIds,
+                        "RoutineChecks",
+                        "SecurityVulnerabilities",
+                        "Maintenances",
+                        "Failures");
+
+                    sheets[IExcelDataService.MISCELLANEOUS_EQUIPMENT_KEY] = await context.MiscellaneousEquipments
+                        .Select(m => new { m.Id, m.CommonAssetId })
+                        .ToListAsync();
+                    break;
+                }
+                default:
+                    throw new ArgumentException($"Unknown entity type: {entityType}");
             }
+
+            await memoryStream.SaveAsAsync(sheets);
 
             var bytes = memoryStream.ToArray();
             return Convert.ToBase64String(bytes);
