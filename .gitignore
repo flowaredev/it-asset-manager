@@ -363,3 +363,4 @@ FodyWeavers.xsd
 
 # Sqlite database files
 *.db*
+/ITAssetManager/ITAssetManager/UploadedFiles
