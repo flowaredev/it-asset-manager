@@ -1,0 +1,4 @@
+@page "/operationdocs/operationmanual"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="operationmanual" Title="운영메뉴얼" />

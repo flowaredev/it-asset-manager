@@ -1,0 +1,4 @@
+@page "/operationdocs/routinecheck"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="routinecheck" Title="정기점검" />

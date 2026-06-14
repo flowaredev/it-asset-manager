@@ -1,0 +1,4 @@
+@page "/operationdocs/workrequest"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="workrequest" Title="작업요청" />

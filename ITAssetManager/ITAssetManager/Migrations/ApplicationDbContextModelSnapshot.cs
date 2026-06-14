@@ -295,6 +295,31 @@ namespace ITAssetManager.Migrations
                     b.ToTable("NetworkEquipments");
                 });
 
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OperationDocuments");
+                });
+
             modelBuilder.Entity("ITAssetManagerLibrary.Models.RoutineCheck", b =>
                 {
                     b.Property<int>("Id")

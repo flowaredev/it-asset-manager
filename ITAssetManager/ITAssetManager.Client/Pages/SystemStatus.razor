@@ -1,0 +1,4 @@
+@page "/operationdocs/systemstatus"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="systemstatus" Title="시스템현황" />

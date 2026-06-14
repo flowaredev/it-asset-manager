@@ -28,6 +28,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<RoutineCheck> RoutineChecks { get; set; }
         public DbSet<SecurityVulnerability> SecurityVulnerabilities { get; set; }
         public DbSet<UserAppointment> UserAppointments { get; set; }
+        public DbSet<OperationDocument> OperationDocuments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

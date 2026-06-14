@@ -1,0 +1,71 @@
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<HeaderTitle Title="@Title" />
+
+<Field Margin="Margin.Is2.OnY">
+    <FieldLabel>문서 내용</FieldLabel>
+    <FieldBody>
+        <MemoEdit @bind-Text="_content" Rows="18" />
+    </FieldBody>
+</Field>
+
+<Button Color="Color.Primary" Clicked="SaveAsync">저장</Button>
+
+@if (!string.IsNullOrWhiteSpace(_statusMessage))
+{
+    <Alert Margin="Margin.Is2.FromTop" Color="@_statusColor" Visible="true">
+        @_statusMessage
+    </Alert>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string DocumentType { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    private string _content = string.Empty;
+    private string _statusMessage = string.Empty;
+    private Color _statusColor = Color.Success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var document = await context.OperationDocuments
+            .FirstOrDefaultAsync(d => d.DocumentType == DocumentType);
+
+        if (document is not null)
+        {
+            _content = document.Content;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var document = await context.OperationDocuments
+            .FirstOrDefaultAsync(d => d.DocumentType == DocumentType);
+
+        if (document is null)
+        {
+            document = new OperationDocument
+            {
+                DocumentType = DocumentType,
+                Content = _content,
+                UpdatedAt = TimeZoneHelper.GetKoreaTimeNow()
+            };
+            context.OperationDocuments.Add(document);
+        }
+        else
+        {
+            document.Content = _content;
+            document.UpdatedAt = TimeZoneHelper.GetKoreaTimeNow();
+            context.OperationDocuments.Update(document);
+        }
+
+        await context.SaveChangesAsync();
+        _statusColor = Color.Success;
+        _statusMessage = "저장되었습니다.";
+    }
+}

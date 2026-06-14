@@ -1,0 +1,4 @@
+@page "/operationdocs/etc"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="etc" Title="기타" />

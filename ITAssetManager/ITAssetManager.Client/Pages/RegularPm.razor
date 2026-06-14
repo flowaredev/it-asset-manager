@@ -1,0 +1,4 @@
+@page "/operationdocs/regularpm"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="regularpm" Title="정기PM" />

@@ -1,0 +1,4 @@
+@page "/operationdocs/emergencycontact"
+@attribute [Authorize(Policy = PolicyConstants.USER_POLICY)]
+
+<OperationDocumentEditor @rendermode="InteractiveServer" DocumentType="emergencycontact" Title="비상연락망" />

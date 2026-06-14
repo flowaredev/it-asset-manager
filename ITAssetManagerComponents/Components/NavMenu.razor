@@ -102,6 +102,44 @@
                         </BarDropdown>
                     </BarItem>
                     <BarItem>
+                        <BarDropdown>
+                            <BarDropdownToggle>
+                                <BarIcon IconName="@("fa-folder-open")" />
+                                운영관리 문서
+                            </BarDropdownToggle>
+                            <BarDropdownMenu>
+                                <BarDropdownItem To="/operationdocs/workrequest">
+                                    <BarIcon IconName="@("fa-file-signature")" />
+                                    작업요청
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/routinecheck">
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
+                                    정기점검
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/regularpm">
+                                    <BarIcon IconName="@("fa-tools")" />
+                                    정기PM
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/operationmanual">
+                                    <BarIcon IconName="@("fa-book")" />
+                                    운영메뉴얼
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/systemstatus">
+                                    <BarIcon IconName="@("fa-chart-line")" />
+                                    시스템현황
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/emergencycontact">
+                                    <BarIcon IconName="@("fa-phone-alt")" />
+                                    비상연락망
+                                </BarDropdownItem>
+                                <BarDropdownItem To="/operationdocs/etc">
+                                    <BarIcon IconName="@("fa-ellipsis-h")" />
+                                    기타
+                                </BarDropdownItem>
+                            </BarDropdownMenu>
+                        </BarDropdown>
+                    </BarItem>
+                    <BarItem>
                         <BarLink To="/servicelevelagreements">
                             <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
                             @HeaderConstant.ServiceLevelAgreementTitle
