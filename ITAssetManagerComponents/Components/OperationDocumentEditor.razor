@@ -1,14 +1,17 @@
+@using System.IO
 @using System.Security.Claims
+@using Microsoft.Extensions.Configuration
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IMessageService MessageService
+@inject IConfiguration Configuration
 
 <HeaderTitle Title="@Title" />
 
 <Field Margin="Margin.Is2.OnY">
     <FieldLabel>문서 내용</FieldLabel>
     <FieldBody>
-        <MemoEdit @bind-Text="_content" Rows="4" Placeholder="문서 내용을 입력하세요." />
+        <MemoEdit @bind-Text="_content" Rows="6" Placeholder="문서 내용을 입력하세요." />
     </FieldBody>
 </Field>
 
@@ -34,20 +37,97 @@
 
             <Card Margin="Margin.Is2.FromBottom">
                 <CardBody>
-                    <Text>@document.Content</Text>
-                    <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                        @document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
-                    </Text>
-                    <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                        작성자: @FormatAuthor(document.AuthorUserName, document.AuthorName)
-                    </Text>
+                    <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
 
-                    @if (_isAdministrator)
+                    
+                        @if (IsEditingDocument(document.Id))
+                        {
+                            <MemoEdit Text="@GetDocumentEditInput(document.Id)"
+                                      TextChanged="@(value => SetDocumentEditInput(document.Id, value))"
+                                      Rows="4" />
+                        }
+                        else
+                        {
+                            <Text>@document.Content</Text>
+                        }
+                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                            @document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
+                        </Text>
+                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                            작성자: @FormatAuthor(document.AuthorUserName, document.AuthorName)
+                        </Text>
+
+                        @if (CanManageDocument(document))
+                        {
+                            @if (IsEditingDocument(document.Id))
+                            {
+                                <Button Margin="Margin.Is2.FromTop"
+                                        Color="Color.Primary"
+                                        Size="Size.Small"
+                                        Clicked="@(async () => await UpdateDocumentAsync(document.Id))">
+                                    문서 수정 저장
+                                </Button>
+                                <Button Margin="Margin.Is2.FromTop"
+                                        Color="Color.Secondary"
+                                        Size="Size.Small"
+                                        Clicked="@(() => CancelEditDocument(document.Id))">
+                                    수정 취소
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Margin="Margin.Is2.FromTop"
+                                        Color="Color.Warning"
+                                        Size="Size.Small"
+                                        Clicked="@(() => BeginEditDocument(document))">
+                                    문서 수정
+                                </Button>
+                            }
+
+                            <Button Margin="Margin.Is2.FromTop"
+                                    Color="Color.Danger"
+                                    Size="Size.Small"
+                                    Clicked="@(async () => await DeleteDocumentAsync(document.Id))">
+                                문서 삭제
+                            </Button>
+                        }
+                    </Div>
+
+                    <Field Margin="Margin.Is3.FromTop">
+                        <FieldLabel>파일 첨부</FieldLabel>
+                        <FieldBody>
+                            <FilePicker Multiple
+                                        Upload="@(async e => await OnFileUploadAsync(document.Id, e))"
+                                        ShowMode="FilePickerShowMode.List" />
+                        </FieldBody>
+                    </Field>
+
+                    @{
+                        var attachments = GetAttachmentsForDocument(document.Id);
+                    }
+
+                    @if (attachments.Count > 0)
                     {
-                        <Button Margin="Margin.Is2.FromTop.Is2.FromStart"
-                                Color="Color.Danger"
-                                Size="Size.Small"
-                                Clicked="@(async () => await DeleteDocumentAsync(document.Id))">문서 삭제</Button>
+                        <Field Margin="Margin.Is2.FromTop">
+                            <FieldLabel>첨부 파일 목록</FieldLabel>
+                        </Field>
+
+                        <div class="mt-2">
+                            @foreach (var attachment in attachments)
+                            {
+                                <Card Margin="Margin.Is1.FromBottom">
+                                    <CardBody>
+                                        <Text>@attachment.OriginalFileName</Text>
+                                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                            경로: @attachment.RelativePath
+                                        </Text>
+                                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                            업로드: @attachment.UploadedAt.ToString("yyyy-MM-dd HH:mm")
+                                        </Text>
+                                    </CardBody>
+                                </Card>
+                            }
+                        </div>
                     }
 
                     <Field Margin="Margin.Is3.FromTop">
@@ -73,21 +153,62 @@
                             {
                                 <Card Margin="Margin.Is2.FromBottom">
                                     <CardBody>
-                                        <Text>@comment.Comment</Text>
-                                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                                            @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
-                                        </Text>
-                                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                                            작성자: @FormatAuthor(comment.AuthorUserName, comment.AuthorName)
-                                        </Text>
 
-                                        @if (_isAdministrator)
-                                        {
-                                            <Button Margin="Margin.Is2.FromTop.Is2.FromStart"
-                                                    Color="Color.Danger"
-                                                    Size="Size.ExtraSmall"
-                                                    Clicked="@(async () => await DeleteCommentAsync(comment.Id))">댓글 삭제</Button>
-                                        }
+                                        <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
+
+                                            @if (IsEditingComment(comment.Id))
+                                            {
+                                                <MemoEdit Text="@GetCommentEditInput(comment.Id)"
+                                                          TextChanged="@(value => SetCommentEditInput(comment.Id, value))"
+                                                          Rows="3" />
+                                            }
+                                            else
+                                            {
+                                                <Text>@comment.Comment</Text>
+                                            }
+                                            <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                                @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                            </Text>
+                                            <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                                작성자: @FormatAuthor(comment.AuthorUserName, comment.AuthorName)
+                                            </Text>
+
+                                            @if (CanManageComment(comment))
+                                            {
+                                                @if (IsEditingComment(comment.Id))
+                                                {
+                                                    <Button Margin="Margin.Is2.FromTop"
+                                                            Color="Color.Primary"
+                                                            Size="Size.ExtraSmall"
+                                                            Clicked="@(async () => await UpdateCommentAsync(comment.Id))">
+                                                        댓글 수정 저장
+                                                    </Button>
+                                                    <Button Margin="Margin.Is2.FromTop"
+                                                            Color="Color.Secondary"
+                                                            Size="Size.ExtraSmall"
+                                                            Clicked="@(() => CancelEditComment(comment.Id))">
+                                                        수정 취소
+                                                    </Button>
+                                                }
+                                                else
+                                                {
+                                                    <Button Margin="Margin.Is2.FromTop"
+                                                            Color="Color.Warning"
+                                                            Size="Size.ExtraSmall"
+                                                            Clicked="@(() => BeginEditComment(comment))">
+                                                        댓글 수정
+                                                    </Button>
+                                                }
+
+                                                <Button Margin="Margin.Is2.FromTop"
+                                                        Color="Color.Danger"
+                                                        Size="Size.ExtraSmall"
+                                                        Clicked="@(async () => await DeleteCommentAsync(comment.Id))">
+                                                    댓글 삭제
+                                                </Button>
+                                            }
+
+                                        </Div>
                                     </CardBody>
                                 </Card>
                             }
@@ -103,12 +224,16 @@
             <Button Color="Color.Secondary"
                     Size="Size.Small"
                     Disabled="@(_currentPage <= 1)"
-                    Clicked="@(async () => await ChangePageAsync(_currentPage - 1))">이전</Button>
+                    Clicked="@(async () => await ChangePageAsync(_currentPage - 1))">
+                이전
+            </Button>
             <Text Margin="Margin.Is2.FromStart.Is2.FromEnd">@_currentPage / @TotalPages</Text>
             <Button Color="Color.Secondary"
                     Size="Size.Small"
                     Disabled="@(_currentPage >= TotalPages)"
-                    Clicked="@(async () => await ChangePageAsync(_currentPage + 1))">다음</Button>
+                    Clicked="@(async () => await ChangePageAsync(_currentPage + 1))">
+                다음
+            </Button>
         </FieldBody>
     </Field>
 }
@@ -125,6 +250,7 @@
     private string _content = string.Empty;
     private string _statusMessage = string.Empty;
     private Color _statusColor = Color.Success;
+    private readonly Dictionary<int, List<OperationDocumentAttachment>> _attachmentsByDocument = new();
     private int _currentPage = 1;
     private int _totalDocumentsCount;
     private bool _isAdministrator;
@@ -134,6 +260,10 @@
     private List<OperationDocumentComment> _comments = new();
     private Dictionary<int, List<OperationDocumentComment>> _commentsByDocument = new();
     private readonly Dictionary<int, string> _commentInputs = new();
+    private readonly Dictionary<int, string> _documentEditInputs = new();
+    private readonly Dictionary<int, string> _commentEditInputs = new();
+    private readonly HashSet<int> _editingDocumentIds = new();
+    private readonly HashSet<int> _editingCommentIds = new();
 
     private int TotalPages => _totalDocumentsCount == 0 ? 1 : (int)Math.Ceiling((double)_totalDocumentsCount / PageSize);
 
@@ -142,6 +272,7 @@
         await LoadCurrentUserAsync();
         await LoadDocumentsAsync();
         await LoadCommentsAsync();
+        await LoadAttachmentsAsync();
     }
 
     private async Task LoadCurrentUserAsync()
@@ -228,10 +359,78 @@
         await LoadCommentsAsync();
     }
 
+    private async Task OnFileUploadAsync(int operationDocumentId, FileUploadEventArgs e)
+    {
+        var rootPath = Configuration["FileStorage:RootPath"];
+
+        if (string.IsNullOrWhiteSpace(rootPath))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "파일 저장소 경로가 설정되지 않았습니다.";
+            return;
+        }
+
+        try
+        {
+            var absoluteRootPath = Path.GetFullPath(rootPath);
+            Directory.CreateDirectory(absoluteRootPath);
+
+            var extension = Path.GetExtension(e.File.Name);
+            var storedFileName = $"{Guid.NewGuid():N}{extension}";
+            var absoluteFilePath = Path.Combine(absoluteRootPath, storedFileName);
+
+            await using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                await e.File.OpenReadStream(long.MaxValue).CopyToAsync(fileStream);
+            }
+
+            var relativePath = Path.GetRelativePath(absoluteRootPath, absoluteFilePath)
+                .Replace("\\", "/");
+
+            using var context = DbFactory.CreateDbContext();
+            var attachment = new OperationDocumentAttachment
+            {
+                OperationDocumentId = operationDocumentId,
+                OriginalFileName = e.File.Name,
+                StoredFileName = storedFileName,
+                RelativePath = relativePath,
+                UploadedAt = TimeZoneHelper.GetKoreaTimeNow()
+            };
+
+            context.OperationDocumentAttachments.Add(attachment);
+            await context.SaveChangesAsync();
+
+            _statusColor = Color.Success;
+            _statusMessage = "파일이 업로드되었습니다.";
+
+            await LoadAttachmentsAsync();
+        }
+        catch (Exception)
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "파일 업로드 중 오류가 발생했습니다.";
+        }
+
+        StateHasChanged();
+    }
+
     private async Task DeleteDocumentAsync(int operationDocumentId)
     {
-        if (!_isAdministrator)
+        using var context = DbFactory.CreateDbContext();
+        var document = await context.OperationDocuments
+            .FirstOrDefaultAsync(d => d.Id == operationDocumentId);
+
+        if (document is null)
         {
+            _statusColor = Color.Danger;
+            _statusMessage = "삭제할 문서를 찾을 수 없습니다.";
+            return;
+        }
+
+        if (!CanManageDocument(document))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "본인이 작성한 문서만 삭제할 수 있습니다.";
             return;
         }
 
@@ -246,17 +445,6 @@
             return;
         }
 
-        using var context = DbFactory.CreateDbContext();
-        var document = await context.OperationDocuments
-            .FirstOrDefaultAsync(d => d.Id == operationDocumentId);
-
-        if (document is null)
-        {
-            _statusColor = Color.Danger;
-            _statusMessage = "삭제할 문서를 찾을 수 없습니다.";
-            return;
-        }
-
         context.OperationDocuments.Remove(document);
         await context.SaveChangesAsync();
 
@@ -265,12 +453,67 @@
 
         await LoadDocumentsAsync();
         await LoadCommentsAsync();
+        await LoadAttachmentsAsync();
+    }
+
+    private async Task UpdateDocumentAsync(int documentId)
+    {
+        using var context = DbFactory.CreateDbContext();
+        var document = await context.OperationDocuments
+            .FirstOrDefaultAsync(d => d.Id == documentId);
+
+        if (document is null)
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "수정할 문서를 찾을 수 없습니다.";
+            return;
+        }
+
+        if (!CanManageDocument(document))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "본인이 작성한 문서만 수정할 수 있습니다.";
+            return;
+        }
+
+        var updatedContent = GetDocumentEditInput(documentId);
+        if (string.IsNullOrWhiteSpace(updatedContent))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "문서 내용을 입력하세요.";
+            return;
+        }
+
+        document.Content = updatedContent.Trim();
+        document.UpdatedAt = TimeZoneHelper.GetKoreaTimeNow();
+
+        await context.SaveChangesAsync();
+
+        _editingDocumentIds.Remove(documentId);
+        _documentEditInputs.Remove(documentId);
+        _statusColor = Color.Success;
+        _statusMessage = "문서가 수정되었습니다.";
+
+        await LoadDocumentsAsync();
     }
 
     private async Task DeleteCommentAsync(int commentId)
     {
-        if (!_isAdministrator)
+        using var context = DbFactory.CreateDbContext();
+        var comment = await context.OperationDocumentComments
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+
+        if (comment is null)
         {
+            _statusColor = Color.Danger;
+            _statusMessage = "삭제할 댓글을 찾을 수 없습니다.";
+            return;
+        }
+
+        if (!CanManageComment(comment))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "본인이 작성한 댓글만 삭제할 수 있습니다.";
             return;
         }
 
@@ -285,6 +528,17 @@
             return;
         }
 
+        context.OperationDocumentComments.Remove(comment);
+        await context.SaveChangesAsync();
+
+        _statusColor = Color.Success;
+        _statusMessage = "댓글이 삭제되었습니다.";
+
+        await LoadCommentsAsync();
+    }
+
+    private async Task UpdateCommentAsync(int commentId)
+    {
         using var context = DbFactory.CreateDbContext();
         var comment = await context.OperationDocumentComments
             .FirstOrDefaultAsync(c => c.Id == commentId);
@@ -292,15 +546,34 @@
         if (comment is null)
         {
             _statusColor = Color.Danger;
-            _statusMessage = "삭제할 댓글을 찾을 수 없습니다.";
+            _statusMessage = "수정할 댓글을 찾을 수 없습니다.";
             return;
         }
 
-        context.OperationDocumentComments.Remove(comment);
+        if (!CanManageComment(comment))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "본인이 작성한 댓글만 수정할 수 있습니다.";
+            return;
+        }
+
+        var updatedComment = GetCommentEditInput(commentId);
+        if (string.IsNullOrWhiteSpace(updatedComment))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "댓글을 입력하세요.";
+            return;
+        }
+
+        comment.Comment = updatedComment.Trim();
+        comment.CreatedAt = TimeZoneHelper.GetKoreaTimeNow();
+
         await context.SaveChangesAsync();
 
+        _editingCommentIds.Remove(commentId);
+        _commentEditInputs.Remove(commentId);
         _statusColor = Color.Success;
-        _statusMessage = "댓글이 삭제되었습니다.";
+        _statusMessage = "댓글이 수정되었습니다.";
 
         await LoadCommentsAsync();
     }
@@ -316,6 +589,7 @@
         _currentPage = page;
         await LoadDocumentsAsync();
         await LoadCommentsAsync();
+        await LoadAttachmentsAsync();
     }
 
     private async Task LoadDocumentsAsync()
@@ -366,6 +640,37 @@
             .ToDictionary(g => g.Key, g => g.ToList());
     }
 
+    private async Task LoadAttachmentsAsync()
+    {
+        _attachmentsByDocument.Clear();
+
+        if (_documents.Count == 0)
+        {
+            return;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+        var operationDocumentIds = _documents.Select(d => d.Id).ToList();
+
+        var attachments = await context.OperationDocumentAttachments
+            .AsNoTracking()
+            .Where(a => operationDocumentIds.Contains(a.OperationDocumentId))
+            .OrderByDescending(a => a.UploadedAt)
+            .ToListAsync();
+
+        foreach (var group in attachments.GroupBy(a => a.OperationDocumentId))
+        {
+            _attachmentsByDocument[group.Key] = group.ToList();
+        }
+    }
+
+    private List<OperationDocumentAttachment> GetAttachmentsForDocument(int operationDocumentId)
+    {
+        return _attachmentsByDocument.TryGetValue(operationDocumentId, out var attachments)
+            ? attachments
+            : new List<OperationDocumentAttachment>();
+    }
+
     private List<OperationDocumentComment> GetCommentsForDocument(int operationDocumentId)
     {
         return _commentsByDocument.TryGetValue(operationDocumentId, out var comments)
@@ -381,6 +686,77 @@
     private void SetCommentInput(int operationDocumentId, string value)
     {
         _commentInputs[operationDocumentId] = value;
+    }
+
+    private bool CanManageDocument(OperationDocument document)
+    {
+        return _isAdministrator || IsCurrentUserAuthor(document.AuthorUserName);
+    }
+
+    private bool CanManageComment(OperationDocumentComment comment)
+    {
+        return _isAdministrator || IsCurrentUserAuthor(comment.AuthorUserName);
+    }
+
+    private bool IsCurrentUserAuthor(string? authorUserName)
+    {
+        return !string.IsNullOrWhiteSpace(_currentUserName)
+            && !string.IsNullOrWhiteSpace(authorUserName)
+            && string.Equals(_currentUserName, authorUserName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void BeginEditDocument(OperationDocument document)
+    {
+        _editingDocumentIds.Add(document.Id);
+        _documentEditInputs[document.Id] = document.Content;
+    }
+
+    private void CancelEditDocument(int documentId)
+    {
+        _editingDocumentIds.Remove(documentId);
+        _documentEditInputs.Remove(documentId);
+    }
+
+    private bool IsEditingDocument(int documentId)
+    {
+        return _editingDocumentIds.Contains(documentId);
+    }
+
+    private string GetDocumentEditInput(int documentId)
+    {
+        return _documentEditInputs.TryGetValue(documentId, out var value) ? value : string.Empty;
+    }
+
+    private void SetDocumentEditInput(int documentId, string value)
+    {
+        _documentEditInputs[documentId] = value;
+    }
+
+    private void BeginEditComment(OperationDocumentComment comment)
+    {
+        _editingCommentIds.Add(comment.Id);
+        _commentEditInputs[comment.Id] = comment.Comment;
+    }
+
+    private void CancelEditComment(int commentId)
+    {
+        _editingCommentIds.Remove(commentId);
+        _commentEditInputs.Remove(commentId);
+    }
+
+    private bool IsEditingComment(int commentId)
+    {
+        return _editingCommentIds.Contains(commentId);
+    }
+
+    private string GetCommentEditInput(int commentId)
+    {
+        return _commentEditInputs.TryGetValue(commentId, out var value) ? value : string.Empty;
+    }
+
+    private void SetCommentEditInput(int commentId, string value)
+    {
+        _commentEditInputs[commentId] = value;
     }
 
     private static string FormatAuthor(string? userName, string? name)

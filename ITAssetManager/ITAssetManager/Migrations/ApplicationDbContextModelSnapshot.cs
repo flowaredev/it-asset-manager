@@ -328,6 +328,42 @@ namespace ITAssetManager.Migrations
                     b.ToTable("OperationDocuments");
                 });
 
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("OperationDocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("RelativePath")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("varchar(260)");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperationDocumentId");
+
+                    b.ToTable("OperationDocumentAttachments");
+                });
+
             modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentComment", b =>
                 {
                     b.Property<int>("Id")
@@ -1031,6 +1067,17 @@ namespace ITAssetManager.Migrations
                     b.Navigation("CommonAsset");
                 });
 
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentAttachment", b =>
+                {
+                    b.HasOne("ITAssetManagerLibrary.Models.OperationDocument", "OperationDocument")
+                        .WithMany("Attachments")
+                        .HasForeignKey("OperationDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OperationDocument");
+                });
+
             modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentComment", b =>
                 {
                     b.HasOne("ITAssetManagerLibrary.Models.OperationDocument", "OperationDocument")
@@ -1273,6 +1320,8 @@ namespace ITAssetManager.Migrations
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocument", b =>
                 {
+                    b.Navigation("Attachments");
+
                     b.Navigation("Comments");
                 });
 

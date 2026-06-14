@@ -30,6 +30,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<UserAppointment> UserAppointments { get; set; }
         public DbSet<OperationDocument> OperationDocuments { get; set; }
         public DbSet<OperationDocumentComment> OperationDocumentComments { get; set; }
+        public DbSet<OperationDocumentAttachment> OperationDocumentAttachments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

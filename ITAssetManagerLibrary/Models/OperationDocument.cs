@@ -24,5 +24,6 @@ namespace ITAssetManagerLibrary.Models
         public string? AuthorName { get; set; }
 
         public List<OperationDocumentComment> Comments { get; set; } = new();
+        public List<OperationDocumentAttachment> Attachments { get; set; } = new();
     }
 }
