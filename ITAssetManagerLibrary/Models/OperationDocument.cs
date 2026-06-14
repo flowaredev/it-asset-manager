@@ -17,6 +17,12 @@ namespace ITAssetManagerLibrary.Models
         [Required]
         public DateTime UpdatedAt { get; set; } = TimeZoneHelper.GetKoreaTimeNow();
 
+        [MaxLength(256)]
+        public string? AuthorUserName { get; set; }
+
+        [MaxLength(100)]
+        public string? AuthorName { get; set; }
+
         public List<OperationDocumentComment> Comments { get; set; } = new();
     }
 }
