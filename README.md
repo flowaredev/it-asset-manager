@@ -1,20 +1,58 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# IT Asset Manager
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+IT Asset Manager is a **.NET 9 Blazor** application for managing enterprise IT assets and operations in one place.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Core Features
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+- **Asset inventory management** for:
+  - Servers
+  - Storage
+  - Network equipment
+  - Security equipment
+  - Software
+  - Support equipment
+  - Miscellaneous equipment
+- **Lifecycle and operations tracking**:
+  - Failures (faults)
+  - Security vulnerabilities
+  - Routine checks
+  - Maintenance history
+- **SLA management and dashboard analytics**:
+  - Uptime rate
+  - Disability/fault handling time
+  - Technical support completion rate
+  - Routine check compliance rate
+  - Security issue trends
+  - Aggregated SLA scoring
+- **Schedule calendar** with rich-text details and user-based appointment data
+- **Operations document pages** with database-backed text editing and saving for:
+  - Work Request
+  - Routine Check
+  - Regular PM
+  - Operation Manual
+  - System Status
+  - Emergency Contact
+  - Etc.
+- **Admin features**:
+  - User and role management
+  - Excel import/export for major asset datasets
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Security and Access
+
+- ASP.NET Core Identity-based authentication
+- Role/policy authorization (Administrator/User)
+- Protected pages and admin-only menus
+
+## Technical Stack
+
+- **Frontend/UI**: Blazor + Blazorise
+- **Backend**: ASP.NET Core (Blazor Web App)
+- **Database**: Entity Framework Core with MySQL
+- **Target Framework**: .NET 9
+
+## Solution Structure
+
+- `ITAssetManager` - Server host, identity, EF Core, app startup
+- `ITAssetManager.Client` - Client-side pages/routes
+- `ITAssetManagerComponents` - Reusable UI components
+- `ITAssetManagerLibrary` - Shared models, constants, helpers, DbContext
