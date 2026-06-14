@@ -72,6 +72,20 @@
             </Card>
         }
     </div>
+
+    <Field Margin="Margin.Is3.FromTop">
+        <FieldBody>
+            <Button Color="Color.Secondary"
+                    Size="Size.Small"
+                    Disabled="@(_currentPage <= 1)"
+                    Clicked="@(async () => await ChangePageAsync(_currentPage - 1))">이전</Button>
+            <Text Margin="Margin.Is2.FromStart.Is2.FromEnd">@_currentPage / @TotalPages</Text>
+            <Button Color="Color.Secondary"
+                    Size="Size.Small"
+                    Disabled="@(_currentPage >= TotalPages)"
+                    Clicked="@(async () => await ChangePageAsync(_currentPage + 1))">다음</Button>
+        </FieldBody>
+    </Field>
 }
 
 @code {
@@ -81,12 +95,19 @@
     [Parameter, EditorRequired]
     public string Title { get; set; } = string.Empty;
 
+    private const int PageSize = 10;
+
     private string _content = string.Empty;
     private string _statusMessage = string.Empty;
     private Color _statusColor = Color.Success;
+    private int _currentPage = 1;
+    private int _totalDocumentsCount;
     private List<OperationDocument> _documents = new();
     private List<OperationDocumentComment> _comments = new();
+    private Dictionary<int, List<OperationDocumentComment>> _commentsByDocument = new();
     private readonly Dictionary<int, string> _commentInputs = new();
+
+    private int TotalPages => _totalDocumentsCount == 0 ? 1 : (int)Math.Ceiling((double)_totalDocumentsCount / PageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,6 +136,7 @@
         await context.SaveChangesAsync();
 
         _content = string.Empty;
+        _currentPage = 1;
         _statusColor = Color.Success;
         _statusMessage = "저장되었습니다.";
 
@@ -151,32 +173,72 @@
         await LoadCommentsAsync();
     }
 
+    private async Task ChangePageAsync(int targetPage)
+    {
+        var page = Math.Min(Math.Max(targetPage, 1), TotalPages);
+        if (page == _currentPage)
+        {
+            return;
+        }
+
+        _currentPage = page;
+        await LoadDocumentsAsync();
+        await LoadCommentsAsync();
+    }
+
     private async Task LoadDocumentsAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        _documents = await context.OperationDocuments
-            .Where(d => d.DocumentType == DocumentType)
+
+        var query = context.OperationDocuments
+            .AsNoTracking()
+            .Where(d => d.DocumentType == DocumentType);
+
+        _totalDocumentsCount = await query.CountAsync();
+
+        if (_currentPage > TotalPages)
+        {
+            _currentPage = TotalPages;
+        }
+
+        var skip = (_currentPage - 1) * PageSize;
+
+        _documents = await query
             .OrderByDescending(d => d.UpdatedAt)
+            .ThenByDescending(d => d.Id)
+            .Skip(skip)
+            .Take(PageSize)
             .ToListAsync();
     }
 
     private async Task LoadCommentsAsync()
     {
+        if (_documents.Count == 0)
+        {
+            _comments = new List<OperationDocumentComment>();
+            _commentsByDocument = new Dictionary<int, List<OperationDocumentComment>>();
+            return;
+        }
+
         using var context = DbFactory.CreateDbContext();
         var operationDocumentIds = _documents.Select(d => d.Id).ToList();
 
         _comments = await context.OperationDocumentComments
+            .AsNoTracking()
             .Where(c => operationDocumentIds.Contains(c.OperationDocumentId))
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
+
+        _commentsByDocument = _comments
+            .GroupBy(c => c.OperationDocumentId)
+            .ToDictionary(g => g.Key, g => g.ToList());
     }
 
     private List<OperationDocumentComment> GetCommentsForDocument(int operationDocumentId)
     {
-        return _comments
-            .Where(c => c.OperationDocumentId == operationDocumentId)
-            .OrderByDescending(c => c.CreatedAt)
-            .ToList();
+        return _commentsByDocument.TryGetValue(operationDocumentId, out var comments)
+            ? comments
+            : new List<OperationDocumentComment>();
     }
 
     private string GetCommentInput(int operationDocumentId)
