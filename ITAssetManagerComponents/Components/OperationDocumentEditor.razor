@@ -480,11 +480,33 @@
             return;
         }
 
+        var attachments = await context.OperationDocumentAttachments
+            .Where(a => a.OperationDocumentId == operationDocumentId)
+            .ToListAsync();
+
+        var rootPath = Configuration["FileStorage:RootPath"];
+        if (!string.IsNullOrWhiteSpace(rootPath))
+        {
+            var absoluteRootPath = Path.GetFullPath(rootPath);
+
+            foreach (var attachment in attachments)
+            {
+                var normalizedRelativePath = attachment.RelativePath.Replace('/', Path.DirectorySeparatorChar);
+                var absoluteFilePath = Path.GetFullPath(Path.Combine(absoluteRootPath, normalizedRelativePath));
+
+                if (absoluteFilePath.StartsWith(absoluteRootPath, StringComparison.OrdinalIgnoreCase)
+                    && File.Exists(absoluteFilePath))
+                {
+                    File.Delete(absoluteFilePath);
+                }
+            }
+        }
+
         context.OperationDocuments.Remove(document);
         await context.SaveChangesAsync();
 
         _statusColor = Color.Success;
-        _statusMessage = "문서가 삭제되었습니다.";
+        _statusMessage = "문서와 종속된 댓글/첨부 파일이 삭제되었습니다.";
 
         await LoadDocumentsAsync();
         await LoadCommentsAsync();
