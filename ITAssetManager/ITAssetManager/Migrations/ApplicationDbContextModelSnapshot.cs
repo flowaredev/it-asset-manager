@@ -320,6 +320,31 @@ namespace ITAssetManager.Migrations
                     b.ToTable("OperationDocuments");
                 });
 
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("OperationDocumentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperationDocumentId");
+
+                    b.ToTable("OperationDocumentComments");
+                });
+
             modelBuilder.Entity("ITAssetManagerLibrary.Models.RoutineCheck", b =>
                 {
                     b.Property<int>("Id")
@@ -990,6 +1015,17 @@ namespace ITAssetManager.Migrations
                     b.Navigation("CommonAsset");
                 });
 
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocumentComment", b =>
+                {
+                    b.HasOne("ITAssetManagerLibrary.Models.OperationDocument", "OperationDocument")
+                        .WithMany("Comments")
+                        .HasForeignKey("OperationDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OperationDocument");
+                });
+
             modelBuilder.Entity("ITAssetManagerLibrary.Models.RoutineCheck", b =>
                 {
                     b.HasOne("ITAssetManagerLibrary.Models.CommonAsset", "CommonAsset")
@@ -1217,6 +1253,11 @@ namespace ITAssetManager.Migrations
             modelBuilder.Entity("ITAssetManagerLibrary.Models.NetworkEquipment", b =>
                 {
                     b.Navigation("NetworkDevices");
+                });
+
+            modelBuilder.Entity("ITAssetManagerLibrary.Models.OperationDocument", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("ITAssetManagerLibrary.Models.SecurityEquipment", b =>

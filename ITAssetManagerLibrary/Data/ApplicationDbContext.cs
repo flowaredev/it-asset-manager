@@ -29,6 +29,7 @@ namespace ITAssetManagerLibrary.Data
         public DbSet<SecurityVulnerability> SecurityVulnerabilities { get; set; }
         public DbSet<UserAppointment> UserAppointments { get; set; }
         public DbSet<OperationDocument> OperationDocuments { get; set; }
+        public DbSet<OperationDocumentComment> OperationDocumentComments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

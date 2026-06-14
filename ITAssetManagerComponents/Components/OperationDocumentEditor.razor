@@ -5,7 +5,7 @@
 <Field Margin="Margin.Is2.OnY">
     <FieldLabel>문서 내용</FieldLabel>
     <FieldBody>
-        <MemoEdit @bind-Text="_content" Rows="18" />
+        <MemoEdit @bind-Text="_content" Rows="4" Placeholder="문서 내용을 입력하세요." />
     </FieldBody>
 </Field>
 
@@ -18,6 +18,62 @@
     </Alert>
 }
 
+@if (_documents.Count > 0)
+{
+    <Field Margin="Margin.Is4.FromTop">
+        <FieldLabel>문서 내용 목록</FieldLabel>
+    </Field>
+
+    <div class="mt-2">
+        @foreach (var document in _documents)
+        {
+            var documentComments = GetCommentsForDocument(document.Id);
+
+            <Card Margin="Margin.Is2.FromBottom">
+                <CardBody>
+                    <Text>@document.Content</Text>
+                    <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                        @document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
+                    </Text>
+
+                    <Field Margin="Margin.Is3.FromTop">
+                        <FieldLabel>댓글</FieldLabel>
+                        <FieldBody>
+                            <MemoEdit Text="@GetCommentInput(document.Id)"
+                                      TextChanged="@(value => SetCommentInput(document.Id, value))"
+                                      Rows="3"
+                                      Placeholder="댓글을 입력하세요." />
+                        </FieldBody>
+                    </Field>
+
+                    <Button Color="Color.Info" Size="Size.Small" Clicked="@(async () => await AddCommentAsync(document.Id))">댓글 추가</Button>
+
+                    @if (documentComments.Count > 0)
+                    {
+                        <Field Margin="Margin.Is3.FromTop">
+                            <FieldLabel>댓글 목록</FieldLabel>
+                        </Field>
+
+                        <div class="mt-2">
+                            @foreach (var comment in documentComments)
+                            {
+                                <Card Margin="Margin.Is2.FromBottom">
+                                    <CardBody>
+                                        <Text>@comment.Comment</Text>
+                                        <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                            @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                        </Text>
+                                    </CardBody>
+                                </Card>
+                            }
+                        </div>
+                    }
+                </CardBody>
+            </Card>
+        }
+    </div>
+}
+
 @code {
     [Parameter, EditorRequired]
     public string DocumentType { get; set; } = string.Empty;
@@ -28,44 +84,108 @@
     private string _content = string.Empty;
     private string _statusMessage = string.Empty;
     private Color _statusColor = Color.Success;
+    private List<OperationDocument> _documents = new();
+    private List<OperationDocumentComment> _comments = new();
+    private readonly Dictionary<int, string> _commentInputs = new();
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        var document = await context.OperationDocuments
-            .FirstOrDefaultAsync(d => d.DocumentType == DocumentType);
-
-        if (document is not null)
-        {
-            _content = document.Content;
-        }
+        await LoadDocumentsAsync();
+        await LoadCommentsAsync();
     }
 
     private async Task SaveAsync()
     {
+        if (string.IsNullOrWhiteSpace(_content))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "문서 내용을 입력하세요.";
+            return;
+        }
+
         using var context = DbFactory.CreateDbContext();
-        var document = await context.OperationDocuments
-            .FirstOrDefaultAsync(d => d.DocumentType == DocumentType);
-
-        if (document is null)
+        var document = new OperationDocument
         {
-            document = new OperationDocument
-            {
-                DocumentType = DocumentType,
-                Content = _content,
-                UpdatedAt = TimeZoneHelper.GetKoreaTimeNow()
-            };
-            context.OperationDocuments.Add(document);
-        }
-        else
-        {
-            document.Content = _content;
-            document.UpdatedAt = TimeZoneHelper.GetKoreaTimeNow();
-            context.OperationDocuments.Update(document);
-        }
+            DocumentType = DocumentType,
+            Content = _content.Trim(),
+            UpdatedAt = TimeZoneHelper.GetKoreaTimeNow()
+        };
 
+        context.OperationDocuments.Add(document);
         await context.SaveChangesAsync();
+
+        _content = string.Empty;
         _statusColor = Color.Success;
         _statusMessage = "저장되었습니다.";
+
+        await LoadDocumentsAsync();
+        await LoadCommentsAsync();
+    }
+
+    private async Task AddCommentAsync(int operationDocumentId)
+    {
+        var inputComment = GetCommentInput(operationDocumentId);
+
+        if (string.IsNullOrWhiteSpace(inputComment))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "댓글을 입력하세요.";
+            return;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+        var comment = new OperationDocumentComment
+        {
+            OperationDocumentId = operationDocumentId,
+            Comment = inputComment.Trim(),
+            CreatedAt = TimeZoneHelper.GetKoreaTimeNow()
+        };
+
+        context.OperationDocumentComments.Add(comment);
+        await context.SaveChangesAsync();
+
+        SetCommentInput(operationDocumentId, string.Empty);
+        _statusColor = Color.Success;
+        _statusMessage = "댓글이 저장되었습니다.";
+
+        await LoadCommentsAsync();
+    }
+
+    private async Task LoadDocumentsAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        _documents = await context.OperationDocuments
+            .Where(d => d.DocumentType == DocumentType)
+            .OrderByDescending(d => d.UpdatedAt)
+            .ToListAsync();
+    }
+
+    private async Task LoadCommentsAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var operationDocumentIds = _documents.Select(d => d.Id).ToList();
+
+        _comments = await context.OperationDocumentComments
+            .Where(c => operationDocumentIds.Contains(c.OperationDocumentId))
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+    }
+
+    private List<OperationDocumentComment> GetCommentsForDocument(int operationDocumentId)
+    {
+        return _comments
+            .Where(c => c.OperationDocumentId == operationDocumentId)
+            .OrderByDescending(c => c.CreatedAt)
+            .ToList();
+    }
+
+    private string GetCommentInput(int operationDocumentId)
+    {
+        return _commentInputs.TryGetValue(operationDocumentId, out var value) ? value : string.Empty;
+    }
+
+    private void SetCommentInput(int operationDocumentId, string value)
+    {
+        _commentInputs[operationDocumentId] = value;
     }
 }
