@@ -16,8 +16,7 @@
     <BarBrand>
         <BarItem>
             <BarLink To="/" Match="Match.All" TextWeight="TextWeight.Bold" TextColor="TextColor.Primary">
-                <Image Source="_content/ITAssetManagerComponents/images/brand.png" Text="굿모닝아이텍" Width="Width.Px(25)" Margin="Margin.Is1" />
-                굿모닝아이텍(주)
+                <Image Source="_content/ITAssetManagerComponents/images/brand.jpg" Text="Brand Logo" Width="Width.Is50" Margin="Margin.Is1" />                
             </BarLink>
         </BarItem>
     </BarBrand>
@@ -25,7 +24,7 @@
         <BarStart>
             <BarItem>
                 <BarLink To="/" Match="Match.All">
-                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" />
+                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Home" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                     대시보드
                 </BarLink>
             </BarItem>
@@ -33,43 +32,43 @@
                 <Authorized>
                     <BarItem>
                         <BarLink To="/schedule">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarPlus" />
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarPlus" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                             @HeaderConstant.SecheduleCalendarTitle
                         </BarLink>
                     </BarItem>
                     <BarItem>
                         <BarDropdown>
                             <BarDropdownToggle Clicked="@(() => Navigation.NavigateTo("/servers"))">
-                                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" />
+                                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FolderPlus" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                 관리항목
                             </BarDropdownToggle>
                             <BarDropdownMenu>
                                 <BarDropdownItem To="/servers">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.ServerTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/storages">
-                                    <BarIcon IconName="@("fa-hard-drive")" />
+                                    <BarIcon IconName="@("fa-hard-drive")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.StorageTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/networkequipments">
-                                    <BarIcon IconName="@("fa-network-wired")" />
+                                    <BarIcon IconName="@("fa-network-wired")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.NetworkEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/securityequipments">
-                                    <BarIcon IconName="@("fa-user-secret")" />
+                                    <BarIcon IconName="@("fa-user-secret")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.SecurityEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/softwares">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CompactDisc" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CompactDisc" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.SoftwareTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/supportequipments">
-                                    <BarIcon IconName="@("fa-toolbox")" />
+                                    <BarIcon IconName="@("fa-toolbox")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.SupportEquipmentTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/miscellaneousequipments">
-                                    <BarIcon IconName="@("fa-ethernet")" />
+                                    <BarIcon IconName="@("fa-ethernet")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.EtcTitle
                                 </BarDropdownItem>
                             </BarDropdownMenu>
@@ -78,24 +77,24 @@
                     <BarItem>
                         <BarDropdown>
                             <BarDropdownToggle Clicked="@(() => Navigation.NavigateTo("/fault"))">
-                                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ChartBar" />
+                                <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ChartBar" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                 유지관리현황
                             </BarDropdownToggle>
                             <BarDropdownMenu>
                                 <BarDropdownItem To="/fault">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.HeartBroken" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.HeartBroken" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.FaultTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/securityvulnerability">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bug" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Bug" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.VulnerabilityTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/routinecheck">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.ScheduledMaintenanceTitle
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/maintenance">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Wrench" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Wrench" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     @HeaderConstant.MaintenanceTitle
                                 </BarDropdownItem>
                             </BarDropdownMenu>
@@ -104,36 +103,36 @@
                     <BarItem>
                         <BarDropdown>
                             <BarDropdownToggle>
-                                <BarIcon IconName="@("fa-folder-open")" />
-                                운영관리 문서
+                                <BarIcon IconName="@("fa-folder-open")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
+                                운영관리문서
                             </BarDropdownToggle>
                             <BarDropdownMenu>
                                 <BarDropdownItem To="/operationdocs/workrequest">
-                                    <BarIcon IconName="@("fa-file-signature")" />
+                                    <BarIcon IconName="@("fa-file-signature")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     작업요청
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/routinecheck">
-                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" />
+                                    <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.CalendarCheck" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     정기점검
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/regularpm">
-                                    <BarIcon IconName="@("fa-tools")" />
+                                    <BarIcon IconName="@("fa-tools")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     정기PM
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/operationmanual">
-                                    <BarIcon IconName="@("fa-book")" />
+                                    <BarIcon IconName="@("fa-book")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     운영메뉴얼
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/systemstatus">
-                                    <BarIcon IconName="@("fa-chart-line")" />
+                                    <BarIcon IconName="@("fa-chart-line")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     시스템현황
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/emergencycontact">
-                                    <BarIcon IconName="@("fa-phone-alt")" />
+                                    <BarIcon IconName="@("fa-phone-alt")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     비상연락망
                                 </BarDropdownItem>
                                 <BarDropdownItem To="/operationdocs/etc">
-                                    <BarIcon IconName="@("fa-ellipsis-h")" />
+                                    <BarIcon IconName="@("fa-ellipsis-h")" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                     기타
                                 </BarDropdownItem>
                             </BarDropdownMenu>
@@ -141,7 +140,7 @@
                     </BarItem>
                     <BarItem>
                         <BarLink To="/servicelevelagreements">
-                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" />
+                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.ClipboardCheck" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                             @HeaderConstant.ServiceLevelAgreementTitle
                         </BarLink>
                     </BarItem>
@@ -151,16 +150,16 @@
                             <BarItem>
                                 <BarDropdown>
                                     <BarDropdownToggle>
-                                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserCog" />
+                                        <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.UserCog" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                         관리자
                                     </BarDropdownToggle>
                                     <BarDropdownMenu>
                                         <BarDropdownItem To="/admin/usermanagement">
-                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Users" />
+                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.Users" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                             사용자 관리
                                         </BarDropdownItem>
                                         <BarDropdownItem To="/admin/excelmanagement">
-                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FileExcel" />
+                                            <BarIcon IconName="Blazorise.Icons.FontAwesome.FontAwesomeIcons.FileExcel" Width="Width.Px(25)" TextAlignment="TextAlignment.Center" />
                                             @HeaderConstant.ExcelDataManagementTitle
                                         </BarDropdownItem>
                                     </BarDropdownMenu>
