@@ -30,11 +30,12 @@
           Sortable="true"
           SortMode="DataGridSortMode.Single"
           Filterable="true"
-          FilterMode="DataGridFilterMode.Menu">
+          FilterMode="DataGridFilterMode.Menu"
+          RowClicked="@(eventArgs => OpenDocumentModal(eventArgs.Item))">
     <DataGridColumns>
-        <DataGridColumn Field="@nameof(OperationDocument.Content)" Caption="내용">
+        <DataGridColumn Field="@nameof(OperationDocument.Title)" Caption="제목">
             <DisplayTemplate>
-                <Text>@context.Content</Text>
+                <Text>@context.Title</Text>
             </DisplayTemplate>
         </DataGridColumn>
         <DataGridColumn Field="@nameof(OperationDocument.UpdatedAt)" Caption="수정일시">
@@ -49,21 +50,23 @@
         </DataGridColumn>
         <DataGridColumn Field="@nameof(OperationDocument.Id)" Caption="작업" Sortable="false" Filterable="false">
             <DisplayTemplate>
-                <Buttons Size="Size.Small">
-                    <Button Color="Color.Primary"
-                            Size="Size.Small"
-                            Clicked="@(() => OpenDocumentModal(context))">
-                        @(CanManageDocument(context) ? "수정" : "상세")
-                    </Button>
-                    @if (CanManageDocument(context))
-                    {
-                        <Button Color="Color.Danger"
+                <div @onclick:stopPropagation="true">
+                    <Buttons Size="Size.Small">
+                        <Button Color="Color.Primary"
                                 Size="Size.Small"
-                                Clicked="@(async () => await DeleteDocumentAsync(context.Id))">
-                            삭제
+                                Clicked="@(() => OpenDocumentModal(context))">
+                            @(CanManageDocument(context) ? "수정" : "상세")
                         </Button>
-                    }
-                </Buttons>
+                        @if (CanManageDocument(context))
+                        {
+                            <Button Color="Color.Danger"
+                                    Size="Size.Small"
+                                    Clicked="@(async () => await DeleteDocumentAsync(context.Id))">
+                                삭제
+                            </Button>
+                        }
+                    </Buttons>
+                </div>
             </DisplayTemplate>
         </DataGridColumn>
     </DataGridColumns>
@@ -89,7 +92,7 @@
                                        Attachments="@GetAttachmentsForDocument(selectedDocument.Id)"
                                        IsAdministrator="@_isAdministrator"
                                        CurrentUserName="@_currentUserName"
-                                       DocumentUpdated="UpdateSelectedDocumentAsync"
+                                       DocumentUpdated="@((OperationDocument updatedDocument) => UpdateSelectedDocumentAsync(updatedDocument))"
                                        DocumentDeleted="DeleteSelectedDocumentAsync"
                                        FileUploaded="UploadFileForSelectedDocumentAsync"
                                         AttachmentDownloadRequested="DownloadAttachmentAsync"
@@ -206,7 +209,7 @@
         await LoadAttachmentsAsync();
     }
 
-    private async Task UpdateSelectedDocumentAsync(string updatedContent)
+    private async Task UpdateSelectedDocumentAsync(OperationDocument updatedDocument)
     {
         if (_selectedDocument is null)
         {
@@ -214,7 +217,7 @@
         }
 
         var documentId = _selectedDocument.Id;
-        await UpdateDocumentAsync(documentId, updatedContent);
+        await UpdateDocumentAsync(documentId, updatedDocument.Title, updatedDocument.Content);
         _selectedDocument = _documents.FirstOrDefault(document => document.Id == documentId);
     }
 
@@ -478,7 +481,7 @@
         await LoadAttachmentsAsync();
     }
 
-    private async Task UpdateDocumentAsync(int documentId, string updatedContent)
+    private async Task UpdateDocumentAsync(int documentId, string updatedTitle, string updatedContent)
     {
         using var context = DbFactory.CreateDbContext();
         var document = await context.OperationDocuments
@@ -498,6 +501,13 @@
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(updatedTitle))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "제목을 입력하세요.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(updatedContent))
         {
             _statusColor = Color.Danger;
@@ -505,6 +515,7 @@
             return;
         }
 
+        document.Title = updatedTitle.Trim();
         document.Content = updatedContent.Trim();
         document.UpdatedAt = TimeZoneHelper.GetKoreaTimeNow();
 

@@ -4,6 +4,14 @@
 @inject IConfiguration Configuration
 
 <Field Margin="Margin.Is2.OnY">
+    <FieldLabel>제목</FieldLabel>
+    <FieldBody>
+        <TextEdit @bind-Text="_title"
+                  Placeholder="제목을 입력하세요." />
+    </FieldBody>
+</Field>
+
+<Field Margin="Margin.Is2.OnY">
     <FieldLabel>문서 내용</FieldLabel>
     <FieldBody>
         <MemoEdit @bind-Text="_content"
@@ -50,6 +58,7 @@
     [Parameter]
     public EventCallback DocumentCreated { get; set; }
 
+    private string _title = string.Empty;
     private string _content = string.Empty;
     private string _statusMessage = string.Empty;
     private Color _statusColor = Color.Success;
@@ -70,6 +79,13 @@
 
     private async Task SaveAsync()
     {
+        if (string.IsNullOrWhiteSpace(_title))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "제목을 입력하세요.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(_content))
         {
             _statusColor = Color.Danger;
@@ -81,6 +97,7 @@
         var document = new OperationDocument
         {
             DocumentType = DocumentType,
+            Title = _title.Trim(),
             Content = _content.Trim(),
             UpdatedAt = TimeZoneHelper.GetKoreaTimeNow(),
             AuthorUserName = CurrentUserName,
@@ -90,6 +107,7 @@
         context.OperationDocuments.Add(document);
         await context.SaveChangesAsync();
 
+        _title = string.Empty;
         _content = string.Empty;
         _statusColor = Color.Success;
         _statusMessage = "등록되었습니다.";

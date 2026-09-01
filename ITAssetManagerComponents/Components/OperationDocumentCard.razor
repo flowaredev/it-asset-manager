@@ -2,12 +2,16 @@
     <CardBody>
         @if (_isEditingDocument)
         {
+            <TextEdit Text="@_documentTitleEditInput"
+                      TextChanged="@(value => _documentTitleEditInput = value)"
+                      Placeholder="제목을 입력하세요." />
             <MemoEdit Text="@_documentEditInput"
                       TextChanged="@(value => _documentEditInput = value)"
                       Rows="4" />
         }
         else
         {
+            <div class="fw-bold">@Document.Title</div>
             <div style="white-space: pre-wrap;">@Document.Content</div>
         }
 
@@ -211,7 +215,7 @@
     public string? CurrentUserName { get; set; }
 
     [Parameter, EditorRequired]
-    public EventCallback<string> DocumentUpdated { get; set; }
+    public EventCallback<OperationDocument> DocumentUpdated { get; set; }
 
     [Parameter, EditorRequired]
     public EventCallback DocumentDeleted { get; set; }
@@ -236,6 +240,7 @@
 
     private int? _documentId;
     private bool _isEditingDocument;
+    private string _documentTitleEditInput = string.Empty;
     private string _documentEditInput = string.Empty;
     private string _commentInput = string.Empty;
     private readonly Dictionary<int, string> _commentEditInputs = new();
@@ -253,6 +258,7 @@
 
         _documentId = Document.Id;
         _isEditingDocument = false;
+        _documentTitleEditInput = string.Empty;
         _documentEditInput = string.Empty;
         _commentInput = string.Empty;
         _commentEditInputs.Clear();
@@ -261,12 +267,21 @@
 
     private async Task UpdateDocumentAsync()
     {
-        var updatedContent = _documentEditInput;
-        await DocumentUpdated.InvokeAsync(updatedContent);
+        var updatedDocument = new OperationDocument
+        {
+            Id = Document.Id,
+            DocumentType = Document.DocumentType,
+            Title = _documentTitleEditInput,
+            Content = _documentEditInput
+        };
 
-        if (!string.IsNullOrWhiteSpace(updatedContent))
+        await DocumentUpdated.InvokeAsync(updatedDocument);
+
+        if (!string.IsNullOrWhiteSpace(updatedDocument.Title)
+            && !string.IsNullOrWhiteSpace(updatedDocument.Content))
         {
             _isEditingDocument = false;
+            _documentTitleEditInput = string.Empty;
             _documentEditInput = string.Empty;
         }
     }
@@ -279,12 +294,14 @@
     private void BeginEditDocument()
     {
         _isEditingDocument = true;
+        _documentTitleEditInput = Document.Title;
         _documentEditInput = Document.Content;
     }
 
     private void CancelEditDocument()
     {
         _isEditingDocument = false;
+        _documentTitleEditInput = string.Empty;
         _documentEditInput = string.Empty;
     }
 
