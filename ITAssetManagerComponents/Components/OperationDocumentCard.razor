@@ -1,0 +1,355 @@
+<Card Margin="Margin.Is2.FromBottom">
+    <CardBody>
+        <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
+            @if (_isEditingDocument)
+            {
+                <MemoEdit Text="@_documentEditInput"
+                          TextChanged="@(value => _documentEditInput = value)"
+                          Rows="4" />
+            }
+            else
+            {
+                <Text>@Document.Content</Text>
+            }
+
+            <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                @Document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
+            </Text>
+            <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                작성자: @FormatAuthor(Document.AuthorUserName, Document.AuthorName)
+            </Text>
+
+            @if (CanManageDocument)
+            {
+                @if (_isEditingDocument)
+                {
+                    <Button Margin="Margin.Is2.FromTop"
+                            Color="Color.Primary"
+                            Size="Size.Small"
+                            Clicked="UpdateDocumentAsync">
+                        문서 수정 저장
+                    </Button>
+                    <Button Margin="Margin.Is2.FromTop"
+                            Color="Color.Secondary"
+                            Size="Size.Small"
+                            Clicked="CancelEditDocument">
+                        수정 취소
+                    </Button>
+                }
+                else
+                {
+                    <Button Margin="Margin.Is2.FromTop"
+                            Color="Color.Warning"
+                            Size="Size.Small"
+                            Clicked="BeginEditDocument">
+                        문서 수정
+                    </Button>
+                }
+
+                <Button Margin="Margin.Is2.FromTop"
+                        Color="Color.Danger"
+                        Size="Size.Small"
+                        Clicked="DeleteDocumentAsync">
+                    문서 삭제
+                </Button>
+            }
+        </Div>
+
+        @if (IsCurrentUserAuthor(Document.AuthorUserName))
+        {
+            <Field Margin="Margin.Is3.FromTop">
+                <FieldLabel>파일 첨부</FieldLabel>
+                <FieldBody>
+                    <FilePicker Multiple
+                                Upload="@(async e => await FileUploaded.InvokeAsync(e))"
+                                ShowMode="FilePickerShowMode.List" />
+                </FieldBody>
+            </Field>
+        }
+
+        @if (Attachments.Count > 0)
+        {
+            <Field Margin="Margin.Is2.FromTop">
+                <FieldLabel>첨부 파일 목록</FieldLabel>
+            </Field>
+
+            <div class="mt-2">
+                @foreach (var attachment in Attachments)
+                {
+                    <Card Margin="Margin.Is1.FromBottom">
+                        <CardBody>
+                            <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
+                                <Text>@attachment.OriginalFileName</Text>
+                                <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                    경로: @attachment.RelativePath
+                                </Text>
+                                <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                    업로드: @attachment.UploadedAt.ToString("yyyy-MM-dd HH:mm")
+                                </Text>
+
+                                @if (CanManageAttachment)
+                                {
+                                    <Button Margin="Margin.Is2.FromTop"
+                                            Color="Color.Danger"
+                                            Size="Size.ExtraSmall"
+                                            Clicked="@(async () => await AttachmentDeleted.InvokeAsync(attachment.Id))">
+                                        첨부 파일 삭제
+                                    </Button>
+                                }
+                            </Div>
+                        </CardBody>
+                    </Card>
+                }
+            </div>
+        }
+
+        <Field Margin="Margin.Is3.FromTop">
+            <FieldLabel>댓글</FieldLabel>
+            <FieldBody>
+                <MemoEdit Text="@_commentInput"
+                          TextChanged="@(value => _commentInput = value)"
+                          Rows="3"
+                          Placeholder="댓글을 입력하세요." />
+            </FieldBody>
+        </Field>
+
+        <Button Color="Color.Info" Size="Size.Small" Clicked="AddCommentAsync">댓글 추가</Button>
+
+        @if (Comments.Count > 0)
+        {
+            <Field Margin="Margin.Is3.FromTop">
+                <FieldLabel>댓글 목록</FieldLabel>
+            </Field>
+
+            <div class="mt-2">
+                @foreach (var comment in Comments)
+                {
+                    <Card Margin="Margin.Is2.FromBottom">
+                        <CardBody>
+                            <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
+                                @if (IsEditingComment(comment.Id))
+                                {
+                                    <MemoEdit Text="@GetCommentEditInput(comment.Id)"
+                                              TextChanged="@(value => SetCommentEditInput(comment.Id, value))"
+                                              Rows="3" />
+                                }
+                                else
+                                {
+                                    <Text>@comment.Comment</Text>
+                                }
+                                <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                    @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                </Text>
+                                <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
+                                    작성자: @FormatAuthor(comment.AuthorUserName, comment.AuthorName)
+                                </Text>
+
+                                @if (CanManageComment(comment))
+                                {
+                                    @if (IsEditingComment(comment.Id))
+                                    {
+                                        <Button Margin="Margin.Is2.FromTop"
+                                                Color="Color.Primary"
+                                                Size="Size.ExtraSmall"
+                                                Clicked="@(async () => await UpdateCommentAsync(comment))">
+                                            댓글 수정 저장
+                                        </Button>
+                                        <Button Margin="Margin.Is2.FromTop"
+                                                Color="Color.Secondary"
+                                                Size="Size.ExtraSmall"
+                                                Clicked="@(() => CancelEditComment(comment.Id))">
+                                            수정 취소
+                                        </Button>
+                                    }
+                                    else
+                                    {
+                                        <Button Margin="Margin.Is2.FromTop"
+                                                Color="Color.Warning"
+                                                Size="Size.ExtraSmall"
+                                                Clicked="@(() => BeginEditComment(comment))">
+                                            댓글 수정
+                                        </Button>
+                                    }
+
+                                    <Button Margin="Margin.Is2.FromTop"
+                                            Color="Color.Danger"
+                                            Size="Size.ExtraSmall"
+                                            Clicked="@(async () => await CommentDeleted.InvokeAsync(comment.Id))">
+                                        댓글 삭제
+                                    </Button>
+                                }
+                            </Div>
+                        </CardBody>
+                    </Card>
+                }
+            </div>
+        }
+    </CardBody>
+</Card>
+
+@code {
+    [Parameter, EditorRequired]
+    public OperationDocument Document { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<OperationDocumentAttachment> Attachments { get; set; } = Array.Empty<OperationDocumentAttachment>();
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<OperationDocumentComment> Comments { get; set; } = Array.Empty<OperationDocumentComment>();
+
+    [Parameter]
+    public bool IsAdministrator { get; set; }
+
+    [Parameter]
+    public string? CurrentUserName { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<string> DocumentUpdated { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback DocumentDeleted { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<FileUploadEventArgs> FileUploaded { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<int> AttachmentDeleted { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<string> CommentAdded { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<OperationDocumentComment> CommentUpdated { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<int> CommentDeleted { get; set; }
+
+    private int? _documentId;
+    private bool _isEditingDocument;
+    private string _documentEditInput = string.Empty;
+    private string _commentInput = string.Empty;
+    private readonly Dictionary<int, string> _commentEditInputs = new();
+    private readonly HashSet<int> _editingCommentIds = new();
+
+    private bool CanManageDocument => IsAdministrator || IsCurrentUserAuthor(Document.AuthorUserName);
+    private bool CanManageAttachment => IsAdministrator || IsCurrentUserAuthor(Document.AuthorUserName);
+
+    protected override void OnParametersSet()
+    {
+        if (_documentId == Document.Id)
+        {
+            return;
+        }
+
+        _documentId = Document.Id;
+        _isEditingDocument = false;
+        _documentEditInput = string.Empty;
+        _commentInput = string.Empty;
+        _commentEditInputs.Clear();
+        _editingCommentIds.Clear();
+    }
+
+    private async Task UpdateDocumentAsync()
+    {
+        var updatedContent = _documentEditInput;
+        await DocumentUpdated.InvokeAsync(updatedContent);
+
+        if (!string.IsNullOrWhiteSpace(updatedContent))
+        {
+            _isEditingDocument = false;
+            _documentEditInput = string.Empty;
+        }
+    }
+
+    private async Task DeleteDocumentAsync()
+    {
+        await DocumentDeleted.InvokeAsync();
+    }
+
+    private void BeginEditDocument()
+    {
+        _isEditingDocument = true;
+        _documentEditInput = Document.Content;
+    }
+
+    private void CancelEditDocument()
+    {
+        _isEditingDocument = false;
+        _documentEditInput = string.Empty;
+    }
+
+    private async Task AddCommentAsync()
+    {
+        var comment = _commentInput;
+        await CommentAdded.InvokeAsync(comment);
+
+        if (!string.IsNullOrWhiteSpace(comment))
+        {
+            _commentInput = string.Empty;
+        }
+    }
+
+    private async Task UpdateCommentAsync(OperationDocumentComment comment)
+    {
+        var updatedComment = new OperationDocumentComment
+        {
+            Id = comment.Id,
+            OperationDocumentId = Document.Id,
+            Comment = GetCommentEditInput(comment.Id)
+        };
+
+        await CommentUpdated.InvokeAsync(updatedComment);
+
+        if (!string.IsNullOrWhiteSpace(updatedComment.Comment))
+        {
+            _editingCommentIds.Remove(comment.Id);
+            _commentEditInputs.Remove(comment.Id);
+        }
+    }
+
+    private bool IsEditingComment(int commentId)
+    {
+        return _editingCommentIds.Contains(commentId);
+    }
+
+    private string GetCommentEditInput(int commentId)
+    {
+        return _commentEditInputs.TryGetValue(commentId, out var value) ? value : string.Empty;
+    }
+
+    private void SetCommentEditInput(int commentId, string value)
+    {
+        _commentEditInputs[commentId] = value;
+    }
+
+    private void BeginEditComment(OperationDocumentComment comment)
+    {
+        _editingCommentIds.Add(comment.Id);
+        _commentEditInputs[comment.Id] = comment.Comment;
+    }
+
+    private void CancelEditComment(int commentId)
+    {
+        _editingCommentIds.Remove(commentId);
+        _commentEditInputs.Remove(commentId);
+    }
+
+    private bool CanManageComment(OperationDocumentComment comment)
+    {
+        return IsAdministrator || IsCurrentUserAuthor(comment.AuthorUserName);
+    }
+
+    private bool IsCurrentUserAuthor(string? authorUserName)
+    {
+        return !string.IsNullOrWhiteSpace(CurrentUserName)
+            && !string.IsNullOrWhiteSpace(authorUserName)
+            && string.Equals(CurrentUserName, authorUserName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string FormatAuthor(string? userName, string? name)
+    {
+        var safeUserName = string.IsNullOrWhiteSpace(userName) ? "Unknown" : userName;
+        var safeName = string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
+        return $"{safeUserName} ({safeName})";
+    }
+}
