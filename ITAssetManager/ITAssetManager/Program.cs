@@ -138,6 +138,48 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+app.MapGet("/operation-documents/attachments/{attachmentId:int}/download", async (
+    int attachmentId,
+    IDbContextFactory<ApplicationDbContext> dbFactory,
+    IConfiguration configuration) =>
+{
+    var rootPath = configuration["FileStorage:RootPath"];
+    if (string.IsNullOrWhiteSpace(rootPath))
+    {
+        return Results.NotFound();
+    }
+
+    using var context = dbFactory.CreateDbContext();
+    var attachment = await context.OperationDocumentAttachments
+        .AsNoTracking()
+        .Where(attachment => attachment.Id == attachmentId)
+        .Select(attachment => new { attachment.RelativePath, attachment.OriginalFileName })
+        .FirstOrDefaultAsync();
+
+    if (attachment is null)
+    {
+        return Results.NotFound();
+    }
+
+    var absoluteRootPath = Path.GetFullPath(rootPath);
+    var normalizedRelativePath = attachment.RelativePath.Replace('/', Path.DirectorySeparatorChar);
+    var absoluteFilePath = Path.GetFullPath(Path.Combine(absoluteRootPath, normalizedRelativePath));
+    var relativeFilePath = Path.GetRelativePath(absoluteRootPath, absoluteFilePath);
+
+    if (relativeFilePath.Equals("..", StringComparison.Ordinal)
+        || relativeFilePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || !File.Exists(absoluteFilePath))
+    {
+        return Results.NotFound();
+    }
+
+    return Results.File(
+        path: absoluteFilePath,
+        contentType: "application/octet-stream",
+        fileDownloadName: Path.GetFileName(attachment.OriginalFileName),
+        enableRangeProcessing: true);
+}).RequireAuthorization(PolicyConstants.USER_POLICY);
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()

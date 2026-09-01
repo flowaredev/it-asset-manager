@@ -1,0 +1,168 @@
+@using System.IO
+@using Microsoft.Extensions.Configuration
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IConfiguration Configuration
+
+<Field Margin="Margin.Is2.OnY">
+    <FieldLabel>문서 내용</FieldLabel>
+    <FieldBody>
+        <MemoEdit @bind-Text="_content"
+                  Rows="6"
+                  Placeholder="문서 내용을 입력하세요."
+                  TextOverflow="TextOverflow.Wrap" />
+    </FieldBody>
+</Field>
+
+<Field Margin="Margin.Is3.FromTop">
+    <FieldLabel>파일 첨부</FieldLabel>
+    <FieldBody>
+        <FilePicker @ref="_newDocumentFilePicker"
+                    Multiple
+                    AutoReset="true"
+                    Upload="UploadFileForNewDocumentAsync"
+                    ShowMode="FilePickerShowMode.List">
+            <ButtonsTemplate>
+                <Progress Value="@(_newDocumentFilePicker?.GetProgressPercentage() ?? 0)" />
+            </ButtonsTemplate>
+        </FilePicker>
+    </FieldBody>
+</Field>
+
+<Button Color="Color.Primary" Clicked="SaveAsync">등록</Button>
+
+@if (!string.IsNullOrWhiteSpace(_statusMessage))
+{
+    <Alert Margin="Margin.Is2.FromTop" Color="@_statusColor" Visible="true">
+        @_statusMessage
+    </Alert>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string DocumentType { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? CurrentUserName { get; set; }
+
+    [Parameter]
+    public string? CurrentDisplayName { get; set; }
+
+    [Parameter]
+    public EventCallback DocumentCreated { get; set; }
+
+    private string _content = string.Empty;
+    private string _statusMessage = string.Empty;
+    private Color _statusColor = Color.Success;
+    private FilePicker? _newDocumentFilePicker;
+    private int? _newDocumentIdForUpload;
+
+    private Task UploadFileForNewDocumentAsync(FileUploadEventArgs e)
+    {
+        if (_newDocumentIdForUpload is not int operationDocumentId)
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "파일을 첨부하려면 먼저 글을 등록하세요.";
+            return Task.CompletedTask;
+        }
+
+        return SaveAttachmentAsync(operationDocumentId, e);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_content))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "문서 내용을 입력하세요.";
+            return;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+        var document = new OperationDocument
+        {
+            DocumentType = DocumentType,
+            Content = _content.Trim(),
+            UpdatedAt = TimeZoneHelper.GetKoreaTimeNow(),
+            AuthorUserName = CurrentUserName,
+            AuthorName = CurrentDisplayName
+        };
+
+        context.OperationDocuments.Add(document);
+        await context.SaveChangesAsync();
+
+        _content = string.Empty;
+        _statusColor = Color.Success;
+        _statusMessage = "등록되었습니다.";
+        _newDocumentIdForUpload = document.Id;
+
+        try
+        {
+            if (_newDocumentFilePicker is not null)
+            {
+                await _newDocumentFilePicker.UploadAll();
+            }
+        }
+        catch (Exception)
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "글은 등록되었지만 파일 업로드 중 오류가 발생했습니다.";
+        }
+        finally
+        {
+            _newDocumentIdForUpload = null;
+        }
+
+        await DocumentCreated.InvokeAsync();
+    }
+
+    private async Task SaveAttachmentAsync(int operationDocumentId, FileUploadEventArgs e)
+    {
+        var rootPath = Configuration["FileStorage:RootPath"];
+
+        if (string.IsNullOrWhiteSpace(rootPath))
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "파일 저장소 경로가 설정되지 않았습니다.";
+            return;
+        }
+
+        try
+        {
+            var absoluteRootPath = Path.GetFullPath(rootPath);
+            Directory.CreateDirectory(absoluteRootPath);
+
+            var extension = Path.GetExtension(e.File.Name);
+            var storedFileName = $"{Guid.NewGuid():N}{extension}";
+            var absoluteFilePath = Path.Combine(absoluteRootPath, storedFileName);
+
+            await using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                await e.File.OpenReadStream(long.MaxValue).CopyToAsync(fileStream);
+            }
+
+            var relativePath = Path.GetRelativePath(absoluteRootPath, absoluteFilePath)
+                .Replace("\\", "/");
+
+            using var context = DbFactory.CreateDbContext();
+            var attachment = new OperationDocumentAttachment
+            {
+                OperationDocumentId = operationDocumentId,
+                OriginalFileName = e.File.Name,
+                StoredFileName = storedFileName,
+                RelativePath = relativePath,
+                UploadedAt = TimeZoneHelper.GetKoreaTimeNow()
+            };
+
+            context.OperationDocumentAttachments.Add(attachment);
+            await context.SaveChangesAsync();
+
+            _statusColor = Color.Success;
+            _statusMessage = "파일이 업로드되었습니다.";
+        }
+        catch (Exception)
+        {
+            _statusColor = Color.Danger;
+            _statusMessage = "파일 업로드 중 오류가 발생했습니다.";
+        }
+    }
+}

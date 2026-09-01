@@ -1,17 +1,17 @@
 <Card Margin="Margin.Is2.FromBottom">
     <CardBody>
-        <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
-            @if (_isEditingDocument)
-            {
-                <MemoEdit Text="@_documentEditInput"
-                          TextChanged="@(value => _documentEditInput = value)"
-                          Rows="4" />
-            }
-            else
-            {
-                <Text>@Document.Content</Text>
-            }
+        @if (_isEditingDocument)
+        {
+            <MemoEdit Text="@_documentEditInput"
+                      TextChanged="@(value => _documentEditInput = value)"
+                      Rows="4" />
+        }
+        else
+        {
+            <div style="white-space: pre-wrap;">@Document.Content</div>
+        }
 
+        <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
             <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
                 @Document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
             </Text>
@@ -86,6 +86,13 @@
                                 <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
                                     업로드: @attachment.UploadedAt.ToString("yyyy-MM-dd HH:mm")
                                 </Text>
+
+                                <Button Margin="Margin.Is2.FromTop"
+                                        Color="Color.Info"
+                                        Size="Size.ExtraSmall"
+                                        Clicked="@(async () => await AttachmentDownloadRequested.InvokeAsync(attachment.Id))">
+                                    첨부 파일 다운로드
+                                </Button>
 
                                 @if (CanManageAttachment)
                                 {
@@ -211,6 +218,9 @@
 
     [Parameter, EditorRequired]
     public EventCallback<FileUploadEventArgs> FileUploaded { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<int> AttachmentDownloadRequested { get; set; }
 
     [Parameter, EditorRequired]
     public EventCallback<int> AttachmentDeleted { get; set; }

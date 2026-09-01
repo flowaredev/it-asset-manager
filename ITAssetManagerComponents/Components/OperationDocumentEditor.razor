@@ -5,17 +5,11 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IMessageService MessageService
 @inject IConfiguration Configuration
+@inject NavigationManager Navigation
 
 <HeaderTitle Title="@Title" />
 
-<Field Margin="Margin.Is2.OnY">
-    <FieldLabel>문서 내용</FieldLabel>
-    <FieldBody>
-        <MemoEdit @bind-Text="_content" Rows="6" Placeholder="문서 내용을 입력하세요." TextOverflow="TextOverflow.Wrap" />
-    </FieldBody>
-</Field>
-
-<Button Color="Color.Primary" Clicked="SaveAsync">저장</Button>
+<Button Margin="Margin.Is2.OnY" Color="Color.Primary" Clicked="OpenNewDocumentModal">새글 등록</Button>
 
 @if (!string.IsNullOrWhiteSpace(_statusMessage))
 {
@@ -24,49 +18,111 @@
     </Alert>
 }
 
-@if (_documents.Count > 0)
-{
-    <Field Margin="Margin.Is4.FromTop">
-        <FieldLabel>문서 내용 목록</FieldLabel>
-    </Field>
+<Field Margin="Margin.Is4.FromTop">
+    <FieldLabel>등록된 글 목록</FieldLabel>
+</Field>
 
-    <div class="mt-2">
-        @foreach (var document in _documents)
-        {
-            <OperationDocumentCard @key="document.Id"
-                                    Document="@document"
-                                    Comments="@GetCommentsForDocument(document.Id)"
-                                    Attachments="@GetAttachmentsForDocument(document.Id)"
-                                    IsAdministrator="@_isAdministrator"
-                                    CurrentUserName="@_currentUserName"
-                                    DocumentUpdated="@(content => UpdateDocumentAsync(document.Id, content))"
-                                    DocumentDeleted="@(async () => await DeleteDocumentAsync(document.Id))"
-                                    FileUploaded="@(async e => await OnFileUploadAsync(document.Id, e))"
-                                    AttachmentDeleted="DeleteAttachmentAsync"
-                                    CommentAdded="@(comment => AddCommentAsync(document.Id, comment))"
-                                    CommentUpdated="UpdateCommentAsync"
-                                    CommentDeleted="DeleteCommentAsync" />
-        }
-    </div>
+<DataGrid TItem="OperationDocument"
+          Data="@_documents"
+          ShowPager="true"
+          ShowPageSizes="true"
+          Responsive="true"
+          Sortable="true"
+          SortMode="DataGridSortMode.Single"
+          Filterable="true"
+          FilterMode="DataGridFilterMode.Menu">
+    <DataGridColumns>
+        <DataGridColumn Field="@nameof(OperationDocument.Content)" Caption="내용">
+            <DisplayTemplate>
+                <Text>@context.Content</Text>
+            </DisplayTemplate>
+        </DataGridColumn>
+        <DataGridColumn Field="@nameof(OperationDocument.UpdatedAt)" Caption="수정일시">
+            <DisplayTemplate>
+                @context.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
+            </DisplayTemplate>
+        </DataGridColumn>
+        <DataGridColumn Field="@nameof(OperationDocument.AuthorUserName)" Caption="작성자">
+            <DisplayTemplate>
+                @FormatAuthor(context.AuthorUserName, context.AuthorName)
+            </DisplayTemplate>
+        </DataGridColumn>
+        <DataGridColumn Field="@nameof(OperationDocument.Id)" Caption="작업" Sortable="false" Filterable="false">
+            <DisplayTemplate>
+                <Buttons Size="Size.Small">
+                    <Button Color="Color.Primary"
+                            Size="Size.Small"
+                            Clicked="@(() => OpenDocumentModal(context))">
+                        @(CanManageDocument(context) ? "수정" : "상세")
+                    </Button>
+                    @if (CanManageDocument(context))
+                    {
+                        <Button Color="Color.Danger"
+                                Size="Size.Small"
+                                Clicked="@(async () => await DeleteDocumentAsync(context.Id))">
+                            삭제
+                        </Button>
+                    }
+                </Buttons>
+            </DisplayTemplate>
+        </DataGridColumn>
+    </DataGridColumns>
+    <EmptyTemplate>
+        등록된 글이 없습니다.
+    </EmptyTemplate>
+</DataGrid>
 
-    <Field Margin="Margin.Is3.FromTop">
-        <FieldBody>
-            <Button Color="Color.Secondary"
-                    Size="Size.Small"
-                    Disabled="@(_currentPage <= 1)"
-                    Clicked="@(async () => await ChangePageAsync(_currentPage - 1))">
-                이전
-            </Button>
-            <Text Margin="Margin.Is2.FromStart.Is2.FromEnd">@_currentPage / @TotalPages</Text>
-            <Button Color="Color.Secondary"
-                    Size="Size.Small"
-                    Disabled="@(_currentPage >= TotalPages)"
-                    Clicked="@(async () => await ChangePageAsync(_currentPage + 1))">
-                다음
-            </Button>
-        </FieldBody>
-    </Field>
-}
+<Modal @ref="_documentModal">
+    <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>글 상세 및 수정</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            @if (_selectedDocument is not null)
+            {
+                var selectedDocument = _selectedDocument;
+
+                <OperationDocumentCard @key="_selectedDocumentKey"
+                                       Document="@selectedDocument"
+                                       Comments="@GetCommentsForDocument(selectedDocument.Id)"
+                                       Attachments="@GetAttachmentsForDocument(selectedDocument.Id)"
+                                       IsAdministrator="@_isAdministrator"
+                                       CurrentUserName="@_currentUserName"
+                                       DocumentUpdated="UpdateSelectedDocumentAsync"
+                                       DocumentDeleted="DeleteSelectedDocumentAsync"
+                                       FileUploaded="UploadFileForSelectedDocumentAsync"
+                                        AttachmentDownloadRequested="DownloadAttachmentAsync"
+                                       AttachmentDeleted="DeleteAttachmentAsync"
+                                       CommentAdded="AddCommentForSelectedDocumentAsync"
+                                       CommentUpdated="UpdateCommentAsync"
+                                       CommentDeleted="DeleteCommentAsync" />
+            }
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="HideDocumentModal">닫기</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+<Modal @ref="_newDocumentModal">
+    <ModalContent Centered="true" Scrollable="true" Size="ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>새글 등록</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <OperationDocumentCreateForm @key="_newDocumentFormKey"
+                                         DocumentType="@DocumentType"
+                                         CurrentUserName="@_currentUserName"
+                                         CurrentDisplayName="@_currentDisplayName"
+                                         DocumentCreated="RefreshDocumentsAfterCreateAsync" />
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="HideNewDocumentModal">닫기</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
 
 @code {
     [Parameter, EditorRequired]
@@ -75,22 +131,20 @@
     [Parameter, EditorRequired]
     public string Title { get; set; } = string.Empty;
 
-    private const int PageSize = 10;
-
-    private string _content = string.Empty;
     private string _statusMessage = string.Empty;
     private Color _statusColor = Color.Success;
     private readonly Dictionary<int, List<OperationDocumentAttachment>> _attachmentsByDocument = new();
-    private int _currentPage = 1;
-    private int _totalDocumentsCount;
     private bool _isAdministrator;
     private string? _currentUserName;
     private string? _currentDisplayName;
     private List<OperationDocument> _documents = new();
     private List<OperationDocumentComment> _comments = new();
     private Dictionary<int, List<OperationDocumentComment>> _commentsByDocument = new();
-
-    private int TotalPages => _totalDocumentsCount == 0 ? 1 : (int)Math.Ceiling((double)_totalDocumentsCount / PageSize);
+    private Modal _documentModal = default!;
+    private Modal _newDocumentModal = default!;
+    private OperationDocument? _selectedDocument;
+    private int _newDocumentFormKey;
+    private int _selectedDocumentKey;
 
     protected override async Task OnInitializedAsync()
     {
@@ -122,35 +176,83 @@
             .FirstOrDefaultAsync();
     }
 
-    private async Task SaveAsync()
+    private void OpenDocumentModal(OperationDocument document)
     {
-        if (string.IsNullOrWhiteSpace(_content))
+        _selectedDocument = document;
+        _selectedDocumentKey++;
+        _documentModal.Show();
+    }
+
+    private void HideDocumentModal()
+    {
+        _documentModal.Hide();
+    }
+
+    private void OpenNewDocumentModal()
+    {
+        _newDocumentFormKey++;
+        _newDocumentModal.Show();
+    }
+
+    private void HideNewDocumentModal()
+    {
+        _newDocumentModal.Hide();
+    }
+
+    private async Task RefreshDocumentsAfterCreateAsync()
+    {
+        await LoadDocumentsAsync();
+        await LoadCommentsAsync();
+        await LoadAttachmentsAsync();
+    }
+
+    private async Task UpdateSelectedDocumentAsync(string updatedContent)
+    {
+        if (_selectedDocument is null)
         {
-            _statusColor = Color.Danger;
-            _statusMessage = "문서 내용을 입력하세요.";
             return;
         }
 
-        using var context = DbFactory.CreateDbContext();
-        var document = new OperationDocument
+        var documentId = _selectedDocument.Id;
+        await UpdateDocumentAsync(documentId, updatedContent);
+        _selectedDocument = _documents.FirstOrDefault(document => document.Id == documentId);
+    }
+
+    private async Task DeleteSelectedDocumentAsync()
+    {
+        if (_selectedDocument is null)
         {
-            DocumentType = DocumentType,
-            Content = _content.Trim(),
-            UpdatedAt = TimeZoneHelper.GetKoreaTimeNow(),
-            AuthorUserName = _currentUserName,
-            AuthorName = _currentDisplayName
-        };
+            return;
+        }
 
-        context.OperationDocuments.Add(document);
-        await context.SaveChangesAsync();
+        var documentId = _selectedDocument.Id;
+        await DeleteDocumentAsync(documentId);
 
-        _content = string.Empty;
-        _currentPage = 1;
-        _statusColor = Color.Success;
-        _statusMessage = "저장되었습니다.";
+        if (_documents.All(document => document.Id != documentId))
+        {
+            _selectedDocument = null;
+            HideDocumentModal();
+        }
+    }
 
-        await LoadDocumentsAsync();
-        await LoadCommentsAsync();
+    private Task UploadFileForSelectedDocumentAsync(FileUploadEventArgs e)
+    {
+        return _selectedDocument is null
+            ? Task.CompletedTask
+            : OnFileUploadAsync(_selectedDocument.Id, e);
+    }
+
+    private Task DownloadAttachmentAsync(int attachmentId)
+    {
+        Navigation.NavigateTo($"operation-documents/attachments/{attachmentId}/download", forceLoad: true);
+        return Task.CompletedTask;
+    }
+
+    private Task AddCommentForSelectedDocumentAsync(string inputComment)
+    {
+        return _selectedDocument is null
+            ? Task.CompletedTask
+            : AddCommentAsync(_selectedDocument.Id, inputComment);
     }
 
     private async Task AddCommentAsync(int operationDocumentId, string inputComment)
@@ -493,20 +595,6 @@
         await LoadCommentsAsync();
     }
 
-    private async Task ChangePageAsync(int targetPage)
-    {
-        var page = Math.Min(Math.Max(targetPage, 1), TotalPages);
-        if (page == _currentPage)
-        {
-            return;
-        }
-
-        _currentPage = page;
-        await LoadDocumentsAsync();
-        await LoadCommentsAsync();
-        await LoadAttachmentsAsync();
-    }
-
     private async Task LoadDocumentsAsync()
     {
         using var context = DbFactory.CreateDbContext();
@@ -515,20 +603,9 @@
             .AsNoTracking()
             .Where(d => d.DocumentType == DocumentType);
 
-        _totalDocumentsCount = await query.CountAsync();
-
-        if (_currentPage > TotalPages)
-        {
-            _currentPage = TotalPages;
-        }
-
-        var skip = (_currentPage - 1) * PageSize;
-
         _documents = await query
             .OrderByDescending(d => d.UpdatedAt)
             .ThenByDescending(d => d.Id)
-            .Skip(skip)
-            .Take(PageSize)
             .ToListAsync();
     }
 
@@ -608,5 +685,12 @@
         return !string.IsNullOrWhiteSpace(_currentUserName)
             && !string.IsNullOrWhiteSpace(authorUserName)
             && string.Equals(_currentUserName, authorUserName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string FormatAuthor(string? userName, string? name)
+    {
+        var safeUserName = string.IsNullOrWhiteSpace(userName) ? "Unknown" : userName;
+        var safeName = string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
+        return $"{safeUserName} ({safeName})";
     }
 }
