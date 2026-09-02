@@ -1,11 +1,14 @@
 @using System.IO
 @using System.Security.Claims
+@using Blazorise.DataGrid.Utils
+@using Blazorise.Localization
 @using Microsoft.Extensions.Configuration
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IMessageService MessageService
 @inject IConfiguration Configuration
 @inject NavigationManager Navigation
+@inject ITextLocalizer<DataGrid<OperationDocument>> DataGridLocalizer
 
 <HeaderTitle Title="@Title" />
 
@@ -30,7 +33,7 @@
           Sortable="true"
           SortMode="DataGridSortMode.Single"
           Filterable="true"
-          FilterMode="DataGridFilterMode.Menu"
+          FilterMode="DataGridFilterMode.Default"
           RowClicked="@(eventArgs => OpenDocumentModal(eventArgs.Item))">
     <DataGridColumns>
         <DataGridColumn Field="@nameof(OperationDocument.Title)" Caption="제목">
@@ -43,10 +46,28 @@
                 @context.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
             </DisplayTemplate>
         </DataGridColumn>
-        <DataGridColumn Field="@nameof(OperationDocument.AuthorUserName)" Caption="작성자">
+        <DataGridColumn Field="@nameof(OperationDocument.AuthorName)" Caption="작성자" CustomFilter="@OnAuthorCustomFilter">
             <DisplayTemplate>
-                @FormatAuthor(context.AuthorUserName, context.AuthorName)
+                @context.AuthorName
             </DisplayTemplate>
+            <FilterTemplate>
+                <Select TValue="DocumentAuthorFilter"
+                        SelectedValue="DocumentAuthorFilter.All"
+                        SelectedValueChanged="@((DocumentAuthorFilter value) => context.TriggerFilterChange(value))">
+                    @foreach (var filter in Enum.GetValues<DocumentAuthorFilter>())
+                    {
+                        <SelectItem Value="@filter">
+                            @(filter switch
+                            {
+                                DocumentAuthorFilter.All => "전체",
+                                DocumentAuthorFilter.Mine => "내가 작성한 글",
+                                DocumentAuthorFilter.Others => "다른 작성자",
+                                _ => filter.ToString()
+                            })
+                        </SelectItem>
+                    }
+                </Select>
+            </FilterTemplate>
         </DataGridColumn>
         <DataGridColumn Field="@nameof(OperationDocument.Id)" Caption="작업" Sortable="false" Filterable="false">
             <DisplayTemplate>
@@ -151,6 +172,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        DataGridLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanDataGridResource());
+
         await LoadCurrentUserAsync();
         await LoadDocumentsAsync();
         await LoadCommentsAsync();
@@ -681,6 +704,21 @@
             : new List<OperationDocumentComment>();
     }
 
+    private bool OnAuthorCustomFilter(object itemValue, object searchValue) => (itemValue, searchValue) switch
+    {
+        (_, null) => true,
+        (string authorName, DocumentAuthorFilter filter) => filter switch
+        {
+            DocumentAuthorFilter.All => true,
+            DocumentAuthorFilter.Mine => !string.IsNullOrWhiteSpace(_currentDisplayName)
+                && string.Equals(authorName, _currentDisplayName, StringComparison.OrdinalIgnoreCase),
+            DocumentAuthorFilter.Others => string.IsNullOrWhiteSpace(_currentDisplayName)
+                || !string.Equals(authorName, _currentDisplayName, StringComparison.OrdinalIgnoreCase),
+            _ => true
+        },
+        _ => true
+    };
+
     private bool CanManageDocument(OperationDocument document)
     {
         return _isAdministrator || IsCurrentUserAuthor(document.AuthorUserName);
@@ -698,10 +736,10 @@
             && string.Equals(_currentUserName, authorUserName, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string FormatAuthor(string? userName, string? name)
+    private enum DocumentAuthorFilter
     {
-        var safeUserName = string.IsNullOrWhiteSpace(userName) ? "Unknown" : userName;
-        var safeName = string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
-        return $"{safeUserName} ({safeName})";
+        All,
+        Mine,
+        Others
     }
 }

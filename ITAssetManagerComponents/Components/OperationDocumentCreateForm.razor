@@ -1,7 +1,9 @@
 @using System.IO
+@using Blazorise.Localization
 @using Microsoft.Extensions.Configuration
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject IConfiguration Configuration
+@inject ITextLocalizer<FilePicker> FilePickerLocalizer
 
 <Field Margin="Margin.Is2.OnY">
     <FieldLabel>제목</FieldLabel>
@@ -64,6 +66,11 @@
     private Color _statusColor = Color.Success;
     private FilePicker? _newDocumentFilePicker;
     private int? _newDocumentIdForUpload;
+
+    protected override void OnInitialized()
+    {
+        FilePickerLocalizer.AddLanguageResource(DataGridLocalizationHelper.GetKoreanFilePickerResource());
+    }
 
     private Task UploadFileForNewDocumentAsync(FileUploadEventArgs e)
     {

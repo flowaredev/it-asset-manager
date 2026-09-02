@@ -57,7 +57,7 @@ namespace ITAssetManagerComponents.Helpers
                     { "Page {0} of {1}", "{0} / {1} 페이지" },
                     { "Filter", "필터" },
                     { "Clear filter", "필터 지우기" },
-                    
+
                     // DataGrid 필터 옵션들의 한글 번역
                     { "Contains", "포함" },
                     { "Starts With", "시작" },
@@ -72,7 +72,7 @@ namespace ITAssetManagerComponents.Helpers
                     { "Is Not Null", "비어있지 않음" },
                     { "Is Empty", "공백" },
                     { "Is Not Empty", "공백 아님" },
-                    
+
                     // 필터 메뉴 관련 번역
                     { "Filter Menu", "필터 메뉴" },
                     { "Apply Filter", "필터 적용" },
@@ -81,7 +81,7 @@ namespace ITAssetManagerComponents.Helpers
                     { "Filter Method", "필터 방법" },
                     { "Select Filter Method", "필터 방법 선택" },
                     { "Enter Filter Value", "필터 값 입력" },
-                    
+
                     // 추가적인 DataGrid 관련 번역
                     { "All", "전체" },
                     { "Select All", "전체 선택" },
@@ -90,6 +90,22 @@ namespace ITAssetManagerComponents.Helpers
                     { "Cancel", "취소" },
                     { "Apply", "적용" },
                     { "Reset", "초기화" },
+                }
+            };
+        }
+
+        public static TextLocalizationResource GetKoreanFilePickerResource()
+        {
+            return new TextLocalizationResource
+            {
+                Culture = KoreanCulture,
+                Translations = new Dictionary<string, string>()
+                {
+                    { "Choose file", "파일 선택" },
+                    { "Choose files", "파일 선택" },
+                    { "No file chosen", "선택된 파일 없음" },
+                    { "Or drop files here", "여기에 파일을 끌어다 놓으세요" },
+                    { "or drop files here", "여기에 파일을 끌어다 놓으세요" },
                 }
             };
         }

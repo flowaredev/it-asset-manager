@@ -20,7 +20,7 @@
                 @Document.UpdatedAt.ToString("yyyy-MM-dd HH:mm")
             </Text>
             <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                작성자: @FormatAuthor(Document.AuthorUserName, Document.AuthorName)
+                작성자: @Document.AuthorName
             </Text>
 
             @if (CanManageDocument)
@@ -84,9 +84,6 @@
                         <CardBody>
                             <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
                                 <Text>@attachment.OriginalFileName</Text>
-                                <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                                    경로: @attachment.RelativePath
-                                </Text>
                                 <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
                                     업로드: @attachment.UploadedAt.ToString("yyyy-MM-dd HH:mm")
                                 </Text>
@@ -152,7 +149,7 @@
                                     @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
                                 </Text>
                                 <Text TextColor="TextColor.Secondary" TextSize="TextSize.ExtraSmall">
-                                    작성자: @FormatAuthor(comment.AuthorUserName, comment.AuthorName)
+                                    작성자: @comment.AuthorName
                                 </Text>
 
                                 @if (CanManageComment(comment))
