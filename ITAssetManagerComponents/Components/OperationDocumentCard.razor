@@ -7,12 +7,14 @@
                       Placeholder="제목을 입력하세요." />
             <MemoEdit Text="@_documentEditInput"
                       TextChanged="@(value => _documentEditInput = value)"
-                      Rows="4" />
+                      Rows="4" 
+                      Margin="Margin.Is2.FromTop" />
         }
         else
         {
-            <div class="fw-bold">@Document.Title</div>
-            <div style="white-space: pre-wrap;">@Document.Content</div>
+            <Div TextWeight="TextWeight.Bold">@Document.Title</Div>
+            <Divider />
+            <Div style="white-space: pre-wrap;">@Document.Content</Div>
         }
 
         <Div Flex="Flex.Row.AlignItems.Center.Wrap" Gap="Gap.Is2">
@@ -31,7 +33,7 @@
                             Color="Color.Primary"
                             Size="Size.Small"
                             Clicked="UpdateDocumentAsync">
-                        문서 수정 저장
+                        글 수정 저장
                     </Button>
                     <Button Margin="Margin.Is2.FromTop"
                             Color="Color.Secondary"
@@ -46,7 +48,7 @@
                             Color="Color.Warning"
                             Size="Size.Small"
                             Clicked="BeginEditDocument">
-                        문서 수정
+                        글 수정
                     </Button>
                 }
 
@@ -54,7 +56,7 @@
                         Color="Color.Danger"
                         Size="Size.Small"
                         Clicked="DeleteDocumentAsync">
-                    문서 삭제
+                    글 삭제
                 </Button>
             }
         </Div>
@@ -130,7 +132,7 @@
             </Field>
 
             <div class="mt-2">
-                @foreach (var comment in Comments)
+                @foreach (var comment in Comments.OrderBy(comment => comment.CreatedAt))
                 {
                     <Card Margin="Margin.Is2.FromBottom">
                         <CardBody>

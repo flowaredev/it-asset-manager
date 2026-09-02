@@ -14,11 +14,11 @@
 </Field>
 
 <Field Margin="Margin.Is2.OnY">
-    <FieldLabel>문서 내용</FieldLabel>
+    <FieldLabel>글 내용</FieldLabel>
     <FieldBody>
         <MemoEdit @bind-Text="_content"
                   Rows="6"
-                  Placeholder="문서 내용을 입력하세요."
+                  Placeholder="글 내용을 입력하세요."
                   TextOverflow="TextOverflow.Wrap" />
     </FieldBody>
 </Field>
@@ -96,7 +96,7 @@
         if (string.IsNullOrWhiteSpace(_content))
         {
             _statusColor = Color.Danger;
-            _statusMessage = "문서 내용을 입력하세요.";
+            _statusMessage = "글 내용을 입력하세요.";
             return;
         }
 
@@ -120,6 +120,8 @@
         _statusMessage = "등록되었습니다.";
         _newDocumentIdForUpload = document.Id;
 
+        var isCompletedSuccessfully = true;
+
         try
         {
             if (_newDocumentFilePicker is not null)
@@ -129,12 +131,18 @@
         }
         catch (Exception)
         {
+            isCompletedSuccessfully = false;
             _statusColor = Color.Danger;
             _statusMessage = "글은 등록되었지만 파일 업로드 중 오류가 발생했습니다.";
         }
         finally
         {
             _newDocumentIdForUpload = null;
+        }
+
+        if (!isCompletedSuccessfully)
+        {
+            return;
         }
 
         await DocumentCreated.InvokeAsync();
